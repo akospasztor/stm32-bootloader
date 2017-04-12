@@ -9,7 +9,6 @@ SD_HandleTypeDef        hsd1;
 HAL_SD_CardInfoTypedef  SDCardInfo1;
 
 /* Function prototypes -------------------------------------------------------*/
-uint8_t VerifyChecksum(void);
 uint8_t SDMMC1_Init(void);
 void SDMMC1_DeInit(void);
 void GPIO_Init(void);
@@ -27,34 +26,34 @@ int main(void)
     
     if(IS_BTN_PRESSED())
     {
-        puts("Entering Bootloader...\r\n");
+        puts("Entering Bootloader...\r");
         if(!SDMMC1_Init())
         {
             FIL fil;
             FRESULT fr;
             
-            puts("SD found\r\n");
+            puts("SD found\r");
             FATFS_Init();
             mountSD();
-            puts("SD mounted\r\n");
+            puts("SD mounted\r");
             
             fr = f_open(&fil, "image.bin", FA_READ);
             if(fr == FR_OK)
             {
-                puts("Software found.\r\n");
+                puts("Software found.\r");
                 UINT num;
                 uint64_t data;
                 
                 if(Bootloader_CheckSize( f_size(&fil) ) == BL_OK)
                 {
                     uint32_t cntr = 0;
-                    puts("App size OK.\r\n");
+                    puts("App size OK.\r");
                     
-                    puts("Flash erase starts...\r\n");
+                    puts("Flash erase starts...\r");
                     Bootloader_Erase();
-                    puts("Flash erase finished.\r\n");
+                    puts("Flash erase finished.\r");
                     
-                    puts("Start flashing...\r\n");
+                    puts("Start flashing...\r");
                     Bootloader_FlashInit();
                     
                     do
@@ -70,7 +69,7 @@ int main(void)
                     } while((fr == FR_OK) && (num > 0));                    
                     
                     Bootloader_FlashEnd();
-                    puts("End.\r\n");
+                    puts("End.\r");
                 }
                 
                 f_close(&fil);
@@ -81,19 +80,20 @@ int main(void)
             }
             
             unmountSD();
-            puts("SD dismounted\r\n");
+            puts("SD dismounted\r");
         }
     }
     
-    /*if(!VerifyChecksum())
+    if(Bootloader_VerifyChecksum() != BL_OK)
     {
         LED_Y_ON();
+        puts("Checksum error\r");
         Error_Handler();
-    }*/
+    }
     
     if(Bootloader_CheckForApplication() == BL_OK)
     {
-        puts("Application found, preparing for jump...\r\n");
+        puts("Application found, preparing for jump...\r");
         LED_G_ON();
         HAL_Delay(1000);
         LED_G_OFF();
@@ -177,38 +177,6 @@ void HAL_SD_MspDeInit(SD_HandleTypeDef* hsd)
         HAL_GPIO_DeInit(GPIOC, GPIO_PIN_8 | GPIO_PIN_9 | GPIO_PIN_10 | GPIO_PIN_11 | GPIO_PIN_12);
         HAL_GPIO_DeInit(GPIOD, GPIO_PIN_2);
     }
-}
-
-/*** Verify Application Checksum ***/
-uint8_t VerifyChecksum(void)
-{
-#if USE_CHECKSUM
-    CRC_HandleTypeDef CrcHandle;
-    volatile uint32_t calculatedCrc = 0;
-    
-    __HAL_RCC_CRC_CLK_ENABLE();
-    CrcHandle.Instance = CRC;
-    CrcHandle.Init.DefaultPolynomialUse    = DEFAULT_POLYNOMIAL_ENABLE;
-    CrcHandle.Init.DefaultInitValueUse     = DEFAULT_INIT_VALUE_ENABLE;
-    CrcHandle.Init.InputDataInversionMode  = CRC_INPUTDATA_INVERSION_NONE;
-    CrcHandle.Init.OutputDataInversionMode = CRC_OUTPUTDATA_INVERSION_DISABLE;
-    CrcHandle.InputDataFormat              = CRC_INPUTDATA_FORMAT_WORDS;
-    if(HAL_CRC_Init(&CrcHandle) != HAL_OK)
-    {    
-        return 0;
-    }
-    
-    calculatedCrc = HAL_CRC_Calculate(&CrcHandle, (uint32_t*)APP_ADDRESS, APP_SIZE);
-    
-    __HAL_RCC_CRC_FORCE_RESET();
-    __HAL_RCC_CRC_RELEASE_RESET();
-    
-    if( (*(uint32_t*)CRC_ADDRESS) != calculatedCrc)
-    {
-        return 0;
-    }
-#endif
-    return 1;
 }
 
 /*** GPIO Configuration ***/

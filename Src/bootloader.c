@@ -45,8 +45,6 @@ uint8_t Bootloader_Erase(void)
         status = HAL_FLASHEx_Erase(&pEraseInit, &PageError);
     }
 
-    /* Lock the Flash to disable the flash control register access (recommended
-     to protect the FLASH memory against possible unwanted operation) *********/
     HAL_FLASH_Lock();
 
     if(status != HAL_OK)
@@ -64,6 +62,7 @@ void Bootloader_FlashInit(void)
     __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_EOP | FLASH_FLAG_PGSERR | FLASH_FLAG_WRPERR | FLASH_FLAG_OPTVERR);
     HAL_FLASH_Lock();
     
+    /* Reset Flash destination address */
     flash_ptr = APP_ADDRESS;
     
     HAL_FLASH_Unlock();
@@ -74,7 +73,6 @@ uint8_t Bootloader_FlashNext(uint64_t data)
     if( !(flash_ptr <= (FLASH_BASE + FLASH_SIZE - 8)) || (flash_ptr < APP_ADDRESS) )
     {
         HAL_FLASH_Lock();
-        puts("addr range err.\n");
         return BL_WRITE_ERROR;
     }
     
@@ -83,19 +81,17 @@ uint8_t Bootloader_FlashNext(uint64_t data)
         /* Check the written value */
         if(*(uint64_t*)flash_ptr != data)
         {
-            /* Flash content doesn't match SRAM content */
+            /* Flash content doesn't match source content */
             HAL_FLASH_Lock();
-            puts("content mismatch err.\n");
             return BL_WRITE_ERROR;
         }   
-        /* Increment FLASH destination address */
+        /* Increment Flash destination address */
         flash_ptr += 8;
     }
     else
     {
         /* Error occurred while writing data in Flash memory */
-        HAL_FLASH_Lock();\
-        puts("write err.\n");
+        HAL_FLASH_Lock();
         return BL_WRITE_ERROR;
     }
     

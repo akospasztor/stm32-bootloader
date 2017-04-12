@@ -10,8 +10,8 @@
 
 
 /* Defines -------------------------------------------------------------------*/
-#define FLASH_PAGE_NBPERBANK    256
-#define APP_SIZE        (uint32_t)(((END_ADDRESS - APP_ADDRESS) + 3) / 4)   /* Size of APP in DWORD (32bits/4bytes) */
+#define FLASH_PAGE_NBPERBANK    256             /* Number of Pages per Bank in Flash */
+#define APP_SIZE        (uint32_t)(((END_ADDRESS - APP_ADDRESS) + 3) / 4) /* Size of APP in DWORD (32bits/4bytes) */
 
 /* Bootloader Error Codes */
 enum
