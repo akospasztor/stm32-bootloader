@@ -98,9 +98,8 @@ uint8_t Bootloader_FlashNext(uint64_t data)
     return BL_OK;
 }
 
-
 void Bootloader_FlashEnd(void)
-{
+{    
     HAL_FLASH_Lock();
 }
 

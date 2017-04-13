@@ -32,28 +32,28 @@ int main(void)
             FIL fil;
             FRESULT fr;
             
-            puts("SD found\r");
+            puts("SD found");
             FATFS_Init();
             mountSD();
-            puts("SD mounted\r");
+            puts("SD mounted");
             
             fr = f_open(&fil, "image.bin", FA_READ);
             if(fr == FR_OK)
             {
-                puts("Software found.\r");
+                puts("Software found.");
                 UINT num;
                 uint64_t data;
                 
                 if(Bootloader_CheckSize( f_size(&fil) ) == BL_OK)
                 {
                     uint32_t cntr = 0;
-                    puts("App size OK.\r");
+                    puts("App size OK.");
                     
-                    puts("Flash erase starts...\r");
+                    puts("Flash erase starts...");
                     Bootloader_Erase();
-                    puts("Flash erase finished.\r");
+                    puts("Flash erase finished.");
                     
-                    puts("Start flashing...\r");
+                    puts("Start flashing...");
                     Bootloader_FlashInit();
                     
                     do
@@ -61,15 +61,24 @@ int main(void)
                         fr = f_read(&fil, &data, 8, &num);
                         if(num)
                         {
-                            if(Bootloader_FlashNext(data) == BL_OK)
+                            uint8_t status = Bootloader_FlashNext(data);
+                            if(status == BL_OK)
                             {
                                 cntr++;
                             }
+                            else
+                            {
+                                char buf[20] = {0x00};
+                                sprintf(buf, "Error at: %u", cntr);
+                                puts(buf);
+                            }
                         }
-                    } while((fr == FR_OK) && (num > 0));                    
-                    
+                    } while((fr == FR_OK) && (num > 0));
+                    char buf[20] = {0x00};
+                    sprintf(buf, "Total: %u", cntr);
+                    puts(buf);
                     Bootloader_FlashEnd();
-                    puts("End.\r");
+                    puts("End.");
                 }
                 
                 f_close(&fil);
@@ -80,20 +89,24 @@ int main(void)
             }
             
             unmountSD();
-            puts("SD dismounted\r");
+            puts("SD dismounted");
         }
     }
     
     if(Bootloader_VerifyChecksum() != BL_OK)
     {
         LED_Y_ON();
-        puts("Checksum error\r");
+        puts("Checksum error");
         Error_Handler();
+    }
+    else
+    {
+        puts("Checksum ok");
     }
     
     if(Bootloader_CheckForApplication() == BL_OK)
     {
-        puts("Application found, preparing for jump...\r");
+        puts("Application found, preparing for jump...");
         LED_G_ON();
         HAL_Delay(1000);
         LED_G_OFF();
