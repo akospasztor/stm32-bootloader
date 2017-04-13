@@ -2,7 +2,9 @@
 #define __BOOTLOADER_H
 
 /*** Bootloader configuration *************************************************/
-#define USE_CHECKSUM    1
+#define USE_CHECKSUM        1
+#define SET_VECTOR_TABLE    0
+
 #define APP_ADDRESS     (uint32_t)0x08008000    /* Start addr. of APP */
 #define END_ADDRESS     (uint32_t)0x080FFFFB    /* End addr. of APP (addr. of last byte) */
 #define CRC_ADDRESS     (uint32_t)0x080FFFFC    /* Start addr. of CRC in ROM */
