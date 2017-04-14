@@ -146,7 +146,9 @@ void Bootloader_JumpToApplication(void)
     
     __disable_irq();
     
+#if SET_VECTOR_TABLE
     SCB->VTOR = APP_ADDRESS;
+#endif
     
     __set_MSP(*(__IO uint32_t*)APP_ADDRESS);        
     Jump();

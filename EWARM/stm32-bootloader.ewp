@@ -321,7 +321,6 @@
           <state>$PROJ_DIR$/../Drivers/STM32L4xx_HAL_Driver/Inc</state>
           <state>$PROJ_DIR$/../Drivers/STM32L4xx_HAL_Driver/Inc/Legacy</state>
           <state>$PROJ_DIR$/../Middlewares/Third_Party/FatFs/src</state>
-          <state>$PROJ_DIR$/../Middlewares/Third_Party/FatFs/src/drivers</state>
         </option>
         <option>
           <name>CCStdIncCheck</name>
@@ -982,9 +981,6 @@
         <name>$PROJ_DIR$\..\Inc\bootloader.h</name>
       </file>
       <file>
-        <name>$PROJ_DIR$\..\Inc\bsp_driver_sd.h</name>
-      </file>
-      <file>
         <name>$PROJ_DIR$\..\Inc\fatfs.h</name>
       </file>
       <file>
@@ -992,6 +988,9 @@
       </file>
       <file>
         <name>$PROJ_DIR$\..\Inc\main.h</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\Inc\sd_diskio.h</name>
       </file>
       <file>
         <name>$PROJ_DIR$\..\Inc\stm32l4xx_hal_conf.h</name>
@@ -1006,13 +1005,13 @@
         <name>$PROJ_DIR$\..\Src\bootloader.c</name>
       </file>
       <file>
-        <name>$PROJ_DIR$\..\Src\bsp_driver_sd.c</name>
-      </file>
-      <file>
         <name>$PROJ_DIR$\..\Src\fatfs.c</name>
       </file>
       <file>
         <name>$PROJ_DIR$\..\Src\main.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$\..\Src\sd_diskio.c</name>
       </file>
       <file>
         <name>$PROJ_DIR$\..\Src\stm32l4xx_it.c</name>
@@ -1088,9 +1087,6 @@
       </file>
       <file>
         <name>$PROJ_DIR$\..\Middlewares\Third_Party\FatFs\src\ff_gen_drv.c</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$\..\Middlewares\Third_Party\FatFs\src\drivers\sd_diskio.c</name>
       </file>
     </group>
   </group>
