@@ -6,15 +6,15 @@
 
 /* Variables -----------------------------------------------------------------*/
 SD_HandleTypeDef        hsd1;
-HAL_SD_CardInfoTypedef  SDCardInfo1;
 
 /* Function prototypes -------------------------------------------------------*/
+uint8_t Enter_Bootloader(void);
 uint8_t SDMMC1_Init(void);
-void SDMMC1_DeInit(void);
-void GPIO_Init(void);
-void GPIO_DeInit(void);
-void SystemClock_Config(void);
-void Error_Handler(void);
+void    SDMMC1_DeInit(void);
+void    GPIO_Init(void);
+void    GPIO_DeInit(void);
+void    SystemClock_Config(void);
+void    Error_Handler(void);
 
 int main(void)
 {    
@@ -26,15 +26,54 @@ int main(void)
     
     if(IS_BTN_PRESSED())
     {
-        puts("Entering Bootloader...\r");
-        if(!SDMMC1_Init())
+        Enter_Bootloader();
+    }
+    
+    if(Bootloader_VerifyChecksum() != BL_OK)
+    {
+        LED_Y_ON();
+        puts("Checksum error");
+        Error_Handler();
+    }
+    else
+    {
+        puts("Checksum ok");
+    }
+    
+    if(Bootloader_CheckForApplication() == BL_OK)
+    {
+        puts("Application found, preparing for jump...");
+        LED_G_ON();
+        HAL_Delay(1000);
+        LED_G_OFF();
+        
+        SDMMC1_DeInit();
+        GPIO_DeInit();
+        HAL_DeInit();
+        
+        Bootloader_JumpToApplication();        
+    }
+
+    while(1)
+    {
+        LED_R_TG();
+        HAL_Delay(500);
+    }
+}
+
+/*** Bootloader ***************************************************************/
+uint8_t Enter_Bootloader(void)
+{
+    puts("Entering Bootloader...\r");
+    if(!SDMMC1_Init())
+    {
+        FATFS FatFs;
+        FIL fil;
+        FRESULT fr;
+        
+        puts("SD found");
+        if(f_mount(&FatFs, "", 1) == FR_OK)
         {
-            FIL fil;
-            FRESULT fr;
-            
-            puts("SD found");
-            FATFS_Init();
-            mountSD();
             puts("SD mounted");
             
             fr = f_open(&fil, "image.bin", FA_READ);
@@ -74,55 +113,27 @@ int main(void)
                             }
                         }
                     } while((fr == FR_OK) && (num > 0));
-                    char buf[20] = {0x00};
-                    sprintf(buf, "Total: %u", cntr);
+                    puts("Finished.");
+                    char buf[24] = {0x00};
+                    sprintf(buf, "Flashed QWORDS: %u", cntr);
                     puts(buf);
                     Bootloader_FlashEnd();
-                    puts("End.");
                 }
-                
                 f_close(&fil);
-            }
-            else
-            {
-                fr = FR_OK;
-            }
+                
+            } /* f_open */
+            else { puts("File cannot be opened."); }
             
-            unmountSD();
+            f_mount(NULL, "", 1);
             puts("SD dismounted");
-        }
-    }
-    
-    if(Bootloader_VerifyChecksum() != BL_OK)
-    {
-        LED_Y_ON();
-        puts("Checksum error");
-        Error_Handler();
-    }
-    else
-    {
-        puts("Checksum ok");
-    }
-    
-    if(Bootloader_CheckForApplication() == BL_OK)
-    {
-        puts("Application found, preparing for jump...");
-        LED_G_ON();
-        HAL_Delay(1000);
-        LED_G_OFF();
+            
+        } /* f_mount */
+        else { puts("SD card cannot be mounted."); }
         
-        SDMMC1_DeInit();
-        GPIO_DeInit();
-        HAL_DeInit();
-        
-        Bootloader_JumpToApplication();        
-    }
-
-    while(1)
-    {
-        LED_R_TG();
-        HAL_Delay(500);
-    }
+    } /* SD_init */
+    else { puts("SD card cannot be initialized."); }
+    
+    return 0;
 }
 
 /*** SDIO *********************************************************************/
@@ -136,11 +147,12 @@ uint8_t SDMMC1_Init(void)
     hsd1.Init.HardwareFlowControl = SDMMC_HARDWARE_FLOW_CONTROL_DISABLE;
     hsd1.Init.ClockDiv = 2;
 
-    return (BSP_SD_Init());
+    return(FATFS_Init());
 }
 void SDMMC1_DeInit(void)
 {
-    BSP_SD_DeInit();
+    FATFS_DeInit();
+    HAL_SD_DeInit(&hsd1);
 }
 
 void HAL_SD_MspInit(SD_HandleTypeDef* hsd)

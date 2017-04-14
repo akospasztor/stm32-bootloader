@@ -43,21 +43,18 @@
 
 #include "fatfs.h"
 
-uint8_t retSD;    /* Return value for SD */
-char SD_Path[4];  /* SD logical drive path */
+char SD_Path[4];    /* SD logical drive path */
+extern Diskio_drvTypeDef  SD_Driver;   
 
-/* USER CODE BEGIN Variables */
-
-/* USER CODE END Variables */    
-
-void FATFS_Init(void) 
+uint8_t FATFS_Init(void) 
 {
-  /*## FatFS: Link the SD driver ###########################*/
-  retSD = FATFS_LinkDriver(&SD_Driver, SD_Path);
+    /* FatFs: link SD card driver */
+    return FATFS_LinkDriver(&SD_Driver, SD_Path);
+}
 
-  /* USER CODE BEGIN Init */
-  /* additional user code for init */     
-  /* USER CODE END Init */
+uint8_t FATFS_DeInit(void)
+{
+    return FATFS_UnLinkDriver(SD_Path);
 }
 
 /**
@@ -67,13 +64,5 @@ void FATFS_Init(void)
   */
 DWORD get_fattime(void)
 {
-  /* USER CODE BEGIN get_fattime */
-  return 0;
-  /* USER CODE END get_fattime */  
+    return 0;
 }
-
-/* USER CODE BEGIN Application */
-     
-/* USER CODE END Application */
-
-/************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

@@ -12,8 +12,8 @@
 #include "stm32l4xx_hal.h"
 
 /* Defines -------------------------------------------------------------------*/
-#define _HSD                hsd1 
-#define _SD_CARD_INFO       SDCardInfo1
+#define _HSD                hsd
+#define _SD_CARD_INFO       SDCardInfo
 
 #ifndef SD_CardInfo
   #define   SD_CardInfo     HAL_SD_CardInfoTypedef
