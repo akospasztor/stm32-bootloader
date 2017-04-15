@@ -150,8 +150,28 @@ void Bootloader_JumpToApplication(void)
     SCB->VTOR = APP_ADDRESS;
 #endif
     
-    __set_MSP(*(__IO uint32_t*)APP_ADDRESS);        
+    __set_MSP(*(__IO uint32_t*)APP_ADDRESS);
     Jump();
+}
+
+void Bootloader_JumpToSysMem(void)
+{
+    uint32_t  JumpAddress = *(__IO uint32_t*)(DFU_ADDRESS + 4);
+    pFunction Jump = (pFunction)JumpAddress;
+    
+    HAL_RCC_DeInit();
+    HAL_DeInit();
+    
+    SysTick->CTRL = 0;
+    SysTick->LOAD = 0;
+    SysTick->VAL  = 0;
+    
+    __HAL_SYSCFG_REMAPMEMORY_SYSTEMFLASH();
+    
+    __set_MSP(*(__IO uint32_t*)DFU_ADDRESS);
+    Jump();
+    
+    while(1);
 }
 
 

@@ -8,6 +8,8 @@
 #define APP_ADDRESS     (uint32_t)0x08008000    /* Start addr. of APP */
 #define END_ADDRESS     (uint32_t)0x080FFFFB    /* End addr. of APP (addr. of last byte) */
 #define CRC_ADDRESS     (uint32_t)0x080FFFFC    /* Start addr. of CRC in ROM */
+
+#define DFU_ADDRESS     (uint32_t)0x1FFF0000
 /*** End of configuration *****************************************************/
 
 
@@ -35,5 +37,6 @@ void    Bootloader_FlashEnd(void);
 uint8_t Bootloader_VerifyChecksum(void);
 uint8_t Bootloader_CheckForApplication(void);
 void    Bootloader_JumpToApplication(void);
+void    Bootloader_JumpToSysMem(void);
 
 #endif /* __BOOTLOADER_H */
