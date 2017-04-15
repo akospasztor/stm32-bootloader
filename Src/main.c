@@ -9,6 +9,8 @@ SD_HandleTypeDef        hsd1;
 
 /* Function prototypes -------------------------------------------------------*/
 uint8_t Enter_Bootloader(void);
+void    Enter_DFU(void);
+
 uint8_t SDMMC1_Init(void);
 void    SDMMC1_DeInit(void);
 void    GPIO_Init(void);
@@ -22,27 +24,44 @@ int main(void)
     SystemClock_Config();
     GPIO_Init();
     
+    puts("\nPower up, boot started");
     HAL_Delay(1000);
     
-    if(IS_BTN_PRESSED())
+    uint8_t BTNcounter = 0;    
+    while(IS_BTN_PRESSED())
     {
+        if(BTNcounter == 10) { puts("Release button to enter Bootloader"); }
+        if(BTNcounter == 40) { puts("Release button to enter System Memory"); }
+        BTNcounter++;
+        HAL_Delay(100);
+    }
+    
+    if(BTNcounter > 40)
+    { 
+        puts("Entering System Memory...");
+        HAL_Delay(1000);
+        Bootloader_JumpToSysMem();
+    } 
+    else if(BTNcounter > 10)
+    { 
+        puts("Entering Bootloader...");
         Enter_Bootloader();
     }
     
     if(Bootloader_VerifyChecksum() != BL_OK)
     {
         LED_Y_ON();
-        puts("Checksum error");
+        puts("Checksum error.");
         Error_Handler();
     }
     else
     {
-        puts("Checksum ok");
+        puts("Checksum ok.");
     }
     
     if(Bootloader_CheckForApplication() == BL_OK)
     {
-        puts("Application found, preparing for jump...");
+        puts("Application found, preparing for jump.");
         LED_G_ON();
         HAL_Delay(1000);
         LED_G_OFF();
@@ -64,7 +83,6 @@ int main(void)
 /*** Bootloader ***************************************************************/
 uint8_t Enter_Bootloader(void)
 {
-    puts("Entering Bootloader...\r");
     if(!SDMMC1_Init())
     {
         FATFS FatFs;
@@ -134,6 +152,11 @@ uint8_t Enter_Bootloader(void)
     else { puts("SD card cannot be initialized."); }
     
     return 0;
+}
+
+void Enter_DFU(void)
+{
+    
 }
 
 /*** SDIO *********************************************************************/
@@ -216,7 +239,6 @@ void GPIO_Init(void)
     HAL_GPIO_WritePin(LED_G_Port, LED_G_Pin, GPIO_PIN_RESET);
     HAL_GPIO_WritePin(LED_Y_Port, LED_Y_Pin, GPIO_PIN_RESET);
     HAL_GPIO_WritePin(LED_R_Port, LED_R_Pin, GPIO_PIN_RESET);
-    HAL_GPIO_WritePin(BTN_Port, BTN_Pin, GPIO_PIN_SET);
     
     /* LED_G_Pin, LED_Y_Pin, LED_R_Pin */
     GPIO_InitStruct.Pin = LED_G_Pin | LED_Y_Pin | LED_R_Pin;
@@ -227,7 +249,7 @@ void GPIO_Init(void)
     
     /* User Button */
     GPIO_InitStruct.Pin = BTN_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_PULLUP;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(BTN_Port, &GPIO_InitStruct);
