@@ -144,7 +144,12 @@ void Bootloader_JumpToApplication(void)
     uint32_t  JumpAddress = *(__IO uint32_t*)(APP_ADDRESS + 4);
     pFunction Jump = (pFunction)JumpAddress;
     
-    __disable_irq();
+    HAL_RCC_DeInit();
+    HAL_DeInit();
+    
+    SysTick->CTRL = 0;
+    SysTick->LOAD = 0;
+    SysTick->VAL  = 0;
     
 #if SET_VECTOR_TABLE
     SCB->VTOR = APP_ADDRESS;
@@ -156,7 +161,7 @@ void Bootloader_JumpToApplication(void)
 
 void Bootloader_JumpToSysMem(void)
 {
-    uint32_t  JumpAddress = *(__IO uint32_t*)(DFU_ADDRESS + 4);
+    uint32_t  JumpAddress = *(__IO uint32_t*)(SYSMEM_ADDRESS + 4);
     pFunction Jump = (pFunction)JumpAddress;
     
     HAL_RCC_DeInit();
@@ -168,7 +173,7 @@ void Bootloader_JumpToSysMem(void)
     
     __HAL_SYSCFG_REMAPMEMORY_SYSTEMFLASH();
     
-    __set_MSP(*(__IO uint32_t*)DFU_ADDRESS);
+    __set_MSP(*(__IO uint32_t*)SYSMEM_ADDRESS);
     Jump();
     
     while(1);

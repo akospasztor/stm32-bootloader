@@ -9,7 +9,6 @@ SD_HandleTypeDef        hsd1;
 
 /* Function prototypes -------------------------------------------------------*/
 uint8_t Enter_Bootloader(void);
-void    Enter_DFU(void);
 
 uint8_t SDMMC1_Init(void);
 void    SDMMC1_DeInit(void);
@@ -35,7 +34,6 @@ int main(void)
         BTNcounter++;
         HAL_Delay(100);
     }
-    
     if(BTNcounter > 40)
     { 
         puts("Entering System Memory...");
@@ -68,7 +66,6 @@ int main(void)
         
         SDMMC1_DeInit();
         GPIO_DeInit();
-        HAL_DeInit();
         
         Bootloader_JumpToApplication();        
     }
@@ -115,6 +112,7 @@ uint8_t Enter_Bootloader(void)
                     
                     do
                     {
+                        data = 0xFFFFFFFFFFFFFFFF;
                         fr = f_read(&fil, &data, 8, &num);
                         if(num)
                         {
@@ -152,11 +150,6 @@ uint8_t Enter_Bootloader(void)
     else { puts("SD card cannot be initialized."); }
     
     return 0;
-}
-
-void Enter_DFU(void)
-{
-    
 }
 
 /*** SDIO *********************************************************************/
