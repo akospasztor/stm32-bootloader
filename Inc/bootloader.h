@@ -9,7 +9,7 @@
 #define END_ADDRESS     (uint32_t)0x080FFFFB    /* End addr. of APP (addr. of last byte) */
 #define CRC_ADDRESS     (uint32_t)0x080FFFFC    /* Start addr. of CRC in ROM */
 
-#define DFU_ADDRESS     (uint32_t)0x1FFF0000
+#define SYSMEM_ADDRESS  (uint32_t)0x1FFF0000
 /*** End of configuration *****************************************************/
 
 
