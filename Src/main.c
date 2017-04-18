@@ -65,7 +65,6 @@ int main(void)
         if(Bootloader_VerifyChecksum() != BL_OK)
         {
             print("Checksum Error.");
-            LED_Y_ON();
             Error_Handler();
         }
         else
@@ -89,8 +88,7 @@ int main(void)
 
     while(1)
     {
-        LED_R_TG();
-        HAL_Delay(500);
+        LED_R_ON();
     }
 }
 
@@ -124,11 +122,14 @@ void Enter_Bootloader(void)
                     
                     /* Erase Flash */
                     print("Erasing flash...");
+                    LED_Y_ON();
                     Bootloader_Erase();
+                    LED_Y_OFF();
                     print("Flash erase finished.");
                     
                     /* Programming */
                     print("Starting programming...");
+                    LED_Y_ON();
                     Bootloader_FlashInit();
                     do
                     {
@@ -147,11 +148,17 @@ void Enter_Bootloader(void)
                                 print(msg);
                             }
                         }
+                        if(cntr % 256 == 0)
+                        {
+                            LED_G_TG();
+                        }
                     } while((fr == FR_OK) && (num > 0));
                     print("Programming finished.");
                     sprintf(msg, "Flashed: %u of (uint64_t)", cntr);
                     print(msg);
                     Bootloader_FlashEnd();
+                    LED_G_OFF();
+                    LED_Y_OFF();
                 }
                 f_close(&fil);
                 
@@ -381,7 +388,8 @@ void Error_Handler(void)
 {
     while(1) 
     {
-        LED_R_ON();
+        LED_R_TG();
+        HAL_Delay(500);
     }
 }
 
