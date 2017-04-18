@@ -33,6 +33,10 @@ int main(void)
     LED_Y_OFF();
     LED_R_OFF();
     
+    /* Check for user action:
+        - button is pressed >= 1 second:  Enter Bootloader
+        - button is pressed >= 4 seconds: Enter ST System Memory
+    */
     while(IS_BTN_PRESSED())
     {
         if(BTNcounter == 10) { print("Release button to enter Bootloader"); }
@@ -52,28 +56,35 @@ int main(void)
         Enter_Bootloader();
     }
     
-    if(Bootloader_VerifyChecksum() != BL_OK)
-    {
-        LED_Y_ON();
-        print("Checksum Error.");
-        Error_Handler();
-    }
-    else
-    {
-        print("Checksum OK.");
-    }
-    
+    /* Check if there is application in user flash area */
     if(Bootloader_CheckForApplication() == BL_OK)
     {
+        
+#if USE_CHECKSUM        
+        /* Verify application checksum */
+        if(Bootloader_VerifyChecksum() != BL_OK)
+        {
+            print("Checksum Error.");
+            LED_Y_ON();
+            Error_Handler();
+        }
+        else
+        {
+            print("Checksum OK.");
+        }
+#endif
+        
         print("Launching Application.");
         LED_G_ON();
         HAL_Delay(1000);
         LED_G_OFF();
         
+        /* De-initialize bootloader hardware & peripherals */
         SDMMC1_DeInit();
         GPIO_DeInit();
         
-        Bootloader_JumpToApplication();        
+        /* Launch application */
+        Bootloader_JumpToApplication();
     }
 
     while(1)
@@ -353,7 +364,7 @@ void HAL_MspInit(void)
     HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
 }
 
-/*** Print function ***/
+/*** Debug ***/
 void print(const char* str)
 {
 #if USE_SWO_TRACE
