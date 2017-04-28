@@ -3,15 +3,16 @@
 
 /*** Bootloader configuration *************************************************/
 #define USE_CHECKSUM        1
+#define USE_SWO_TRACE       1
 #define SET_VECTOR_TABLE    0
 
-#define APP_ADDRESS     (uint32_t)0x08008000    /* Start addr. of APP */
-#define END_ADDRESS     (uint32_t)0x080FFFFB    /* End addr. of APP (addr. of last byte) */
+#define APP_FILENAME    "image.bin"
+#define APP_ADDRESS     (uint32_t)0x08008000    /* Start addr. of Application */
+#define END_ADDRESS     (uint32_t)0x080FFFFB    /* End addr. of Application (addr. of last byte) */
 #define CRC_ADDRESS     (uint32_t)0x080FFFFC    /* Start addr. of CRC in ROM */
 
-#define SYSMEM_ADDRESS  (uint32_t)0x1FFF0000
+#define SYSMEM_ADDRESS  (uint32_t)0x1FFF0000    /* Address of System Memory (ST Bootloader) */
 /*** End of configuration *****************************************************/
-
 
 /* Defines -------------------------------------------------------------------*/
 #define FLASH_PAGE_NBPERBANK    256             /* Number of Pages per Bank in Flash */

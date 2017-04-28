@@ -1,3 +1,18 @@
+/**
+  ******************************************************************************
+  * STM32L4 Bootloader
+  ******************************************************************************
+  * @author Akos Pasztor
+  * @file   main.c
+  * @brief  Main program
+  *	        This file demonstrates the usage of the bootloader.
+  *
+  * @see    Please refer to README for detailed information. 
+  ******************************************************************************
+  * Copyright (c) 2017 Akos Pasztor.                    https://akospasztor.com
+  ******************************************************************************
+**/
+
 #include "stm32l4xx.h"
 #include "main.h"
 #include "bootloader.h"
@@ -5,111 +20,133 @@
 #include "fatfs.h"
 
 /* Variables -----------------------------------------------------------------*/
-SD_HandleTypeDef        hsd1;
+SD_HandleTypeDef hsd1;
+uint8_t BTNcounter = 0;
 
 /* Function prototypes -------------------------------------------------------*/
-uint8_t Enter_Bootloader(void);
-
+void    Enter_Bootloader(void);
 uint8_t SDMMC1_Init(void);
 void    SDMMC1_DeInit(void);
 void    GPIO_Init(void);
 void    GPIO_DeInit(void);
 void    SystemClock_Config(void);
 void    Error_Handler(void);
+void    print(const char* str);
 
 int main(void)
-{    
+{   
     HAL_Init();
     SystemClock_Config();
     GPIO_Init();
     
-    puts("\nPower up, boot started");
+    LED_G_ON();
+    LED_Y_ON();
+    LED_R_ON();
+    print("\nPower up, Boot started.");
     HAL_Delay(1000);
+    LED_G_OFF();
+    LED_Y_OFF();
+    LED_R_OFF();
     
-    uint8_t BTNcounter = 0;    
+    /* Check for user action:
+        - button is pressed >= 1 second:  Enter Bootloader
+        - button is pressed >= 4 seconds: Enter ST System Memory
+    */
     while(IS_BTN_PRESSED())
     {
-        if(BTNcounter == 10) { puts("Release button to enter Bootloader"); }
-        if(BTNcounter == 40) { puts("Release button to enter System Memory"); }
+        if(BTNcounter == 10) { print("Release button to enter Bootloader."); }
+        if(BTNcounter == 40) { print("Release button to enter System Memory."); }
         BTNcounter++;
         HAL_Delay(100);
     }
     if(BTNcounter > 40)
     { 
-        puts("Entering System Memory...");
+        print("Entering System Memory...");
         HAL_Delay(1000);
         Bootloader_JumpToSysMem();
     } 
     else if(BTNcounter > 10)
     { 
-        puts("Entering Bootloader...");
+        print("Entering Bootloader...");
         Enter_Bootloader();
     }
     
-    if(Bootloader_VerifyChecksum() != BL_OK)
-    {
-        LED_Y_ON();
-        puts("Checksum error.");
-        Error_Handler();
-    }
-    else
-    {
-        puts("Checksum ok.");
-    }
-    
+    /* Check if there is application in user flash area */
     if(Bootloader_CheckForApplication() == BL_OK)
     {
-        puts("Application found, preparing for jump.");
+        
+#if USE_CHECKSUM        
+        /* Verify application checksum */
+        if(Bootloader_VerifyChecksum() != BL_OK)
+        {
+            print("Checksum Error.");
+            Error_Handler();
+        }
+        else
+        {
+            print("Checksum OK.");
+        }
+#endif
+        
+        print("Launching Application.");
         LED_G_ON();
         HAL_Delay(1000);
         LED_G_OFF();
         
+        /* De-initialize bootloader hardware & peripherals */
         SDMMC1_DeInit();
         GPIO_DeInit();
         
-        Bootloader_JumpToApplication();        
+        /* Launch application */
+        Bootloader_JumpToApplication();
     }
 
     while(1)
     {
-        LED_R_TG();
-        HAL_Delay(500);
+        /* No application found */
+        LED_R_ON();
     }
 }
 
 /*** Bootloader ***************************************************************/
-uint8_t Enter_Bootloader(void)
+void Enter_Bootloader(void)
 {
+    FATFS FatFs;
+    FIL fil;
+    FRESULT fr;
+    UINT num;
+    uint64_t data;
+    uint32_t cntr = 0;
+    char msg[32] = {0x00};
+    
+    /* Initialize SD card */
     if(!SDMMC1_Init())
-    {
-        FATFS FatFs;
-        FIL fil;
-        FRESULT fr;
-        
-        puts("SD found");
+    {        
+        /* Mount SD card */
         if(f_mount(&FatFs, "", 1) == FR_OK)
         {
-            puts("SD mounted");
-            
-            fr = f_open(&fil, "image.bin", FA_READ);
+            print("SD mounted.");
+            /* Open file */
+            fr = f_open(&fil, APP_FILENAME, FA_READ);
             if(fr == FR_OK)
             {
-                puts("Software found.");
-                UINT num;
-                uint64_t data;
-                
+                print("Software found on SD.");
+                /* Check application size found on SD card */
                 if(Bootloader_CheckSize( f_size(&fil) ) == BL_OK)
                 {
-                    uint32_t cntr = 0;
-                    puts("App size OK.");
+                    print("App size OK.");
                     
-                    puts("Flash erase starts...");
+                    /* Erase Flash */
+                    print("Erasing flash...");
+                    LED_Y_ON();
                     Bootloader_Erase();
-                    puts("Flash erase finished.");
+                    LED_Y_OFF();
+                    print("Flash erase finished.");
                     
-                    puts("Start flashing...");
+                    /* Programming */
+                    print("Starting programming...");
+                    LED_Y_ON();
                     Bootloader_FlashInit();
-                    
                     do
                     {
                         data = 0xFFFFFFFFFFFFFFFF;
@@ -123,33 +160,45 @@ uint8_t Enter_Bootloader(void)
                             }
                             else
                             {
-                                char buf[20] = {0x00};
-                                sprintf(buf, "Error at: %u", cntr);
-                                puts(buf);
+                                sprintf(msg, "Error at: %u", cntr);
+                                print(msg);
                             }
                         }
+                        if(cntr % 256 == 0)
+                        {
+                            LED_G_TG();
+                        }
                     } while((fr == FR_OK) && (num > 0));
-                    puts("Finished.");
-                    char buf[24] = {0x00};
-                    sprintf(buf, "Flashed QWORDS: %u", cntr);
-                    puts(buf);
+                    print("Programming finished.");
+                    sprintf(msg, "Flashed: %u of (uint64_t)", cntr);
+                    print(msg);
                     Bootloader_FlashEnd();
+                    LED_G_OFF();
+                    LED_Y_OFF();
                 }
                 f_close(&fil);
                 
-            } /* f_open */
-            else { puts("File cannot be opened."); }
+            } 
+            else /* f_open fails */
+            {
+                print("File cannot be opened.");
+            }
             
             f_mount(NULL, "", 1);
-            puts("SD dismounted");
+            print("SD dismounted.");
             
-        } /* f_mount */
-        else { puts("SD card cannot be mounted."); }
+        } 
+        else /* f_mount fails */
+        { 
+            print("SD card cannot be mounted.");
+        }
         
-    } /* SD_init */
-    else { puts("SD card cannot be initialized."); }
+    }
+    else /* SDMMC1_Init fails */
+    { 
+        print("SD card cannot be initialized.");
+    }
     
-    return 0;
 }
 
 /*** SDIO *********************************************************************/
@@ -338,6 +387,14 @@ void HAL_MspInit(void)
     HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
 }
 
+/*** Debug ***/
+void print(const char* str)
+{
+#if USE_SWO_TRACE
+    puts(str);
+#endif
+}
+
 /**
   * @brief  This function is executed in case of error occurrence.
   * @param  None
@@ -347,7 +404,8 @@ void Error_Handler(void)
 {
     while(1) 
     {
-        LED_R_ON();
+        LED_R_TG();
+        HAL_Delay(500);
     }
 }
 

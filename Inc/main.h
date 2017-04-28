@@ -27,4 +27,5 @@
 
 #define IS_BTN_PRESSED()    ((HAL_GPIO_ReadPin(BTN_Port, BTN_Pin) == GPIO_PIN_RESET) ? 1 : 0)
 
+
 #endif /* __MAIN_H */
