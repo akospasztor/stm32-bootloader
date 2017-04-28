@@ -1,29 +1,17 @@
 /**
   ******************************************************************************
-  * @file    sd_diskio.c
-  * @author  MCD Application Team
-  * @version V1.3.0
-  * @date    08-May-2015
-  * @brief   SD Disk I/O driver
+  * STM32L4 Bootloader
   ******************************************************************************
-  * @attention
-  *
-  * <h2><center>&copy; COPYRIGHT 2015 STMicroelectronics</center></h2>
-  *
-  * Licensed under MCD-ST Liberty SW License Agreement V2, (the "License");
-  * You may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at:
-  *
-  *        http://www.st.com/software_license_agreement_liberty_v2
-  *
-  * Unless required by applicable law or agreed to in writing, software 
-  * distributed under the License is distributed on an "AS IS" BASIS, 
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
+  * @author Akos Pasztor
+  * @file   sd_diskio.c
+  * @brief  SD Disk I/O driver
+  *	        This file contains the implementation of the SD Disk I/O driver
+  *         used by the FatFs module. The driver uses the HAL library of ST.
   *
   ******************************************************************************
-  */ 
+  * Copyright (c) 2017 Akos Pasztor.                    https://akospasztor.com
+  ******************************************************************************
+**/
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32l4xx_hal.h"
@@ -204,7 +192,7 @@ DRESULT SD_ioctl(BYTE lun, BYTE cmd, void *buff)
         res = RES_OK;
         break;
   
-  /* Get erase block size in unit of sector (DWORD) */
+    /* Get erase block size in unit of sector (DWORD) */
     case GET_BLOCK_SIZE :
         *(DWORD*)buff = BLOCK_SIZE;
         break;

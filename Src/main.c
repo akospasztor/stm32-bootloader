@@ -1,3 +1,18 @@
+/**
+  ******************************************************************************
+  * STM32L4 Bootloader
+  ******************************************************************************
+  * @author Akos Pasztor
+  * @file   main.c
+  * @brief  Main program
+  *	        This file demonstrates the usage of the bootloader.
+  *
+  * @see    Please refer to README for detailed information. 
+  ******************************************************************************
+  * Copyright (c) 2017 Akos Pasztor.                    https://akospasztor.com
+  ******************************************************************************
+**/
+
 #include "stm32l4xx.h"
 #include "main.h"
 #include "bootloader.h"
@@ -39,8 +54,8 @@ int main(void)
     */
     while(IS_BTN_PRESSED())
     {
-        if(BTNcounter == 10) { print("Release button to enter Bootloader"); }
-        if(BTNcounter == 40) { print("Release button to enter System Memory"); }
+        if(BTNcounter == 10) { print("Release button to enter Bootloader."); }
+        if(BTNcounter == 40) { print("Release button to enter System Memory."); }
         BTNcounter++;
         HAL_Delay(100);
     }
@@ -88,6 +103,7 @@ int main(void)
 
     while(1)
     {
+        /* No application found */
         LED_R_ON();
     }
 }

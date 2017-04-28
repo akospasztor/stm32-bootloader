@@ -1,3 +1,18 @@
+/**
+  ******************************************************************************
+  * STM32L4 Bootloader
+  ******************************************************************************
+  * @author Akos Pasztor
+  * @file   bootloader.c
+  * @brief  Bootloader implementation
+  *	        This file contains the functions of the bootloader. The bootloader 
+  *	        implementation uses the official HAL library of ST.
+  * @see    Please refer to README for detailed information.
+  ******************************************************************************
+  * Copyright (c) 2017 Akos Pasztor.                    https://akospasztor.com
+  ******************************************************************************
+**/
+
 #include "stm32l4xx.h"
 #include "bootloader.h"
 
@@ -7,11 +22,14 @@ typedef void (*pFunction)(void);
 /* Private variables ---------------------------------------------------------*/
 static uint32_t flash_ptr = APP_ADDRESS;
 
+
+/*** Check if application fits into user flash ********************************/
 uint8_t Bootloader_CheckSize(uint32_t appsize)
 {
     return ((FLASH_BASE + FLASH_SIZE - APP_ADDRESS) >= appsize) ? BL_OK : BL_SIZE_ERROR;
 }
 
+/*** Erase flash **************************************************************/
 uint8_t Bootloader_Erase(void)
 {
     uint32_t NbrOfPages = 0;
@@ -56,6 +74,7 @@ uint8_t Bootloader_Erase(void)
     return BL_OK;
 }
 
+/*** Initialize flash for programming *****************************************/
 void Bootloader_FlashInit(void)
 {
     HAL_FLASH_Unlock();
@@ -68,6 +87,7 @@ void Bootloader_FlashInit(void)
     HAL_FLASH_Unlock();
 }
 
+/*** Program 64bit data into flash ********************************************/
 uint8_t Bootloader_FlashNext(uint64_t data)
 {
     if( !(flash_ptr <= (FLASH_BASE + FLASH_SIZE - 8)) || (flash_ptr < APP_ADDRESS) )
@@ -98,11 +118,13 @@ uint8_t Bootloader_FlashNext(uint64_t data)
     return BL_OK;
 }
 
+/*** Finish flash programming *************************************************/
 void Bootloader_FlashEnd(void)
 {    
     HAL_FLASH_Lock();
 }
 
+/*** Verify checksum of application *******************************************/
 uint8_t Bootloader_VerifyChecksum(void)
 {
 #if USE_CHECKSUM
@@ -134,11 +156,13 @@ uint8_t Bootloader_VerifyChecksum(void)
     return BL_OK;
 }
 
+/*** Check for application in user flash **************************************/
 uint8_t Bootloader_CheckForApplication(void)
 {
     return ( ((*(__IO uint32_t*)APP_ADDRESS) & 0x2FFE0000) == 0x20000000 ) ? BL_OK : BL_NO_APP;
 }
 
+/*** Jump to application ******************************************************/
 void Bootloader_JumpToApplication(void)
 {
     uint32_t  JumpAddress = *(__IO uint32_t*)(APP_ADDRESS + 4);
@@ -159,6 +183,7 @@ void Bootloader_JumpToApplication(void)
     Jump();
 }
 
+/*** Jump to System Memory (ST Bootloader) ************************************/
 void Bootloader_JumpToSysMem(void)
 {
     uint32_t  JumpAddress = *(__IO uint32_t*)(SYSMEM_ADDRESS + 4);
@@ -178,6 +203,4 @@ void Bootloader_JumpToSysMem(void)
     
     while(1);
 }
-
-
 
