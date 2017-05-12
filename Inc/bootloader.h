@@ -4,7 +4,7 @@
 /*** Bootloader configuration *************************************************/
 #define USE_CHECKSUM        1
 #define USE_SWO_TRACE       1
-#define SET_VECTOR_TABLE    0
+#define SET_VECTOR_TABLE    1
 
 #define APP_FILENAME    "image.bin"
 #define APP_ADDRESS     (uint32_t)0x08008000    /* Start addr. of Application */
