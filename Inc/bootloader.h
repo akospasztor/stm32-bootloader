@@ -26,18 +26,30 @@ enum
     BL_SIZE_ERROR,
     BL_CHKS_ERROR,
     BL_ERASE_ERROR,
-    BL_WRITE_ERROR
+    BL_WRITE_ERROR,
+    BL_PROTECTION_ERROR,
+};
+
+/* Flash Protection */
+enum
+{
+    BL_FLASH_PROT_NONE  = 0,
+    BL_FLASH_PROT_WRP   = 0x1,
+    BL_FLASH_PROT_RDP   = 0x2,
+    BL_FLASH_PROT_PCROP = 0x4,
 };
 
 /* Functions -----------------------------------------------------------------*/
-uint8_t Bootloader_CheckSize(uint32_t appsize);
-uint8_t Bootloader_Erase(void);
-void    Bootloader_FlashInit(void);
-uint8_t Bootloader_FlashNext(uint64_t data);
-void    Bootloader_FlashEnd(void);
-uint8_t Bootloader_VerifyChecksum(void);
-uint8_t Bootloader_CheckForApplication(void);
-void    Bootloader_JumpToApplication(void);
-void    Bootloader_JumpToSysMem(void);
+uint8_t  Bootloader_CheckSize(uint32_t appsize);
+uint32_t Bootloader_GetProtectionStatus(void); 
+uint32_t Bootloader_SetWriteProtection(uint32_t protection);
+uint8_t  Bootloader_Erase(void);
+void     Bootloader_FlashInit(void);
+uint8_t  Bootloader_FlashNext(uint64_t data);
+void     Bootloader_FlashEnd(void);
+uint8_t  Bootloader_VerifyChecksum(void);
+uint8_t  Bootloader_CheckForApplication(void);
+void     Bootloader_JumpToApplication(void);
+void     Bootloader_JumpToSysMem(void);
 
 #endif /* __BOOTLOADER_H */

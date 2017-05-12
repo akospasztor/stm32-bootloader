@@ -33,6 +33,8 @@ void    SystemClock_Config(void);
 void    Error_Handler(void);
 void    print(const char* str);
 
+uint32_t demo = 0;
+
 int main(void)
 {   
     HAL_Init();
@@ -47,6 +49,8 @@ int main(void)
     LED_G_OFF();
     LED_Y_OFF();
     LED_R_OFF();
+    
+    //demo = Bootloader_GetProtectionStatus();
     
     /* Check for user action:
         - button is pressed >= 1 second:  Enter Bootloader
@@ -69,6 +73,9 @@ int main(void)
     { 
         print("Entering Bootloader...");
         Enter_Bootloader();
+        //demo = Bootloader_GetProtectionStatus();
+        //demo = Bootloader_SetWriteProtection(BL_FLASH_PROT_WRP);
+        //demo = Bootloader_GetProtectionStatus();
     }
     
     /* Check if there is application in user flash area */
