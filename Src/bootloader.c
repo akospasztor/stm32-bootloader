@@ -121,43 +121,43 @@ uint32_t Bootloader_GetProtectionStatus(void)
     return protection;
 }
 
-/*** Set flash write protection ***********************************************/
-uint32_t Bootloader_SetWriteProtection(uint32_t protection)
+/*** Configure flash write protection ***********************************************/
+uint32_t Bootloader_ConfigWriteProtection(uint32_t protection)
 {
     FLASH_OBProgramInitTypeDef OptionsBytesStruct = {0};
     HAL_StatusTypeDef ret = HAL_ERROR;
-
+    
     ret = HAL_FLASH_Unlock();
     ret |= HAL_FLASH_OB_Unlock();
 
     /* Bank 1 */
-//    OptionsBytesStruct.OptionType = OPTIONBYTE_WRP;
-//    OptionsBytesStruct.WRPArea = OB_WRPAREA_BANK1_AREAA;
-//    if(protection & BL_FLASH_PROT_WRP)
-//    {
-//        /* Enable the WRP protection for all flash BANK1 except for Bootloader */
-//        OptionsBytesStruct.WRPStartOffset = /*(APP_ADDRESS - FLASH_BASE) / FLASH_PAGE_SIZE;*/ 0x00;
-//        OptionsBytesStruct.WRPEndOffset = FLASH_PAGE_NBPERBANK - 1;
-//    }
-//    else
-//    {
-//        /* Remove all WRP protection */
-//        OptionsBytesStruct.WRPStartOffset = 0xFF;
-//        OptionsBytesStruct.WRPEndOffset = 0x00;
-//    }
-//    ret |= HAL_FLASHEx_OBProgram(&OptionsBytesStruct);
+    OptionsBytesStruct.WRPArea = OB_WRPAREA_BANK1_AREAA;    
+    OptionsBytesStruct.OptionType = OPTIONBYTE_WRP;
+    if(protection == BL_FLASH_PROT_WRP)
+    {
+        /* Enable the WRP protection for all flash BANK1 except for Bootloader */
+        OptionsBytesStruct.WRPStartOffset = (APP_ADDRESS - FLASH_BASE) / FLASH_PAGE_SIZE;
+        OptionsBytesStruct.WRPEndOffset = FLASH_PAGE_NBPERBANK - 1;
+    }
+    else
+    {
+        /* Remove all WRP protection */
+        OptionsBytesStruct.WRPStartOffset = 0xFF;
+        OptionsBytesStruct.WRPEndOffset = 0x00;
+    }
+    ret |= HAL_FLASHEx_OBProgram(&OptionsBytesStruct);
 
     /* Area B is not used */
-//    OptionsBytesStruct.OptionType = OPTIONBYTE_WRP;
-//    OptionsBytesStruct.WRPArea = OB_WRPAREA_BANK1_AREAB;
-//    OptionsBytesStruct.WRPStartOffset = 0xFF;
-//    OptionsBytesStruct.WRPEndOffset = 0x00;
-//    ret |= HAL_FLASHEx_OBProgram(&OptionsBytesStruct);
+    OptionsBytesStruct.WRPArea = OB_WRPAREA_BANK1_AREAB;    
+    OptionsBytesStruct.OptionType = OPTIONBYTE_WRP;
+    OptionsBytesStruct.WRPStartOffset = 0xFF;
+    OptionsBytesStruct.WRPEndOffset = 0x00;
+    ret |= HAL_FLASHEx_OBProgram(&OptionsBytesStruct);
 
     /* Bank 2 */
-    OptionsBytesStruct.OptionType = OPTIONBYTE_WRP;
     OptionsBytesStruct.WRPArea = OB_WRPAREA_BANK2_AREAA;
-    if(protection & BL_FLASH_PROT_WRP)
+    OptionsBytesStruct.OptionType = OPTIONBYTE_WRP;
+    if(protection == BL_FLASH_PROT_WRP)
     {
         /* Enable the WRP protection for all flash BANK2 */
         OptionsBytesStruct.WRPStartOffset = 0x00;
@@ -172,24 +172,20 @@ uint32_t Bootloader_SetWriteProtection(uint32_t protection)
     ret |= HAL_FLASHEx_OBProgram(&OptionsBytesStruct);
 
     /* Area B is not used */
-    OptionsBytesStruct.OptionType = OPTIONBYTE_WRP;
     OptionsBytesStruct.WRPArea = OB_WRPAREA_BANK2_AREAB;
-    OptionsBytesStruct.WRPStartOffset = 0x00;
-    OptionsBytesStruct.WRPEndOffset = 0xFF;
+    OptionsBytesStruct.OptionType = OPTIONBYTE_WRP;
+    OptionsBytesStruct.WRPStartOffset = 0xFF;
+    OptionsBytesStruct.WRPEndOffset = 0x00;
     ret |= HAL_FLASHEx_OBProgram(&OptionsBytesStruct);
-    
-    /* RDP */
-//    OptionsBytesStruct.OptionType = OPTIONBYTE_RDP;
-//    OptionsBytesStruct.RDPLevel = OB_RDP_LEVEL_0;
-//    ret |= HAL_FLASHEx_OBProgram(&OptionsBytesStruct);
     
     if(ret == HAL_OK)
     {
-        //HAL_FLASH_OB_Launch();
+        /* Loading Flash Option Bytes - this generates a system reset. */ 
+        ret |= HAL_FLASH_OB_Launch();
     }
     
-    ret = HAL_FLASH_OB_Lock();
-    ret = HAL_FLASH_Lock();
+    ret |= HAL_FLASH_OB_Lock();
+    ret |= HAL_FLASH_Lock();
 
     return(ret == HAL_OK ? BL_OK : BL_PROTECTION_ERROR);
 }
@@ -368,4 +364,3 @@ void Bootloader_JumpToSysMem(void)
     
     while(1);
 }
-

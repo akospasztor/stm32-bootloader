@@ -33,8 +33,6 @@ void    SystemClock_Config(void);
 void    Error_Handler(void);
 void    print(const char* str);
 
-uint32_t demo = 0;
-
 int main(void)
 {   
     HAL_Init();
@@ -50,7 +48,11 @@ int main(void)
     LED_Y_OFF();
     LED_R_OFF();
     
-    //demo = Bootloader_GetProtectionStatus();
+    if(__HAL_RCC_GET_FLAG(RCC_FLAG_OBLRST))
+    { 
+        print("OBL flag active."); 
+    }
+    __HAL_RCC_CLEAR_RESET_FLAGS();
     
     /* Check for user action:
         - button is pressed >= 1 second:  Enter Bootloader
@@ -73,9 +75,6 @@ int main(void)
     { 
         print("Entering Bootloader...");
         Enter_Bootloader();
-        //demo = Bootloader_GetProtectionStatus();
-        //demo = Bootloader_SetWriteProtection(BL_FLASH_PROT_WRP);
-        //demo = Bootloader_GetProtectionStatus();
     }
     
     /* Check if there is application in user flash area */
@@ -108,9 +107,10 @@ int main(void)
         Bootloader_JumpToApplication();
     }
 
+    /* No application found */
+    print("No application in flash.");
     while(1)
     {
-        /* No application found */
         LED_R_ON();
     }
 }
@@ -122,9 +122,33 @@ void Enter_Bootloader(void)
     FIL fil;
     FRESULT fr;
     UINT num;
+    uint8_t  i;
     uint64_t data;
     uint32_t cntr = 0;
     char msg[32] = {0x00};
+    
+    /* Check for flash write protection */
+    if(Bootloader_GetProtectionStatus() & BL_FLASH_PROT_WRP)
+    {
+        print("Application space in flash is write protected.");
+        print("Press button to disable flash write protection...");
+        LED_R_ON();
+        for(i=0; i<20; ++i)
+        {
+            LED_Y_TG();
+            HAL_Delay(250);
+            if(IS_BTN_PRESSED())
+            {
+                print("Disabling write protection and generating system reset...");
+                Bootloader_ConfigWriteProtection(BL_FLASH_PROT_NONE);
+            }
+        }
+        LED_R_OFF();
+        LED_Y_OFF();
+        print("Button was not pressed, write protection is still active.");
+        print("Exiting Bootloader.");
+        return;
+    }
     
     /* Initialize SD card */
     if(!SDMMC1_Init())
@@ -206,6 +230,15 @@ void Enter_Bootloader(void)
         print("SD card cannot be initialized.");
     }
     
+    /* Enable flash write protection */
+#if USE_WRITE_PROTECTION
+    print("Enablig flash write protection and generating system reset...");
+    if(Bootloader_ConfigWriteProtection(BL_FLASH_PROT_WRP) != BL_OK)
+    {
+        print("Failed to enable write protection.");
+        print("Exiting Bootloader.");
+    }
+#endif
 }
 
 /*** SDIO *********************************************************************/

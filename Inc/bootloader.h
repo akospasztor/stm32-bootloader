@@ -2,9 +2,10 @@
 #define __BOOTLOADER_H
 
 /*** Bootloader configuration *************************************************/
-#define USE_CHECKSUM        1
-#define USE_SWO_TRACE       1
-#define SET_VECTOR_TABLE    1
+#define USE_SWO_TRACE           1
+#define USE_CHECKSUM            1
+#define USE_WRITE_PROTECTION    0
+#define SET_VECTOR_TABLE        1
 
 #define APP_FILENAME    "image.bin"
 #define APP_ADDRESS     (uint32_t)0x08008000    /* Start addr. of Application */
@@ -27,7 +28,7 @@ enum
     BL_CHKS_ERROR,
     BL_ERASE_ERROR,
     BL_WRITE_ERROR,
-    BL_PROTECTION_ERROR,
+    BL_PROTECTION_ERROR
 };
 
 /* Flash Protection */
@@ -41,12 +42,14 @@ enum
 
 /* Functions -----------------------------------------------------------------*/
 uint8_t  Bootloader_CheckSize(uint32_t appsize);
-uint32_t Bootloader_GetProtectionStatus(void); 
-uint32_t Bootloader_SetWriteProtection(uint32_t protection);
 uint8_t  Bootloader_Erase(void);
 void     Bootloader_FlashInit(void);
 uint8_t  Bootloader_FlashNext(uint64_t data);
 void     Bootloader_FlashEnd(void);
+
+uint32_t Bootloader_GetProtectionStatus(void); 
+uint32_t Bootloader_ConfigWriteProtection(uint32_t protection);
+
 uint8_t  Bootloader_VerifyChecksum(void);
 uint8_t  Bootloader_CheckForApplication(void);
 void     Bootloader_JumpToApplication(void);
