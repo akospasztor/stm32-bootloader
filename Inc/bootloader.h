@@ -3,8 +3,8 @@
 
 /*** Bootloader configuration *************************************************/
 #define USE_SWO_TRACE           1
-#define USE_CHECKSUM            1
-#define USE_WRITE_PROTECTION    1
+#define USE_CHECKSUM            0
+#define USE_WRITE_PROTECTION    0
 #define SET_VECTOR_TABLE        1
 
 #define APP_FILENAME    "image.bin"

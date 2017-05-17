@@ -299,12 +299,12 @@ uint8_t Bootloader_VerifyChecksum(void)
     __HAL_RCC_CRC_FORCE_RESET();
     __HAL_RCC_CRC_RELEASE_RESET();
     
-    if( (*(uint32_t*)CRC_ADDRESS) != calculatedCrc)
+    if( (*(uint32_t*)CRC_ADDRESS) == calculatedCrc)
     {
-        return BL_CHKS_ERROR;
+        return BL_OK;
     }
 #endif
-    return BL_OK;
+    return BL_CHKS_ERROR;
 }
 
 /*** Check for application in user flash **************************************/
