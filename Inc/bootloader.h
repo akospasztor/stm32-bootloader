@@ -4,7 +4,7 @@
 /*** Bootloader configuration *************************************************/
 #define USE_SWO_TRACE           1
 #define USE_CHECKSUM            1
-#define USE_WRITE_PROTECTION    0
+#define USE_WRITE_PROTECTION    1
 #define SET_VECTOR_TABLE        1
 
 #define APP_FILENAME    "image.bin"
@@ -31,7 +31,7 @@ enum
     BL_PROTECTION_ERROR
 };
 
-/* Flash Protection */
+/* Flash Protection Types */
 enum
 {
     BL_FLASH_PROT_NONE  = 0,
