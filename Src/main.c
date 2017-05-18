@@ -48,10 +48,13 @@ int main(void)
     LED_Y_OFF();
     LED_R_OFF();
     
+    /* Check system reset flags */
     if(__HAL_RCC_GET_FLAG(RCC_FLAG_OBLRST))
     { 
         print("OBL flag active."); 
     }
+    
+    /* Clear system reset flags */
     __HAL_RCC_CLEAR_RESET_FLAGS();
     
     /* Check for user action:
@@ -128,7 +131,7 @@ void Enter_Bootloader(void)
     char msg[32] = {0x00};
     
     /* Check for flash write protection */
-    if(Bootloader_GetProtectionStatus() & BL_FLASH_PROT_WRP)
+    if(Bootloader_GetProtectionStatus() & BL_PROTECTION_WRP)
     {
         print("Application space in flash is write protected.");
         print("Press button to disable flash write protection...");
@@ -140,7 +143,7 @@ void Enter_Bootloader(void)
             if(IS_BTN_PRESSED())
             {
                 print("Disabling write protection and generating system reset...");
-                Bootloader_ConfigWriteProtection(BL_FLASH_PROT_NONE);
+                Bootloader_ConfigProtection(BL_PROTECTION_NONE);
             }
         }
         LED_R_OFF();
@@ -167,6 +170,9 @@ void Enter_Bootloader(void)
                 {
                     print("App size OK.");
                     
+                    /* Init Bootloader and Flash */
+                    Bootloader_Init();
+                    
                     /* Erase Flash */
                     print("Erasing flash...");
                     LED_Y_ON();
@@ -177,7 +183,7 @@ void Enter_Bootloader(void)
                     /* Programming */
                     print("Starting programming...");
                     LED_Y_ON();
-                    Bootloader_FlashInit();
+                    Bootloader_FlashBegin();
                     do
                     {
                         data = 0xFFFFFFFFFFFFFFFF;
@@ -233,7 +239,7 @@ void Enter_Bootloader(void)
     /* Enable flash write protection */
 #if USE_WRITE_PROTECTION
     print("Enablig flash write protection and generating system reset...");
-    if(Bootloader_ConfigWriteProtection(BL_FLASH_PROT_WRP) != BL_OK)
+    if(Bootloader_ConfigProtection(BL_PROTECTION_WRP) != BL_OK)
     {
         print("Failed to enable write protection.");
         print("Exiting Bootloader.");

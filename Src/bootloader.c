@@ -23,161 +23,13 @@ typedef void (*pFunction)(void);
 static uint32_t flash_ptr = APP_ADDRESS;
 
 
-/*** Check if application fits into user flash ********************************/
-uint8_t Bootloader_CheckSize(uint32_t appsize)
+/*** Initialize bootloader and flash ******************************************/
+void Bootloader_Init(void)
 {
-    return ((FLASH_BASE + FLASH_SIZE - APP_ADDRESS) >= appsize) ? BL_OK : BL_SIZE_ERROR;
-}
-
-/*** Get flash protection status **********************************************/
-uint32_t Bootloader_GetProtectionStatus(void)
-{
-    uint32_t protection = BL_FLASH_PROT_NONE;
-    FLASH_OBProgramInitTypeDef OBStruct = {0};
-    
+    /* Clear flash flags */
     HAL_FLASH_Unlock();
-    
-    /** Bank 1 **/
-    OBStruct.PCROPConfig = FLASH_BANK_1;
-    OBStruct.WRPArea = OB_WRPAREA_BANK1_AREAA;
-    HAL_FLASHEx_OBGetConfig(&OBStruct);
-    /* PCROP */
-    if(OBStruct.PCROPEndAddr > OBStruct.PCROPStartAddr)
-    {
-        if(OBStruct.PCROPStartAddr >= APP_ADDRESS)
-        {
-            protection |= BL_FLASH_PROT_PCROP;
-        }
-    }
-    /* WRP Area_A */
-    if(OBStruct.WRPEndOffset > OBStruct.WRPStartOffset)
-    {
-        if((OBStruct.WRPStartOffset * FLASH_PAGE_SIZE + FLASH_BASE) >= APP_ADDRESS)
-        {
-            protection |= BL_FLASH_PROT_WRP;
-        }
-    }
-    
-    OBStruct.WRPArea = OB_WRPAREA_BANK1_AREAB;
-    HAL_FLASHEx_OBGetConfig(&OBStruct);
-    /* WRP Area_B */
-    if(OBStruct.WRPEndOffset > OBStruct.WRPStartOffset)
-    {
-        if((OBStruct.WRPStartOffset * FLASH_PAGE_SIZE + FLASH_BASE) >= APP_ADDRESS)
-        {
-            protection |= BL_FLASH_PROT_WRP;
-        }
-    }
-    
-    /** Bank 2 **/
-    OBStruct.PCROPConfig = FLASH_BANK_2;
-    OBStruct.WRPArea = OB_WRPAREA_BANK2_AREAA;
-    HAL_FLASHEx_OBGetConfig(&OBStruct);
-    /* PCROP */
-    if(OBStruct.PCROPEndAddr > OBStruct.PCROPStartAddr)
-    {
-        if(OBStruct.PCROPStartAddr >= APP_ADDRESS)
-        {
-            protection |= BL_FLASH_PROT_PCROP;
-        }
-    }
-    /* WRP Area_A */
-    if(OBStruct.WRPEndOffset > OBStruct.WRPStartOffset)
-    {
-        if((OBStruct.WRPStartOffset * FLASH_PAGE_SIZE + FLASH_BASE + FLASH_PAGE_SIZE * FLASH_PAGE_NBPERBANK) >= APP_ADDRESS)
-        {
-            protection |= BL_FLASH_PROT_WRP;
-        }
-    }
-    
-    OBStruct.WRPArea = OB_WRPAREA_BANK2_AREAB;
-    HAL_FLASHEx_OBGetConfig(&OBStruct);
-    /* WRP Area_B */
-    if(OBStruct.WRPEndOffset > OBStruct.WRPStartOffset)
-    {
-        if((OBStruct.WRPStartOffset * FLASH_PAGE_SIZE + FLASH_BASE + FLASH_PAGE_SIZE * FLASH_PAGE_NBPERBANK) >= APP_ADDRESS)
-        {
-            protection |= BL_FLASH_PROT_WRP;
-        }
-    }
-   
-    /** RDP **/
-    if(OBStruct.RDPLevel != OB_RDP_LEVEL_0)
-    {
-        protection |= BL_FLASH_PROT_RDP;
-    }    
-    
+    __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_EOP | FLASH_FLAG_PGSERR | FLASH_FLAG_WRPERR | FLASH_FLAG_OPTVERR);
     HAL_FLASH_Lock();
-    return protection;
-}
-
-/*** Configure flash write protection ***********************************************/
-uint32_t Bootloader_ConfigWriteProtection(uint32_t protection)
-{
-    FLASH_OBProgramInitTypeDef OBStruct = {0};
-    HAL_StatusTypeDef ret = HAL_ERROR;
-    
-    ret = HAL_FLASH_Unlock();
-    ret |= HAL_FLASH_OB_Unlock();
-
-    /* Bank 1 */
-    OBStruct.WRPArea = OB_WRPAREA_BANK1_AREAA;    
-    OBStruct.OptionType = OPTIONBYTE_WRP;
-    if(protection == BL_FLASH_PROT_WRP)
-    {
-        /* Enable the WRP protection for all flash BANK1 except for Bootloader */
-        OBStruct.WRPStartOffset = (APP_ADDRESS - FLASH_BASE) / FLASH_PAGE_SIZE;
-        OBStruct.WRPEndOffset = FLASH_PAGE_NBPERBANK - 1;
-    }
-    else
-    {
-        /* Remove all WRP protection */
-        OBStruct.WRPStartOffset = 0xFF;
-        OBStruct.WRPEndOffset = 0x00;
-    }
-    ret |= HAL_FLASHEx_OBProgram(&OBStruct);
-
-    /* Area B is not used */
-    OBStruct.WRPArea = OB_WRPAREA_BANK1_AREAB;    
-    OBStruct.OptionType = OPTIONBYTE_WRP;
-    OBStruct.WRPStartOffset = 0xFF;
-    OBStruct.WRPEndOffset = 0x00;
-    ret |= HAL_FLASHEx_OBProgram(&OBStruct);
-
-    /* Bank 2 */
-    OBStruct.WRPArea = OB_WRPAREA_BANK2_AREAA;
-    OBStruct.OptionType = OPTIONBYTE_WRP;
-    if(protection == BL_FLASH_PROT_WRP)
-    {
-        /* Enable the WRP protection for all flash BANK2 */
-        OBStruct.WRPStartOffset = 0x00;
-        OBStruct.WRPEndOffset = FLASH_PAGE_NBPERBANK - 1;
-    }
-    else
-    {
-        /* Remove all WRP protection */
-        OBStruct.WRPStartOffset = 0xFF;
-        OBStruct.WRPEndOffset = 0x00;
-    }
-    ret |= HAL_FLASHEx_OBProgram(&OBStruct);
-
-    /* Area B is not used */
-    OBStruct.WRPArea = OB_WRPAREA_BANK2_AREAB;
-    OBStruct.OptionType = OPTIONBYTE_WRP;
-    OBStruct.WRPStartOffset = 0xFF;
-    OBStruct.WRPEndOffset = 0x00;
-    ret |= HAL_FLASHEx_OBProgram(&OBStruct);
-    
-    if(ret == HAL_OK)
-    {
-        /* Loading Flash Option Bytes - this generates a system reset. */ 
-        ret |= HAL_FLASH_OB_Launch();
-    }
-    
-    ret |= HAL_FLASH_OB_Lock();
-    ret |= HAL_FLASH_Lock();
-
-    return(ret == HAL_OK ? BL_OK : BL_PROTECTION_ERROR);
 }
 
 /*** Erase flash **************************************************************/
@@ -215,26 +67,16 @@ uint8_t Bootloader_Erase(void)
     }
 
     HAL_FLASH_Lock();
-
-    if(status != HAL_OK)
-    {
-        /* Error occurred while page erase */
-        return BL_ERASE_ERROR;
-    }
-
-    return BL_OK;
+    
+    return (status == HAL_OK) ? BL_OK : BL_ERASE_ERROR;
 }
 
-/*** Initialize flash for programming *****************************************/
-void Bootloader_FlashInit(void)
-{
-    HAL_FLASH_Unlock();
-    __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_EOP | FLASH_FLAG_PGSERR | FLASH_FLAG_WRPERR | FLASH_FLAG_OPTVERR);
-    HAL_FLASH_Lock();
-    
-    /* Reset Flash destination address */
+/*** Begin flash programming **************************************************/
+void Bootloader_FlashBegin(void)
+{    
+    /* Reset flash destination address */
     flash_ptr = APP_ADDRESS;
-    
+    /* Unlock flash */
     HAL_FLASH_Unlock();
 }
 
@@ -271,8 +113,166 @@ uint8_t Bootloader_FlashNext(uint64_t data)
 
 /*** Finish flash programming *************************************************/
 void Bootloader_FlashEnd(void)
-{    
+{   
+    /* Lock flash */
     HAL_FLASH_Lock();
+}
+
+/*** Get flash protection status **********************************************/
+uint8_t Bootloader_GetProtectionStatus(void)
+{
+    uint32_t protection = BL_PROTECTION_NONE;
+    FLASH_OBProgramInitTypeDef OBStruct = {0};
+    
+    HAL_FLASH_Unlock();
+    
+    /** Bank 1 **/
+    OBStruct.PCROPConfig = FLASH_BANK_1;
+    OBStruct.WRPArea = OB_WRPAREA_BANK1_AREAA;
+    HAL_FLASHEx_OBGetConfig(&OBStruct);
+    /* PCROP */
+    if(OBStruct.PCROPEndAddr > OBStruct.PCROPStartAddr)
+    {
+        if(OBStruct.PCROPStartAddr >= APP_ADDRESS)
+        {
+            protection |= BL_PROTECTION_PCROP;
+        }
+    }
+    /* WRP Area_A */
+    if(OBStruct.WRPEndOffset > OBStruct.WRPStartOffset)
+    {
+        if((OBStruct.WRPStartOffset * FLASH_PAGE_SIZE + FLASH_BASE) >= APP_ADDRESS)
+        {
+            protection |= BL_PROTECTION_WRP;
+        }
+    }
+    
+    OBStruct.WRPArea = OB_WRPAREA_BANK1_AREAB;
+    HAL_FLASHEx_OBGetConfig(&OBStruct);
+    /* WRP Area_B */
+    if(OBStruct.WRPEndOffset > OBStruct.WRPStartOffset)
+    {
+        if((OBStruct.WRPStartOffset * FLASH_PAGE_SIZE + FLASH_BASE) >= APP_ADDRESS)
+        {
+            protection |= BL_PROTECTION_WRP;
+        }
+    }
+    
+    /** Bank 2 **/
+    OBStruct.PCROPConfig = FLASH_BANK_2;
+    OBStruct.WRPArea = OB_WRPAREA_BANK2_AREAA;
+    HAL_FLASHEx_OBGetConfig(&OBStruct);
+    /* PCROP */
+    if(OBStruct.PCROPEndAddr > OBStruct.PCROPStartAddr)
+    {
+        if(OBStruct.PCROPStartAddr >= APP_ADDRESS)
+        {
+            protection |= BL_PROTECTION_PCROP;
+        }
+    }
+    /* WRP Area_A */
+    if(OBStruct.WRPEndOffset > OBStruct.WRPStartOffset)
+    {
+        if((OBStruct.WRPStartOffset * FLASH_PAGE_SIZE + FLASH_BASE + FLASH_PAGE_SIZE * FLASH_PAGE_NBPERBANK) >= APP_ADDRESS)
+        {
+            protection |= BL_PROTECTION_WRP;
+        }
+    }
+    
+    OBStruct.WRPArea = OB_WRPAREA_BANK2_AREAB;
+    HAL_FLASHEx_OBGetConfig(&OBStruct);
+    /* WRP Area_B */
+    if(OBStruct.WRPEndOffset > OBStruct.WRPStartOffset)
+    {
+        if((OBStruct.WRPStartOffset * FLASH_PAGE_SIZE + FLASH_BASE + FLASH_PAGE_SIZE * FLASH_PAGE_NBPERBANK) >= APP_ADDRESS)
+        {
+            protection |= BL_PROTECTION_WRP;
+        }
+    }
+   
+    /** RDP **/
+    if(OBStruct.RDPLevel != OB_RDP_LEVEL_0)
+    {
+        protection |= BL_PROTECTION_RDP;
+    }    
+    
+    HAL_FLASH_Lock();
+    return protection;
+}
+
+/*** Configure flash write protection ***********************************************/
+uint8_t Bootloader_ConfigProtection(uint32_t protection)
+{
+    FLASH_OBProgramInitTypeDef OBStruct = {0};
+    HAL_StatusTypeDef ret = HAL_ERROR;
+    
+    ret = HAL_FLASH_Unlock();
+    ret |= HAL_FLASH_OB_Unlock();
+
+    /* Bank 1 */
+    OBStruct.WRPArea = OB_WRPAREA_BANK1_AREAA;    
+    OBStruct.OptionType = OPTIONBYTE_WRP;
+    if(protection & BL_PROTECTION_WRP)
+    {
+        /* Enable the WRP protection for all flash BANK1 except for Bootloader */
+        OBStruct.WRPStartOffset = (APP_ADDRESS - FLASH_BASE) / FLASH_PAGE_SIZE;
+        OBStruct.WRPEndOffset = FLASH_PAGE_NBPERBANK - 1;
+    }
+    else
+    {
+        /* Remove all WRP protection */
+        OBStruct.WRPStartOffset = 0xFF;
+        OBStruct.WRPEndOffset = 0x00;
+    }
+    ret |= HAL_FLASHEx_OBProgram(&OBStruct);
+
+    /* Area B is not used */
+    OBStruct.WRPArea = OB_WRPAREA_BANK1_AREAB;    
+    OBStruct.OptionType = OPTIONBYTE_WRP;
+    OBStruct.WRPStartOffset = 0xFF;
+    OBStruct.WRPEndOffset = 0x00;
+    ret |= HAL_FLASHEx_OBProgram(&OBStruct);
+
+    /* Bank 2 */
+    OBStruct.WRPArea = OB_WRPAREA_BANK2_AREAA;
+    OBStruct.OptionType = OPTIONBYTE_WRP;
+    if(protection & BL_PROTECTION_WRP)
+    {
+        /* Enable the WRP protection for all flash BANK2 */
+        OBStruct.WRPStartOffset = 0x00;
+        OBStruct.WRPEndOffset = FLASH_PAGE_NBPERBANK - 1;
+    }
+    else
+    {
+        /* Remove all WRP protection */
+        OBStruct.WRPStartOffset = 0xFF;
+        OBStruct.WRPEndOffset = 0x00;
+    }
+    ret |= HAL_FLASHEx_OBProgram(&OBStruct);
+
+    /* Area B is not used */
+    OBStruct.WRPArea = OB_WRPAREA_BANK2_AREAB;
+    OBStruct.OptionType = OPTIONBYTE_WRP;
+    OBStruct.WRPStartOffset = 0xFF;
+    OBStruct.WRPEndOffset = 0x00;
+    ret |= HAL_FLASHEx_OBProgram(&OBStruct);
+    
+    if(ret == HAL_OK)
+    {
+        /* Loading Flash Option Bytes - this generates a system reset. */ 
+        ret |= HAL_FLASH_OB_Launch();
+    }
+    
+    ret |= HAL_FLASH_OB_Lock();
+    ret |= HAL_FLASH_Lock();
+
+    return (ret == HAL_OK) ? BL_OK : BL_OBP_ERROR;
+}
+
+/*** Check if application fits into user flash ********************************/
+uint8_t Bootloader_CheckSize(uint32_t appsize)
+{
+    return ((FLASH_BASE + FLASH_SIZE - APP_ADDRESS) >= appsize) ? BL_OK : BL_SIZE_ERROR;
 }
 
 /*** Verify checksum of application *******************************************/
