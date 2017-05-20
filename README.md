@@ -19,7 +19,7 @@ Customizable Bootloader for STM32 microcontrollers. This example demonstrates ho
 - Easy to customize and port to other microcontrollers
 
 ## Description
-This demo is implemented on a custom hardware [see FIGURE] equipped with a STM32L476VG microcontroller [[1, 2]](#references). The microSD card is connected to the MCU over SDIO interface. The example software uses the official HAL library of ST [[3]](#references) and is compiled with IAR EWARM. Programming and debugging is performed over SWD with a SEGGER J-Link debug probe.
+This demo is implemented on a custom hardware (see Figure 1) equipped with a STM32L476VG microcontroller [[1, 2]](#references). The microSD card is connected to the MCU over SDIO interface. The example software uses the official HAL library of ST [[3]](#references) and is compiled with IAR EWARM. Programming and debugging is performed over SWD with a SEGGER J-Link debug probe.
 
 ![System overview](system-overview.png)
 
@@ -48,7 +48,7 @@ After power-up, the bootloader starts. All three LEDs are flashed for a second, 
 
 - If the button is pressed for more than 4 seconds: the bootloader launches ST's built-in bootloader located in the internal boot ROM (system memory) of the chip. For more information, please refer to [[4]](#references). With this method, the bootloader can be updated or even a full chip re-programming can be performed easily, for instance by connecting the hardware to the computer via USB and using the DFU mode [[5, 6]](#references).
 
-[FIGURE: sequence]
+![Bootloader sequence](bootloader-sequence.png)
 
 ## Source code organization
 ```
