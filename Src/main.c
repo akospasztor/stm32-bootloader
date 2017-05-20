@@ -33,6 +33,7 @@ void    SystemClock_Config(void);
 void    Error_Handler(void);
 void    print(const char* str);
 
+
 int main(void)
 {   
     HAL_Init();
@@ -124,7 +125,7 @@ void Enter_Bootloader(void)
     uint8_t  i;
     uint64_t data;
     uint32_t cntr = 0;
-    char msg[32] = {0x00};
+    char msg[40] = {0x00};
     
     /* Check for flash write protection */
     if(Bootloader_GetProtectionStatus() & BL_PROTECTION_WRP)
@@ -132,10 +133,10 @@ void Enter_Bootloader(void)
         print("Application space in flash is write protected.");
         print("Press button to disable flash write protection...");
         LED_R_ON();
-        for(i=0; i<20; ++i)
+        for(i=0; i<100; ++i)
         {
             LED_Y_TG();
-            HAL_Delay(250);
+            HAL_Delay(50);
             if(IS_BTN_PRESSED())
             {
                 print("Disabling write protection and generating system reset...");
@@ -199,11 +200,12 @@ void Enter_Bootloader(void)
                         }
                         if(cntr % 256 == 0)
                         {
+                            /* Toggle green LED during programming */
                             LED_G_TG();
                         }
                     } while((fr == FR_OK) && (num > 0));
                     print("Programming finished.");
-                    sprintf(msg, "Flashed: %u of (uint64_t)", cntr);
+                    sprintf(msg, "Flashed: %u of (uint64_t) data.", cntr);
                     print(msg);
                     Bootloader_FlashEnd();
                     LED_G_OFF();
