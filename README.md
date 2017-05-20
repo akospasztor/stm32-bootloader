@@ -2,13 +2,13 @@
 Customizable Bootloader for STM32 microcontrollers. This example demonstrates how to perform in-application-programming of a firmware located on external SD card with FAT32 file system.
 
 ## Table of Contents
-- [Features](#features)
+- [Bootloader Features](#bootloader-features)
 - [Description](#description)
 - [How to Use](#how-to-use)
 - [Configuration](#configuration)
 - [References](#references)
 
-## Features
+## Bootloader Features
 - Configurable application space
 - Checksum verification
 - Flash protection check, write protection enable/disable
@@ -18,6 +18,11 @@ Customizable Bootloader for STM32 microcontrollers. This example demonstrates ho
 - Easy to customize and port to other microcontrollers
 
 ## Description
+This demo is implemented on a custom hardware [see FIGURE] equipped with a STM32L476VG microcontroller [[1]](#references). The microSD card is connected to the MCU over SDIO interface. The example software uses the official HAL library of ST [[3]](#references) and is compiled with IAR EWARM. Programming and debugging is performed over SWD with a SEGGER J-Link debug probe.
+
+[FIGURE]
+
+
 
 ## How to Use
 
