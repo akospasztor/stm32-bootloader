@@ -39,19 +39,15 @@ int main(void)
     SystemClock_Config();
     GPIO_Init();
     
-    LED_G_ON();
-    LED_Y_ON();
-    LED_R_ON();
+    LED_ALL_ON();
     print("\nPower up, Boot started.");
     HAL_Delay(1000);
-    LED_G_OFF();
-    LED_Y_OFF();
-    LED_R_OFF();
+    LED_ALL_OFF();
     
     /* Check system reset flags */
     if(__HAL_RCC_GET_FLAG(RCC_FLAG_OBLRST))
     { 
-        print("OBL flag active."); 
+        print("OBL flag is active."); 
     }
     
     /* Clear system reset flags */

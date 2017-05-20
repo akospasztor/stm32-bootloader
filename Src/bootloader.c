@@ -42,9 +42,8 @@ uint8_t Bootloader_Erase(void)
 
     HAL_FLASH_Unlock();
 
-    /* Get the number of page to  erase */
-    NbrOfPages = (FLASH_BASE + FLASH_SIZE);
-    NbrOfPages = (NbrOfPages - APP_ADDRESS) / FLASH_PAGE_SIZE;
+    /* Get the number of pages to erase */
+    NbrOfPages = (FLASH_BASE + FLASH_SIZE - APP_ADDRESS) / FLASH_PAGE_SIZE;
 
     if(NbrOfPages > FLASH_PAGE_NBPERBANK)
     {
@@ -103,7 +102,7 @@ uint8_t Bootloader_FlashNext(uint64_t data)
     }
     else
     {
-        /* Error occurred while writing data in Flash memory */
+        /* Error occurred while writing data into Flash */
         HAL_FLASH_Lock();
         return BL_WRITE_ERROR;
     }
@@ -121,7 +120,7 @@ void Bootloader_FlashEnd(void)
 /*** Get flash protection status **********************************************/
 uint8_t Bootloader_GetProtectionStatus(void)
 {
-    uint32_t protection = BL_PROTECTION_NONE;
+    uint8_t protection = BL_PROTECTION_NONE;
     FLASH_OBProgramInitTypeDef OBStruct = {0};
     
     HAL_FLASH_Unlock();
@@ -214,13 +213,13 @@ uint8_t Bootloader_ConfigProtection(uint32_t protection)
     OBStruct.OptionType = OPTIONBYTE_WRP;
     if(protection & BL_PROTECTION_WRP)
     {
-        /* Enable the WRP protection for all flash BANK1 except for Bootloader */
+        /* Enable WRP protection for application space */
         OBStruct.WRPStartOffset = (APP_ADDRESS - FLASH_BASE) / FLASH_PAGE_SIZE;
         OBStruct.WRPEndOffset = FLASH_PAGE_NBPERBANK - 1;
     }
     else
     {
-        /* Remove all WRP protection */
+        /* Remove WRP protection */
         OBStruct.WRPStartOffset = 0xFF;
         OBStruct.WRPEndOffset = 0x00;
     }
@@ -238,13 +237,13 @@ uint8_t Bootloader_ConfigProtection(uint32_t protection)
     OBStruct.OptionType = OPTIONBYTE_WRP;
     if(protection & BL_PROTECTION_WRP)
     {
-        /* Enable the WRP protection for all flash BANK2 */
+         /* Enable WRP protection for application space */
         OBStruct.WRPStartOffset = 0x00;
         OBStruct.WRPEndOffset = FLASH_PAGE_NBPERBANK - 1;
     }
     else
     {
-        /* Remove all WRP protection */
+        /* Remove WRP protection */
         OBStruct.WRPStartOffset = 0xFF;
         OBStruct.WRPEndOffset = 0x00;
     }
@@ -299,7 +298,7 @@ uint8_t Bootloader_VerifyChecksum(void)
     __HAL_RCC_CRC_FORCE_RESET();
     __HAL_RCC_CRC_RELEASE_RESET();
     
-    if( (*(uint32_t*)CRC_ADDRESS) == calculatedCrc)
+    if( (*(uint32_t*)CRC_ADDRESS) == calculatedCrc )
     {
         return BL_OK;
     }
