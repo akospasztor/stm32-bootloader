@@ -2,14 +2,14 @@
 Customizable Bootloader for STM32 microcontrollers. This example demonstrates how to perform in-application-programming of a firmware located on external SD card with FAT32 file system.
 
 ## Table of Contents
-- [Bootloader Features](#bootloader-features)
+- [Bootloader features](#bootloader-features)
 - [Description](#description)
 - [Source code organization](#source-code-organization)
-- [How to Use](#how-to-use)
+- [How to use](#how-to-use)
 - [Configuration](#configuration)
 - [References](#references)
 
-## Bootloader Features
+## Bootloader features
 - Configurable application space
 - Checksum verification
 - Flash protection check, write protection enable/disable
@@ -19,7 +19,7 @@ Customizable Bootloader for STM32 microcontrollers. This example demonstrates ho
 - Easy to customize and port to other microcontrollers
 
 ## Description
-This demo is implemented on a custom hardware [see FIGURE] equipped with a STM32L476VG microcontroller [[1]](#references). The microSD card is connected to the MCU over SDIO interface. The example software uses the official HAL library of ST [[3]](#references) and is compiled with IAR EWARM. Programming and debugging is performed over SWD with a SEGGER J-Link debug probe.
+This demo is implemented on a custom hardware [see FIGURE] equipped with a STM32L476VG microcontroller [[1, 2]](#references). The microSD card is connected to the MCU over SDIO interface. The example software uses the official HAL library of ST [[3]](#references) and is compiled with IAR EWARM. Programming and debugging is performed over SWD with a SEGGER J-Link debug probe.
 
 [FIGURE: system]
 
@@ -55,10 +55,24 @@ stm32-dma-uart/
   |—— Middlewares/
   `—— Src/
 ```
-Drivers and Middlewares folders contain the CMSIS, HAL and FatFs libraries for the microcontroller. The source code and corresponding header files can be found in Src and Inc folders respectively.
+`Drivers` and `Middlewares` folders contain the CMSIS, HAL and FatFs libraries for the microcontroller. The source code and corresponding header files can be found in `Src` and `Inc` folders respectively.
 
-## How to Use
+## How to use
+The bootloader can be easily customized and tailored to the required hardware and environment, i.e. to perform application updates over various interfaces and even to implement over-the-air (OTA) updates. In order to perform successful in-application-programming, the following sequence has to be kept:
+1. Check for write protection and disable it if necessary.
+2. Initialize flash with `Bootloader_Init()`.
+3. Erase application space with `Bootloader_Erase()` (optional, but recommended).
+4. Prepare for programming with `Bootloader_FlashBegin()`.
+5. Perform programming by repeatedly calling the `Bootloader_FlashNext(uint64_t data)` function. The flashing procedure requires 8 bytes of data (double word) to be programmed at once into the flash. This function automatically increases the address where the data is being written.
+6. Finalize programming by calling `Bootloader_FlashEnd()`.
 
+The application image has to be in binary format. If the checksum verification is enabled, the binary must include the checksum value at the end of the image. When creating the application image, the checksum has to be calculated over the entire image (except the checksum area) with the following parameters:
+- Algorithm: CRC32
+- Size: 4 bytes
+- Initial value: 0xFFFFFFFF
+- Bit order: MSB first
+
+__Important notice__: in order to perform a successful application jump from the bootloader, the vector table of the application should be relocated. By default, the startup code of the microcontroller sets the vector table location to 0x00000000 in the `system_stm32xxxx.c` file. This has to be either disabled (the bootloader can be configured to perform the vector table relocation before the jump) or manually set to the appropriate value which is the start address of the application space.
 
 ## Configuration
 
