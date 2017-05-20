@@ -33,6 +33,7 @@ void    SystemClock_Config(void);
 void    Error_Handler(void);
 void    print(const char* str);
 
+
 int main(void)
 {   
     HAL_Init();
@@ -124,7 +125,7 @@ void Enter_Bootloader(void)
     uint8_t  i;
     uint64_t data;
     uint32_t cntr = 0;
-    char msg[32] = {0x00};
+    char msg[40] = {0x00};
     
     /* Check for flash write protection */
     if(Bootloader_GetProtectionStatus() & BL_PROTECTION_WRP)
@@ -199,11 +200,12 @@ void Enter_Bootloader(void)
                         }
                         if(cntr % 256 == 0)
                         {
+                            /* Toggle green LED during programming */
                             LED_G_TG();
                         }
                     } while((fr == FR_OK) && (num > 0));
                     print("Programming finished.");
-                    sprintf(msg, "Flashed: %u of (uint64_t)", cntr);
+                    sprintf(msg, "Flashed: %u of (uint64_t) data.", cntr);
                     print(msg);
                     Bootloader_FlashEnd();
                     LED_G_OFF();

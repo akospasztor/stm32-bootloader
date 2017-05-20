@@ -17,22 +17,22 @@
 #define __BOOTLOADER_H
 
 /*** Bootloader configuration *************************************************/
-#define USE_SWO_TRACE           1
-#define USE_CHECKSUM            1
-#define USE_WRITE_PROTECTION    0
-#define SET_VECTOR_TABLE        1
+#define USE_SWO_TRACE           1       /* For development/debugging: stdout/stderr via SWO trace */
+#define USE_CHECKSUM            1       /* Check application checksum on startup */
+#define USE_WRITE_PROTECTION    0       /* Enable write protection after performing in-app-programming */
+#define SET_VECTOR_TABLE        1       /* Automatically set vector table location before launching application */
 
-#define APP_FILENAME    "image.bin"
-#define APP_ADDRESS     (uint32_t)0x08008000    /* Start addr. of Application */
-#define END_ADDRESS     (uint32_t)0x080FFFFB    /* End addr. of Application (addr. of last byte) */
-#define CRC_ADDRESS     (uint32_t)0x080FFFFC    /* Start addr. of CRC in Flash */
+#define APP_FILENAME    "image.bin"             /* File name of application located on SD card */
+#define APP_ADDRESS     (uint32_t)0x08008000    /* Start address of application space in flash */
+#define END_ADDRESS     (uint32_t)0x080FFFFB    /* End address of application space (addr. of last byte) */
+#define CRC_ADDRESS     (uint32_t)0x080FFFFC    /* Start address of application checksum in flash */
 
 #define SYSMEM_ADDRESS  (uint32_t)0x1FFF0000    /* Address of System Memory (ST Bootloader) */
 /*** End of configuration *****************************************************/
 
 /* Defines -------------------------------------------------------------------*/
-#define FLASH_PAGE_NBPERBANK    256             /* Number of Pages per Bank in Flash */
-#define APP_SIZE        (uint32_t)(((END_ADDRESS - APP_ADDRESS) + 3) / 4) /* Size of APP in DWORD (32bits or 4bytes) */
+#define FLASH_PAGE_NBPERBANK    256             /* Number of pages per bank in flash */
+#define APP_SIZE        (uint32_t)(((END_ADDRESS - APP_ADDRESS) + 3) / 4) /* Size of application in DWORD (32bits or 4bytes) */
 
 /* Bootloader Error Codes */
 enum
