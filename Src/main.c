@@ -132,10 +132,10 @@ void Enter_Bootloader(void)
         print("Application space in flash is write protected.");
         print("Press button to disable flash write protection...");
         LED_R_ON();
-        for(i=0; i<20; ++i)
+        for(i=0; i<100; ++i)
         {
             LED_Y_TG();
-            HAL_Delay(250);
+            HAL_Delay(50);
             if(IS_BTN_PRESSED())
             {
                 print("Disabling write protection and generating system reset...");
