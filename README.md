@@ -1,11 +1,21 @@
 # STM32 Bootloader
-Customizable Bootloader for STM32 microcontrollers. This example demonstrates how to perform in-application-programming of a firmware located on external SD card with FAT file system.
+Customizable Bootloader for STM32 microcontrollers. This example demonstrates how to perform in-application-programming of a firmware located on external SD card with FAT32 file system.
 
 ## Table of Contents
+- [Features](#features)
 - [Description](#description)
 - [How to Use](#how-to-use)
 - [Configuration](#configuration)
 - [References](#references)
+
+## Features
+- Configurable application space
+- Checksum verification
+- Flash protection check, write protection enable/disable
+- Extended error handling, fail-safe design
+- Bootloader firmware update and the ability to perform full chip re-programming: enter ST's built-in bootloader from software (without triggering the BOOT pin)
+- SWO tracing for easier debugging and development
+- Easy to customize and port to other microcontrollers
 
 ## Description
 
