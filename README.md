@@ -75,6 +75,7 @@ The application image has to be in binary format. If the checksum verification i
 __Important notice__: in order to perform a successful application jump from the bootloader, the vector table of the application should be relocated. By default, the startup code of the microcontroller sets the vector table location to 0x00000000 in the `system_stm32xxxx.c` file. This has to be either disabled (the bootloader can be configured to perform the vector table relocation before the jump) or manually set to the appropriate value which is the start address of the application space.
 
 ## Configuration
+The bootloader can be widely configured in the `bootloader.h` file. The file includes detailed descriptions and comments for the configurable parameters and definitions.
 
 ## References
 [1] STM32L476VG, http://www.st.com/en/microcontrollers/stm32l476vg.html
