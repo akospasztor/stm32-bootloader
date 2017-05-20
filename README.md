@@ -22,6 +22,7 @@ Customizable Bootloader for STM32 microcontrollers. This example demonstrates ho
 This demo is implemented on a custom hardware [see FIGURE] equipped with a STM32L476VG microcontroller [[1, 2]](#references). The microSD card is connected to the MCU over SDIO interface. The example software uses the official HAL library of ST [[3]](#references) and is compiled with IAR EWARM. Programming and debugging is performed over SWD with a SEGGER J-Link debug probe.
 
 ![System overview](system-overview.png)
+
 *Figure 1: System overview*
 
 The microcontroller flash is organized as follows: by default the first 32kBytes (16 pages) of the flash is reserved for the bootloader and the rest of the flash is the application space. 
