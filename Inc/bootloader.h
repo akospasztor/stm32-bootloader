@@ -18,9 +18,11 @@
 
 /*** Bootloader configuration *************************************************/
 #define USE_SWO_TRACE           1       /* For development/debugging: stdout/stderr via SWO trace */
-#define USE_CHECKSUM            1       /* Check application checksum on startup */
+#define USE_CHECKSUM            0       /* Check application checksum on startup */
 #define USE_WRITE_PROTECTION    0       /* Enable write protection after performing in-app-programming */
 #define SET_VECTOR_TABLE        1       /* Automatically set vector table location before launching application */
+#define CLEAR_RESET_FLAGS       1       /* If disabled: bootloader does not clear reset flags,
+                                           therefore application can check the reset flags */
 
 #define APP_FILENAME    "image.bin"             /* File name of application located on SD card */
 #define APP_ADDRESS     (uint32_t)0x08008000    /* Start address of application space in flash */

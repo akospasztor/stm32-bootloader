@@ -48,34 +48,50 @@ int main(void)
     /* Check system reset flags */
     if(__HAL_RCC_GET_FLAG(RCC_FLAG_OBLRST))
     { 
-        print("OBL flag is active."); 
+        print("OBL flag is active.");
+#if CLEAR_RESET_FLAGS
+        /* Clear system reset flags */
+        __HAL_RCC_CLEAR_RESET_FLAGS();
+        print("Reset flags cleared.");
+#endif
     }
-    
-    /* Clear system reset flags */
-    __HAL_RCC_CLEAR_RESET_FLAGS();
     
     /* Check for user action:
         - button is pressed >= 1 second:  Enter Bootloader
         - button is pressed >= 4 seconds: Enter ST System Memory
+        - button is pressed >= 9 seconds: Do nothing, launch application
     */
-    while(IS_BTN_PRESSED())
+    while(IS_BTN_PRESSED() && BTNcounter < 90)
     {
         if(BTNcounter == 10) { print("Release button to enter Bootloader."); }
         if(BTNcounter == 40) { print("Release button to enter System Memory."); }
+        
+        if(BTNcounter < 40)         { LED_G_TG(); }
+        else if(BTNcounter == 40)   { LED_G_OFF(); LED_Y_ON(); }
+        else                        { LED_Y_TG(); }
+        
         BTNcounter++;
         HAL_Delay(100);
     }
-    if(BTNcounter > 40)
-    { 
-        print("Entering System Memory...");
-        HAL_Delay(1000);
-        Bootloader_JumpToSysMem();
-    } 
-    else if(BTNcounter > 10)
-    { 
-        print("Entering Bootloader...");
-        Enter_Bootloader();
+    
+    LED_ALL_OFF();
+    
+    /* Perform required actions based on button press duration */
+    if(BTNcounter < 90)
+    {
+        if(BTNcounter > 40)
+        { 
+            print("Entering System Memory...");
+            HAL_Delay(1000);
+            Bootloader_JumpToSysMem();
+        } 
+        else if(BTNcounter > 10)
+        { 
+            print("Entering Bootloader...");
+            Enter_Bootloader();
+        }
     }
+    
     
     /* Check if there is application in user flash area */
     if(Bootloader_CheckForApplication() == BL_OK)
