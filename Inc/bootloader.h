@@ -21,8 +21,8 @@
 #define USE_CHECKSUM            0       /* Check application checksum on startup */
 #define USE_WRITE_PROTECTION    0       /* Enable write protection after performing in-app-programming */
 #define SET_VECTOR_TABLE        1       /* Automatically set vector table location before launching application */
-#define CLEAR_RESET_FLAGS       1       /* If disabled: bootloader does not clear reset flags,
-                                           therefore application can check the reset flags */
+#define CLEAR_RESET_FLAGS       1       /* If enabled: bootloader clears reset flags. (This occurs only when OBL RST flag is active.)
+                                           If disabled: bootloader does not clear reset flags, not even when OBL RST is active. */
 
 #define APP_FILENAME    "image.bin"             /* File name of application located on SD card */
 #define APP_ADDRESS     (uint32_t)0x08008000    /* Start address of application space in flash */
