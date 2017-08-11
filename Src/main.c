@@ -42,7 +42,7 @@ int main(void)
     
     LED_ALL_ON();
     print("\nPower up, Boot started.");
-    HAL_Delay(1000);
+    HAL_Delay(500);
     LED_ALL_OFF();
     
     /* Check system reset flags */
@@ -66,7 +66,9 @@ int main(void)
         if(BTNcounter == 10) { print("Release button to enter Bootloader."); }
         if(BTNcounter == 40) { print("Release button to enter System Memory."); }
         
-        if(BTNcounter < 40)         { LED_G_TG(); }
+        if(BTNcounter < 10)         { LED_ALL_ON(); }
+        else if(BTNcounter == 10)   { LED_ALL_OFF(); }
+        else if(BTNcounter < 40)    { LED_G_TG(); }
         else if(BTNcounter == 40)   { LED_G_OFF(); LED_Y_ON(); }
         else                        { LED_Y_TG(); }
         
