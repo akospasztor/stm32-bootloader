@@ -1,8 +1,8 @@
 /**
   ******************************************************************************
-  * @file    stm32l4xx_hal_flash_ex.h
+  * @file    stm32l4xx_hal_sd_ex.h
   * @author  MCD Application Team
-  * @brief   Header file of FLASH HAL Extended module.
+  * @brief   Header file of SD HAL extended module.
   ******************************************************************************
   * @attention
   *
@@ -31,15 +31,17 @@
   * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   *
   ******************************************************************************
-  */
+  */ 
 
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __STM32L4xx_HAL_FLASH_EX_H
-#define __STM32L4xx_HAL_FLASH_EX_H
+#ifndef __STM32L4xx_HAL_SD_EX_H
+#define __STM32L4xx_HAL_SD_EX_H
 
 #ifdef __cplusplus
  extern "C" {
 #endif
+
+#if defined(STM32L4R5xx) || defined(STM32L4R7xx) || defined(STM32L4R9xx) || defined(STM32L4S5xx) || defined(STM32L4S7xx) || defined(STM32L4S9xx)
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32l4xx_hal_def.h"
@@ -48,75 +50,80 @@
   * @{
   */
 
-/** @addtogroup FLASHEx
+/** @addtogroup SDEx
   * @{
   */
 
 /* Exported types ------------------------------------------------------------*/
+/** @defgroup SDEx_Exported_Types SDEx Exported Types
+  * @{
+  */
 
+/** @defgroup SDEx_Exported_Types_Group1 SD Card Internal DMA Buffer structure
+  * @{
+  */ 
+typedef enum
+{
+  SD_DMA_BUFFER0      = 0x00U,    /*!< selects SD internal DMA Buffer 0     */
+  SD_DMA_BUFFER1      = 0x01U,    /*!< selects SD internal DMA Buffer 1     */
+
+}HAL_SDEx_DMABuffer_MemoryTypeDef;
+
+
+/** 
+  * @}
+  */
+  
+/** 
+  * @}
+  */  
 /* Exported constants --------------------------------------------------------*/
-#if defined (FLASH_CFGR_LVEN)
-/** @addtogroup FLASHEx_Exported_Constants
-  * @{
-  */
-/** @defgroup FLASHEx_LVE_PIN_CFG FLASHEx LVE pin configuration
-  * @{
-  */
-#define FLASH_LVE_PIN_CTRL     0x00000000U       /*!< LVE FLASH pin controlled by power controller       */
-#define FLASH_LVE_PIN_FORCED   FLASH_CFGR_LVEN   /*!< LVE FLASH pin enforced to low (external SMPS used) */
-/**
-  * @}
-  */
-
-/**
-  * @}
-  */
-#endif /* FLASH_CFGR_LVEN */
-
 /* Exported macro ------------------------------------------------------------*/
-
 /* Exported functions --------------------------------------------------------*/
-/** @addtogroup FLASHEx_Exported_Functions
+/** @defgroup SDEx_Exported_Functions SDEx Exported Functions
   * @{
   */
+  
+/** @defgroup SDEx_Exported_Functions_Group1 HighSpeed functions
+  * @{
+  */
+uint32_t HAL_SDEx_HighSpeed (SD_HandleTypeDef *hsd);
 
-/* Extended Program operation functions  *************************************/
-/** @addtogroup FLASHEx_Exported_Functions_Group1
-  * @{
-  */
-HAL_StatusTypeDef HAL_FLASHEx_Erase(FLASH_EraseInitTypeDef *pEraseInit, uint32_t *PageError);
-HAL_StatusTypeDef HAL_FLASHEx_Erase_IT(FLASH_EraseInitTypeDef *pEraseInit);
-HAL_StatusTypeDef HAL_FLASHEx_OBProgram(FLASH_OBProgramInitTypeDef *pOBInit);
-void              HAL_FLASHEx_OBGetConfig(FLASH_OBProgramInitTypeDef *pOBInit);
-/**
-  * @}
-  */
-
-#if defined (FLASH_CFGR_LVEN)
-/** @addtogroup FLASHEx_Exported_Functions_Group2
-  * @{
-  */
-HAL_StatusTypeDef HAL_FLASHEx_ConfigLVEPin(uint32_t ConfigLVE);
-/**
-  * @}
-  */
-#endif /* FLASH_CFGR_LVEN */
+void HAL_SDEx_DriveTransceiver_1_8V_Callback(FlagStatus status);
 
 /**
   * @}
   */
 
+/** @defgroup SDEx_Exported_Functions_Group2 MultiBuffer functions
+  * @{
+  */
+HAL_StatusTypeDef HAL_SDEx_ConfigDMAMultiBuffer(SD_HandleTypeDef *hsd, uint32_t * pDataBuffer0, uint32_t * pDataBuffer1, uint32_t BufferSize);
+HAL_StatusTypeDef HAL_SDEx_ReadBlocksDMAMultiBuffer(SD_HandleTypeDef *hsd, uint32_t BlockAdd, uint32_t NumberOfBlocks);
+HAL_StatusTypeDef HAL_SDEx_WriteBlocksDMAMultiBuffer(SD_HandleTypeDef *hsd, uint32_t BlockAdd, uint32_t NumberOfBlocks);
+HAL_StatusTypeDef HAL_SDEx_ChangeDMABuffer(SD_HandleTypeDef *hsd, HAL_SDEx_DMABuffer_MemoryTypeDef Buffer, uint32_t *pDataBuffer);
+
+void HAL_SDEx_Read_DMADoubleBuffer0CpltCallback(SD_HandleTypeDef *hsd);
+void HAL_SDEx_Read_DMADoubleBuffer1CpltCallback(SD_HandleTypeDef *hsd);
+void HAL_SDEx_Write_DMADoubleBuffer0CpltCallback(SD_HandleTypeDef *hsd);
+void HAL_SDEx_Write_DMADoubleBuffer1CpltCallback(SD_HandleTypeDef *hsd);
+
+/**
+  * @}
+  */
+  
+/**
+  * @}
+  */
+  
+/* Private types -------------------------------------------------------------*/
+/* Private defines -----------------------------------------------------------*/
+/* Private variables ---------------------------------------------------------*/
+/* Private constants ---------------------------------------------------------*/
 /* Private macros ------------------------------------------------------------*/
-/**
-  @cond 0
-  */
-#if defined (FLASH_CFGR_LVEN)
-#define IS_FLASH_LVE_PIN(CFG)  (((CFG) == FLASH_LVE_PIN_CTRL) || ((CFG) == FLASH_LVE_PIN_FORCED))
-#endif /* FLASH_CFGR_LVEN */
-/**
-  @endcond
-  */
-
+/* Private functions prototypes ----------------------------------------------*/
+/* Private functions ---------------------------------------------------------*/
+  
 /**
   * @}
   */
@@ -124,11 +131,14 @@ HAL_StatusTypeDef HAL_FLASHEx_ConfigLVEPin(uint32_t ConfigLVE);
 /**
   * @}
   */
+
+#endif /* STM32L4R5xx || STM32L4R7xx || STM32L4R9xx || STM32L4S5xx || STM32L4S7xx || STM32L4S9xx */
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* __STM32L4xx_HAL_FLASH_EX_H */
+
+#endif /* __STM32L4xx_HAL_SDEx_H */ 
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

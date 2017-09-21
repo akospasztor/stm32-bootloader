@@ -2,13 +2,11 @@
   ******************************************************************************
   * @file    stm32l4xx_hal_pwr_ex.h
   * @author  MCD Application Team
-  * @version V1.6.0
-  * @date    28-October-2016
   * @brief   Header file of PWR HAL Extended module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT(c) 2016 STMicroelectronics</center></h2>
+  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -155,8 +153,11 @@ typedef struct
 /** @defgroup PWREx_Regulator_Voltage_Scale  PWR Regulator voltage scale
   * @{
   */
-#define PWR_REGULATOR_VOLTAGE_SCALE1       PWR_CR1_VOS_0     /*!< Voltage scaling range 1 */
-#define PWR_REGULATOR_VOLTAGE_SCALE2       PWR_CR1_VOS_1     /*!< Voltage scaling range 2 */
+#if defined(PWR_CR5_R1MODE)
+#define PWR_REGULATOR_VOLTAGE_SCALE1_BOOST  ((uint32_t)0x00000000)  /*!< Voltage scaling range 1 boost mode  */
+#endif
+#define PWR_REGULATOR_VOLTAGE_SCALE1        PWR_CR1_VOS_0           /*!< Voltage scaling range 1 normal mode */
+#define PWR_REGULATOR_VOLTAGE_SCALE2        PWR_CR1_VOS_1           /*!< Voltage scaling range 2             */
 /**
   * @}
   */
@@ -222,6 +223,9 @@ typedef struct
 #define PWR_GPIO_G   0x00000006      /*!< GPIO port G */
 #endif
 #define PWR_GPIO_H   0x00000007      /*!< GPIO port H */
+#if defined(GPIOI_BASE) 
+#define PWR_GPIO_I   0x00000008      /*!< GPIO port I */
+#endif
 /**
   * @}
   */ 
@@ -713,7 +717,9 @@ typedef struct
                                 ((PIN) == PWR_WAKEUP_PIN4_LOW) || \
                                 ((PIN) == PWR_WAKEUP_PIN5_LOW))
                                 
-#if defined (STM32L475xx) || defined (STM32L476xx) || defined (STM32L485xx) || defined (STM32L486xx)
+#if defined (STM32L475xx) || defined (STM32L476xx) || defined (STM32L485xx) || defined (STM32L486xx) || \
+    defined (STM32L496xx) || defined (STM32L4A6xx)                                                   || \
+    defined (STM32L4R5xx) || defined (STM32L4R7xx) || defined (STM32L4R9xx) || defined (STM32L4S5xx) || defined (STM32L4S7xx) || defined (STM32L4S9xx)
 #define IS_PWR_PVM_TYPE(TYPE) (((TYPE) == PWR_PVM_1) ||\
                                ((TYPE) == PWR_PVM_2) ||\
                                ((TYPE) == PWR_PVM_3) ||\
@@ -741,8 +747,15 @@ typedef struct
                                 ((MODE) == PWR_PVM_MODE_EVENT_FALLING)       ||\
                                 ((MODE) == PWR_PVM_MODE_EVENT_RISING_FALLING))  
                                 
+#if defined(PWR_CR5_R1MODE)
+#define IS_PWR_VOLTAGE_SCALING_RANGE(RANGE) (((RANGE) == PWR_REGULATOR_VOLTAGE_SCALE1_BOOST) || \
+                                             ((RANGE) == PWR_REGULATOR_VOLTAGE_SCALE1)       || \
+                                             ((RANGE) == PWR_REGULATOR_VOLTAGE_SCALE2))
+#else
 #define IS_PWR_VOLTAGE_SCALING_RANGE(RANGE) (((RANGE) == PWR_REGULATOR_VOLTAGE_SCALE1) || \
                                              ((RANGE) == PWR_REGULATOR_VOLTAGE_SCALE2))
+#endif                                
+
                                              
 #define IS_PWR_BATTERY_RESISTOR_SELECT(RESISTOR) (((RESISTOR) == PWR_BATTERY_CHARGING_RESISTOR_5) ||\
                                                   ((RESISTOR) == PWR_BATTERY_CHARGING_RESISTOR_1_5))  
@@ -775,6 +788,17 @@ typedef struct
                            ((GPIO) == PWR_GPIO_F) ||\
                            ((GPIO) == PWR_GPIO_G) ||\
                            ((GPIO) == PWR_GPIO_H))
+#elif defined (STM32L496xx) || defined (STM32L4A6xx) || \
+      defined (STM32L4R5xx) || defined (STM32L4R7xx) || defined (STM32L4R9xx) || defined (STM32L4S5xx) || defined (STM32L4S7xx) || defined (STM32L4S9xx)
+#define IS_PWR_GPIO(GPIO) (((GPIO) == PWR_GPIO_A) ||\
+                           ((GPIO) == PWR_GPIO_B) ||\
+                           ((GPIO) == PWR_GPIO_C) ||\
+                           ((GPIO) == PWR_GPIO_D) ||\
+                           ((GPIO) == PWR_GPIO_E) ||\
+                           ((GPIO) == PWR_GPIO_F) ||\
+                           ((GPIO) == PWR_GPIO_G) ||\
+                           ((GPIO) == PWR_GPIO_H) ||\
+                           ((GPIO) == PWR_GPIO_I))
 #endif
 
 
@@ -815,6 +839,14 @@ void HAL_PWREx_EnablePullUpPullDownConfig(void);
 void HAL_PWREx_DisablePullUpPullDownConfig(void);
 void HAL_PWREx_EnableSRAM2ContentRetention(void);
 void HAL_PWREx_DisableSRAM2ContentRetention(void);
+#if defined(PWR_CR1_RRSTP)
+void HAL_PWREx_EnableSRAM3ContentRetention(void);
+void HAL_PWREx_DisableSRAM3ContentRetention(void);
+#endif /* PWR_CR1_RRSTP */
+#if defined(PWR_CR3_DSIPDEN)
+void HAL_PWREx_EnableDSIPinsPDActivation(void);
+void HAL_PWREx_DisableDSIPinsPDActivation(void);
+#endif /* PWR_CR3_DSIPDEN */
 #if defined(PWR_CR2_PVME1)
 void HAL_PWREx_EnablePVM1(void);
 void HAL_PWREx_DisablePVM1(void);

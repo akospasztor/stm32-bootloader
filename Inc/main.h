@@ -2,17 +2,15 @@
 #define __MAIN_H
 
 /* Hardware Defines ----------------------------------------------------------*/
+#define BTN_Port            GPIOE
+#define BTN_Pin             GPIO_PIN_0
+
 #define LED_G_Port          GPIOE
 #define LED_G_Pin           GPIO_PIN_2
 #define LED_Y_Port          GPIOE
 #define LED_Y_Pin           GPIO_PIN_3
 #define LED_R_Port          GPIOE
 #define LED_R_Pin           GPIO_PIN_4
-
-#define BTN_Port            GPIOD
-#define BTN_Pin             GPIO_PIN_8
-#define REED_Port           GPIOD
-#define REED_Pin            GPIO_PIN_11
 
 /* Hardware Macros -----------------------------------------------------------*/
 #define LED_G_ON()          HAL_GPIO_WritePin(LED_G_Port, LED_G_Pin, GPIO_PIN_SET)

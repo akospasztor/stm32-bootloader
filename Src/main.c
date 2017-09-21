@@ -16,11 +16,9 @@
 #include "stm32l4xx.h"
 #include "main.h"
 #include "bootloader.h"
-#include "bsp_driver_sd.h"
 #include "fatfs.h"
 
 /* Variables -----------------------------------------------------------------*/
-SD_HandleTypeDef hsd1;
 uint8_t BTNcounter = 0;
 
 /* Function prototypes -------------------------------------------------------*/
@@ -266,20 +264,24 @@ void Enter_Bootloader(void)
 /*** SDIO *********************************************************************/
 uint8_t SDMMC1_Init(void)
 {
-    hsd1.Instance = SDMMC1;
-    hsd1.Init.ClockEdge = SDMMC_CLOCK_EDGE_RISING;
-    hsd1.Init.ClockBypass = SDMMC_CLOCK_BYPASS_DISABLE;
-    hsd1.Init.ClockPowerSave = SDMMC_CLOCK_POWER_SAVE_DISABLE;
-    hsd1.Init.BusWide = SDMMC_BUS_WIDE_1B;
-    hsd1.Init.HardwareFlowControl = SDMMC_HARDWARE_FLOW_CONTROL_DISABLE;
-    hsd1.Init.ClockDiv = 2;
-
-    return(FATFS_Init());
+    if(BSP_SD_Init())
+    {
+        /* Error */
+        return 1;
+    }
+    
+    if(FATFS_Init())
+    {
+        /* Error */
+        return 1;
+    }
+    
+    return 0;
 }
 void SDMMC1_DeInit(void)
 {
     FATFS_DeInit();
-    HAL_SD_DeInit(&hsd1);
+    BSP_SD_DeInit();
 }
 
 void HAL_SD_MspInit(SD_HandleTypeDef* hsd)
@@ -336,7 +338,6 @@ void GPIO_Init(void)
 {
     GPIO_InitTypeDef GPIO_InitStruct;
     
-    __HAL_RCC_GPIOD_CLK_ENABLE();
     __HAL_RCC_GPIOE_CLK_ENABLE();
 
     /*Configure GPIO pin output levels */
@@ -365,7 +366,6 @@ void GPIO_DeInit(void)
     HAL_GPIO_DeInit(LED_R_Port, LED_R_Pin);
     HAL_GPIO_DeInit(BTN_Port, BTN_Pin);
     
-    __HAL_RCC_GPIOD_CLK_DISABLE();
     __HAL_RCC_GPIOE_CLK_DISABLE();
 }
 
@@ -404,9 +404,7 @@ void SystemClock_Config(void)
         Error_Handler();
     }
 
-    PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USART1 | RCC_PERIPHCLK_USB | RCC_PERIPHCLK_SDMMC1;
-    PeriphClkInit.Usart1ClockSelection = RCC_USART1CLKSOURCE_PCLK2;
-    PeriphClkInit.UsbClockSelection = RCC_USBCLKSOURCE_PLLSAI1;
+    PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_SDMMC1;
     PeriphClkInit.Sdmmc1ClockSelection = RCC_SDMMC1CLKSOURCE_PLLSAI1;
     PeriphClkInit.PLLSAI1.PLLSAI1Source = RCC_PLLSOURCE_MSI;
     PeriphClkInit.PLLSAI1.PLLSAI1M = 1;
