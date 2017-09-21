@@ -21,6 +21,8 @@ Customizable Bootloader for STM32 microcontrollers. This example demonstrates ho
 ## Description
 This demo is implemented on a custom hardware (see Figure 1) equipped with a STM32L476VG microcontroller [[1, 2]](#references). The microSD card is connected to the MCU over SDIO interface. The implementation uses the official HAL library of ST [[3]](#references) and is compiled with IAR EWARM. Programming and debugging is performed over SWD with a SEGGER J-Link debug probe.
 
+Note: release v1.03 introduces support for the new STM32L496VG microcontroller [[7]](#references). The individual build configurations for different microcontrollers can be selected with a single click in IAR.
+
 ![System overview](system-overview.png)
 
 *Figure 1: System overview*
@@ -95,3 +97,5 @@ The bootloader can be widely configured in the `bootloader.h` file. The file inc
 [5] AN3156, "USB DFU protocol used in the STM32 bootloader", http://www.st.com/resource/en/application_note/cd00264379.pdf
 
 [6] UM0412, "Getting started with DfuSe USB device firmware upgrade", http://www.st.com/resource/en/user_manual/cd00155676.pdf
+
+[7] STM32L496VG, http://www.st.com/en/microcontrollers/stm32l496vg.html

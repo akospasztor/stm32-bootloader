@@ -1,5 +1,5 @@
 /*-----------------------------------------------------------------------/
-/  Low level disk interface module include file   (C)ChaN, 2014          /
+/  Low level disk interface modlue include file   (C)ChaN, 2014          /
 /-----------------------------------------------------------------------*/
 
 #ifndef _DISKIO_DEFINED
@@ -10,7 +10,7 @@ extern "C" {
 #endif
 
 #define _USE_WRITE	1	/* 1: Enable disk_write function */
-#define _USE_IOCTL	1	/* 1: Enable disk_ioctl fucntion */
+#define _USE_IOCTL	1	/* 1: Enable disk_ioctl function */
 
 #include "integer.h"
 
@@ -40,6 +40,7 @@ DRESULT disk_ioctl (BYTE pdrv, BYTE cmd, void* buff);
 DWORD get_fattime (void);
 
 /* Disk Status Bits (DSTATUS) */
+
 #define STA_NOINIT		0x01	/* Drive not initialized */
 #define STA_NODISK		0x02	/* No medium in the drive */
 #define STA_PROTECT		0x04	/* Write protected */

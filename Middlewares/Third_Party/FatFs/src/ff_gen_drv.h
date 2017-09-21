@@ -1,26 +1,46 @@
 /**
   ******************************************************************************
-  * @file    ff_gen_drv.h 
+  * @file    ff_gen_drv.h
   * @author  MCD Application Team
-  * @version V1.3.0
-  * @date    08-May-2015
+  * @version V2.0.1
+  * @date    10-July-2017
   * @brief   Header for ff_gen_drv.c module.
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; COPYRIGHT 2015 STMicroelectronics</center></h2>
+  * <h2><center>&copy; Copyright (c) 2017 STMicroelectronics International N.V.
+  * All rights reserved.</center></h2>
   *
-  * Licensed under MCD-ST Liberty SW License Agreement V2, (the "License");
-  * You may not use this file except in compliance with the License.
-  * You may obtain a copy of the License at:
+  * Redistribution and use in source and binary forms, with or without
+  * modification, are permitted, provided that the following conditions are met:
   *
-  *        http://www.st.com/software_license_agreement_liberty_v2
+  * 1. Redistribution of source code must retain the above copyright notice,
+  *    this list of conditions and the following disclaimer.
+  * 2. Redistributions in binary form must reproduce the above copyright notice,
+  *    this list of conditions and the following disclaimer in the documentation
+  *    and/or other materials provided with the distribution.
+  * 3. Neither the name of STMicroelectronics nor the names of other
+  *    contributors to this software may be used to endorse or promote products
+  *    derived from this software without specific written permission.
+  * 4. This software, including modifications and/or derivative works of this
+  *    software, must execute solely and exclusively on microcontroller or
+  *    microprocessor devices manufactured by or for STMicroelectronics.
+  * 5. Redistribution and use of this software other than as permitted under
+  *    this license is void and will automatically terminate your rights under
+  *    this license.
   *
-  * Unless required by applicable law or agreed to in writing, software 
-  * distributed under the License is distributed on an "AS IS" BASIS, 
-  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  * See the License for the specific language governing permissions and
-  * limitations under the License.
+  * THIS SOFTWARE IS PROVIDED BY STMICROELECTRONICS AND CONTRIBUTORS "AS IS"
+  * AND ANY EXPRESS, IMPLIED OR STATUTORY WARRANTIES, INCLUDING, BUT NOT
+  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+  * PARTICULAR PURPOSE AND NON-INFRINGEMENT OF THIRD PARTY INTELLECTUAL PROPERTY
+  * RIGHTS ARE DISCLAIMED TO THE FULLEST EXTENT PERMITTED BY LAW. IN NO EVENT
+  * SHALL STMICROELECTRONICS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+  * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+  * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+  * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   *
   ******************************************************************************
   */
@@ -31,50 +51,51 @@
 
 #ifdef __cplusplus
  extern "C" {
-#endif 
+#endif
 
 /* Includes ------------------------------------------------------------------*/
 #include "diskio.h"
 #include "ff.h"
+#include "stdint.h"
+
 
 /* Exported types ------------------------------------------------------------*/
 
-/** 
-  * @brief  Disk IO Driver structure definition  
-  */ 
+/**
+  * @brief  Disk IO Driver structure definition
+  */
 typedef struct
 {
   DSTATUS (*disk_initialize) (BYTE);                     /*!< Initialize Disk Drive                     */
   DSTATUS (*disk_status)     (BYTE);                     /*!< Get Disk Status                           */
   DRESULT (*disk_read)       (BYTE, BYTE*, DWORD, UINT);       /*!< Read Sector(s)                            */
-#if _USE_WRITE == 1 
+#if _USE_WRITE == 1
   DRESULT (*disk_write)      (BYTE, const BYTE*, DWORD, UINT); /*!< Write Sector(s) when _USE_WRITE = 0       */
 #endif /* _USE_WRITE == 1 */
-#if _USE_IOCTL == 1  
+#if _USE_IOCTL == 1
   DRESULT (*disk_ioctl)      (BYTE, BYTE, void*);              /*!< I/O control operation when _USE_IOCTL = 1 */
 #endif /* _USE_IOCTL == 1 */
 
 }Diskio_drvTypeDef;
 
-/** 
-  * @brief  Global Disk IO Drivers structure definition  
-  */ 
+/**
+  * @brief  Global Disk IO Drivers structure definition
+  */
 typedef struct
-{ 
+{
   uint8_t                 is_initialized[_VOLUMES];
-  Diskio_drvTypeDef       *drv[_VOLUMES];
+  const Diskio_drvTypeDef *drv[_VOLUMES];
   uint8_t                 lun[_VOLUMES];
-  __IO uint8_t            nbr;
+  volatile uint8_t        nbr;
 
 }Disk_drvTypeDef;
 
 /* Exported constants --------------------------------------------------------*/
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions ------------------------------------------------------- */
-uint8_t FATFS_LinkDriverEx(Diskio_drvTypeDef *drv, char *path, uint8_t lun);
-uint8_t FATFS_LinkDriver(Diskio_drvTypeDef *drv, char *path);
+uint8_t FATFS_LinkDriver(const Diskio_drvTypeDef *drv, char *path);
 uint8_t FATFS_UnLinkDriver(char *path);
-uint8_t FATFS_LinkDriverEx(Diskio_drvTypeDef *drv, char *path, BYTE lun);
+uint8_t FATFS_LinkDriverEx(const Diskio_drvTypeDef *drv, char *path, BYTE lun);
 uint8_t FATFS_UnLinkDriverEx(char *path, BYTE lun);
 uint8_t FATFS_GetAttachedDriversNbr(void);
 
