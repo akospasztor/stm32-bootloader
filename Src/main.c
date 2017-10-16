@@ -193,6 +193,14 @@ void Enter_Bootloader(void)
                     LED_Y_OFF();
                     print("Flash erase finished.");
                     
+                    /* If BTN is pressed, then skip programming */
+                    if(IS_BTN_PRESSED())
+                    {
+                        print("Programming skipped.");
+                        f_close(&fil);
+                        return;
+                    }
+                    
                     /* Programming */
                     print("Starting programming...");
                     LED_Y_ON();
