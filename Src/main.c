@@ -127,7 +127,10 @@ int main(void)
     print("No application in flash.");
     while(1)
     {
-        LED_R_ON();
+        LED_R_ON();     HAL_Delay(150);
+        LED_R_OFF();    HAL_Delay(150);
+        LED_R_ON();     HAL_Delay(150);
+        LED_R_OFF();    HAL_Delay(1050);
     }
 }
 
