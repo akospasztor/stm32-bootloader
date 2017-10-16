@@ -127,7 +127,10 @@ int main(void)
     print("No application in flash.");
     while(1)
     {
-        LED_R_ON();
+        LED_R_ON();     HAL_Delay(150);
+        LED_R_OFF();    HAL_Delay(150);
+        LED_R_ON();     HAL_Delay(150);
+        LED_R_OFF();    HAL_Delay(1050);
     }
 }
 
@@ -192,6 +195,14 @@ void Enter_Bootloader(void)
                     Bootloader_Erase();
                     LED_Y_OFF();
                     print("Flash erase finished.");
+                    
+                    /* If BTN is pressed, then skip programming */
+                    if(IS_BTN_PRESSED())
+                    {
+                        print("Programming skipped.");
+                        f_close(&fil);
+                        return;
+                    }
                     
                     /* Programming */
                     print("Starting programming...");
