@@ -1,6 +1,13 @@
 #ifndef __MAIN_H
 #define __MAIN_H
 
+/*** Application-Specific Configuration ***************************************/
+#define CONF_BUILD          "2017-10-19"    /* Bootloader build date */
+#define CONF_FILENAME       "WGPS2.bin"     /* File name of application located on SD card */
+
+#define USE_SWO_TRACE       1               /* For development/debugging: stdout/stderr via SWO trace */
+/******************************************************************************/
+
 /* Hardware Defines ----------------------------------------------------------*/
 #define BTN_Port            GPIOE
 #define BTN_Pin             GPIO_PIN_0

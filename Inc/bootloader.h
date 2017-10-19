@@ -16,21 +16,19 @@
 #ifndef __BOOTLOADER_H
 #define __BOOTLOADER_H
 
-/*** Bootloader configuration *************************************************/
-#define USE_SWO_TRACE           1       /* For development/debugging: stdout/stderr via SWO trace */
+/*** Bootloader Configuration *************************************************/
 #define USE_CHECKSUM            0       /* Check application checksum on startup */
 #define USE_WRITE_PROTECTION    0       /* Enable write protection after performing in-app-programming */
 #define SET_VECTOR_TABLE        1       /* Automatically set vector table location before launching application */
 #define CLEAR_RESET_FLAGS       1       /* If enabled: bootloader clears reset flags. (This occurs only when OBL RST flag is active.)
                                            If disabled: bootloader does not clear reset flags, not even when OBL RST is active. */
 
-#define APP_FILENAME    "image.bin"             /* File name of application located on SD card */
 #define APP_ADDRESS     (uint32_t)0x08008000    /* Start address of application space in flash */
 #define END_ADDRESS     (uint32_t)0x080FFFFB    /* End address of application space (addr. of last byte) */
 #define CRC_ADDRESS     (uint32_t)0x080FFFFC    /* Start address of application checksum in flash */
 
 #define SYSMEM_ADDRESS  (uint32_t)0x1FFF0000    /* Address of System Memory (ST Bootloader) */
-/*** End of configuration *****************************************************/
+/******************************************************************************/
 
 /* Defines -------------------------------------------------------------------*/
 #define FLASH_PAGE_NBPERBANK    256             /* Number of pages per bank in flash */
