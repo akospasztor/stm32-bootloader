@@ -2323,6 +2323,12 @@
             <file>
                 <name>$PROJ_DIR$\startup_stm32l496xx.s</name>
             </file>
+            <file>
+                <name>$PROJ_DIR$\stm32l476xx_flash.icf</name>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\stm32l496xx_flash.icf</name>
+            </file>
         </group>
         <group>
             <name>Inc</name>

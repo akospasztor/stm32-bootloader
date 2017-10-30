@@ -177,7 +177,7 @@ void Enter_Bootloader(void)
         {
             print("SD mounted.");
             /* Open file */
-            fr = f_open(&fil, APP_FILENAME, FA_READ);
+            fr = f_open(&fil, CONF_FILENAME, FA_READ);
             if(fr == FR_OK)
             {
                 print("Software found on SD.");

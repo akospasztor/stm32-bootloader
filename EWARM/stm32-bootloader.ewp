@@ -2061,6 +2061,18 @@
                     <configuration>L476</configuration>
                 </excluded>
             </file>
+            <file>
+                <name>$PROJ_DIR$\stm32l476xx_flash.icf</name>
+                <excluded>
+                    <configuration>L496</configuration>
+                </excluded>
+            </file>
+            <file>
+                <name>$PROJ_DIR$\stm32l496xx_flash.icf</name>
+                <excluded>
+                    <configuration>L476</configuration>
+                </excluded>
+            </file>
         </group>
         <group>
             <name>Inc</name>
