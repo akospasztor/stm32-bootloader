@@ -116,7 +116,7 @@
                 </option>
                 <option>
                     <name>GBECoreSlave</name>
-                    <version>26</version>
+                    <version>25</version>
                     <state>39</state>
                 </option>
                 <option>
@@ -133,7 +133,7 @@
                 </option>
                 <option>
                     <name>CoreVariant</name>
-                    <version>26</version>
+                    <version>25</version>
                     <state>39</state>
                 </option>
                 <option>
@@ -156,7 +156,7 @@
                 </option>
                 <option>
                     <name>GFPUCoreSlave2</name>
-                    <version>26</version>
+                    <version>25</version>
                     <state>39</state>
                 </option>
                 <option>
@@ -1088,7 +1088,7 @@
                 </option>
                 <option>
                     <name>OGLastSavedByProductVersion</name>
-                    <state>8.20.1.14181</state>
+                    <state>8.11.3.13977</state>
                 </option>
                 <option>
                     <name>GeneralEnableMisra</name>
@@ -1138,7 +1138,7 @@
                 </option>
                 <option>
                     <name>GBECoreSlave</name>
-                    <version>26</version>
+                    <version>25</version>
                     <state>39</state>
                 </option>
                 <option>
@@ -1155,7 +1155,7 @@
                 </option>
                 <option>
                     <name>CoreVariant</name>
-                    <version>26</version>
+                    <version>25</version>
                     <state>39</state>
                 </option>
                 <option>
@@ -1178,7 +1178,7 @@
                 </option>
                 <option>
                     <name>GFPUCoreSlave2</name>
-                    <version>26</version>
+                    <version>25</version>
                     <state>39</state>
                 </option>
                 <option>
