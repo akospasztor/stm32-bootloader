@@ -277,7 +277,7 @@ uint8_t Bootloader_CheckSize(uint32_t appsize)
 /*** Verify checksum of application *******************************************/
 uint8_t Bootloader_VerifyChecksum(void)
 {
-#if USE_CHECKSUM
+#if (USE_CHECKSUM)
     CRC_HandleTypeDef CrcHandle;
     volatile uint32_t calculatedCrc = 0;
     
@@ -309,7 +309,7 @@ uint8_t Bootloader_VerifyChecksum(void)
 /*** Check for application in user flash **************************************/
 uint8_t Bootloader_CheckForApplication(void)
 {
-    return ( ((*(__IO uint32_t*)APP_ADDRESS) & 0x2FFE0000) == 0x20000000 ) ? BL_OK : BL_NO_APP;
+    return ( ((*(__IO uint32_t*)APP_ADDRESS) & ~(RAM_SIZE-1)) == 0x20000000 ) ? BL_OK : BL_NO_APP;
 }
 
 /*** Jump to application ******************************************************/
@@ -325,7 +325,7 @@ void Bootloader_JumpToApplication(void)
     SysTick->LOAD = 0;
     SysTick->VAL  = 0;
     
-#if SET_VECTOR_TABLE
+#if (SET_VECTOR_TABLE)
     SCB->VTOR = APP_ADDRESS;
 #endif
     
