@@ -31,7 +31,7 @@ void    SystemClock_Config(void);
 void    Error_Handler(void);
 void    print(const char* str);
 
-
+/* Main ----------------------------------------------------------------------*/
 int main(void)
 {   
     HAL_Init();
@@ -47,7 +47,7 @@ int main(void)
     if(__HAL_RCC_GET_FLAG(RCC_FLAG_OBLRST))
     { 
         print("OBL flag is active.");
-#if CLEAR_RESET_FLAGS
+#if (CLEAR_RESET_FLAGS)
         /* Clear system reset flags */
         __HAL_RCC_CLEAR_RESET_FLAGS();
         print("Reset flags cleared.");
@@ -97,7 +97,7 @@ int main(void)
     if(Bootloader_CheckForApplication() == BL_OK)
     {
         
-#if USE_CHECKSUM        
+#if (USE_CHECKSUM)
         /* Verify application checksum */
         if(Bootloader_VerifyChecksum() != BL_OK)
         {
@@ -262,7 +262,7 @@ void Enter_Bootloader(void)
     }
     
     /* Enable flash write protection */
-#if USE_WRITE_PROTECTION
+#if (USE_WRITE_PROTECTION)
     print("Enablig flash write protection and generating system reset...");
     if(Bootloader_ConfigProtection(BL_PROTECTION_WRP) != BL_OK)
     {
@@ -461,7 +461,7 @@ void HAL_MspInit(void)
 /*** Debug ***/
 void print(const char* str)
 {
-#if USE_SWO_TRACE
+#if (USE_SWO_TRACE)
     puts(str);
 #endif
 }
