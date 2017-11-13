@@ -2,7 +2,7 @@
 <project>
     <fileVersion>3</fileVersion>
     <configuration>
-        <name>L476</name>
+        <name>L496</name>
         <toolchain>
             <name>ARM</name>
         </toolchain>
@@ -44,7 +44,7 @@
                 </option>
                 <option>
                     <name>MemFile</name>
-                    <state>$TOOLKIT_DIR$\CONFIG\debugger\ST\STM32L476VG.ddf</state>
+                    <state>$TOOLKIT_DIR$\CONFIG\debugger\ST\STM32L496VG.ddf</state>
                 </option>
                 <option>
                     <name>RunToEnable</name>
@@ -88,7 +88,7 @@
                 </option>
                 <option>
                     <name>OCLastSavedByProductVersion</name>
-                    <state>8.11.3.13977</state>
+                    <state>8.20.1.14181</state>
                 </option>
                 <option>
                     <name>UseFlashLoader</name>
@@ -1417,7 +1417,7 @@
         </debuggerPlugins>
     </configuration>
     <configuration>
-        <name>L496</name>
+        <name>L476</name>
         <toolchain>
             <name>ARM</name>
         </toolchain>
@@ -1459,7 +1459,7 @@
                 </option>
                 <option>
                     <name>MemFile</name>
-                    <state>$TOOLKIT_DIR$\CONFIG\debugger\ST\STM32L496VG.ddf</state>
+                    <state>$TOOLKIT_DIR$\CONFIG\debugger\ST\STM32L476VG.ddf</state>
                 </option>
                 <option>
                     <name>RunToEnable</name>
