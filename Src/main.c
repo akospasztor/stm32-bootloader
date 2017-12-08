@@ -275,6 +275,8 @@ void Enter_Bootloader(void)
 /*** SDIO *********************************************************************/
 uint8_t SDMMC1_Init(void)
 {
+    SDCARD_ON();
+    
     if(BSP_SD_Init())
     {
         /* Error */
@@ -293,6 +295,7 @@ void SDMMC1_DeInit(void)
 {
     FATFS_DeInit();
     BSP_SD_DeInit();
+    SDCARD_OFF();
 }
 
 void HAL_SD_MspInit(SD_HandleTypeDef* hsd)
@@ -349,12 +352,14 @@ void GPIO_Init(void)
 {
     GPIO_InitTypeDef GPIO_InitStruct;
     
+    __HAL_RCC_GPIOD_CLK_ENABLE();
     __HAL_RCC_GPIOE_CLK_ENABLE();
 
     /*Configure GPIO pin output levels */
     HAL_GPIO_WritePin(LED_G_Port, LED_G_Pin, GPIO_PIN_RESET);
     HAL_GPIO_WritePin(LED_Y_Port, LED_Y_Pin, GPIO_PIN_RESET);
     HAL_GPIO_WritePin(LED_R_Port, LED_R_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(SD_PWR_Port, SD_PWR_Pin, GPIO_PIN_SET);
     
     /* LED_G_Pin, LED_Y_Pin, LED_R_Pin */
     GPIO_InitStruct.Pin = LED_G_Pin | LED_Y_Pin | LED_R_Pin;
@@ -362,6 +367,13 @@ void GPIO_Init(void)
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
+    
+    /* SD Card Power Pin */
+    GPIO_InitStruct.Pin = SD_PWR_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    HAL_GPIO_Init(SD_PWR_Port, &GPIO_InitStruct);
     
     /* User Button */
     GPIO_InitStruct.Pin = BTN_Pin;

@@ -2,13 +2,16 @@
 #define __MAIN_H
 
 /*** Application-Specific Configuration ***************************************/
-#define CONF_BUILD          "2017-11-13"    /* Bootloader build date */
+#define CONF_BUILD          "2017-12-08"    /* Bootloader build date */
 #define CONF_FILENAME       "WGPS2.bin"     /* File name of application located on SD card */
 
 #define USE_SWO_TRACE       1               /* For development/debugging: stdout/stderr via SWO trace */
 /******************************************************************************/
 
 /* Hardware Defines ----------------------------------------------------------*/
+#define SD_PWR_Port         GPIOD
+#define SD_PWR_Pin          GPIO_PIN_0
+
 #define BTN_Port            GPIOE
 #define BTN_Pin             GPIO_PIN_0
 
@@ -20,6 +23,9 @@
 #define LED_R_Pin           GPIO_PIN_4
 
 /* Hardware Macros -----------------------------------------------------------*/
+#define SDCARD_ON()         HAL_GPIO_WritePin(SD_PWR_Port, SD_PWR_Pin, GPIO_PIN_RESET)
+#define SDCARD_OFF()        HAL_GPIO_WritePin(SD_PWR_Port, SD_PWR_Pin, GPIO_PIN_SET)
+
 #define LED_G_ON()          HAL_GPIO_WritePin(LED_G_Port, LED_G_Pin, GPIO_PIN_SET)
 #define LED_G_OFF()         HAL_GPIO_WritePin(LED_G_Port, LED_G_Pin, GPIO_PIN_RESET)
 #define LED_G_TG()          HAL_GPIO_TogglePin(LED_G_Port, LED_G_Pin)
