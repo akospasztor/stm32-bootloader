@@ -28,8 +28,8 @@ extern FIL   SDFile;            /* File object for SD */
 
 /* Function prototypes -------------------------------------------------------*/
 void    Enter_Bootloader(void);
-uint8_t SDMMC1_Init(void);
-void    SDMMC1_DeInit(void);
+uint8_t SD_Init(void);
+void    SD_DeInit(void);
 void    GPIO_Init(void);
 void    GPIO_DeInit(void);
 void    SystemClock_Config(void);
@@ -121,7 +121,7 @@ int main(void)
         LED_G_OFF();
         
         /* De-initialize bootloader hardware & peripherals */
-        SDMMC1_DeInit();
+        SD_DeInit();
         GPIO_DeInit();
         
         /* Launch application */
@@ -173,7 +173,7 @@ void Enter_Bootloader(void)
     }
     
     /* Initialize SD card */
-    if(!SDMMC1_Init())
+    if(!SD_Init())
     {        
         /* Mount SD card */
         if(f_mount(&SDFatFs, "", 1) == FR_OK)
@@ -275,16 +275,10 @@ void Enter_Bootloader(void)
 #endif
 }
 
-/*** SDIO *********************************************************************/
-uint8_t SDMMC1_Init(void)
+/*** SD Card ******************************************************************/
+uint8_t SD_Init(void)
 {
     SDCARD_ON();
-    
-    if(BSP_SD_Init())
-    {
-        /* Error */
-        return 1;
-    }
     
     if(FATFS_Init())
     {
@@ -292,62 +286,19 @@ uint8_t SDMMC1_Init(void)
         return 1;
     }
     
+    if(BSP_SD_Init())
+    {
+        /* Error */
+        return 1;
+    }
+    
     return 0;
 }
-void SDMMC1_DeInit(void)
+void SD_DeInit(void)
 {
-    FATFS_DeInit();
     BSP_SD_DeInit();
+    FATFS_DeInit();
     SDCARD_OFF();
-}
-
-void HAL_SD_MspInit(SD_HandleTypeDef* hsd)
-{
-    GPIO_InitTypeDef GPIO_InitStruct;
-    if(hsd->Instance==SDMMC1)
-    {
-        __HAL_RCC_GPIOC_CLK_ENABLE();
-        __HAL_RCC_GPIOD_CLK_ENABLE();
-        __HAL_RCC_SDMMC1_CLK_ENABLE();
-
-        /* SDMMC1 GPIO Configuration    
-        PC8     ---> SDMMC1_D0
-        PC9     ---> SDMMC1_D1
-        PC10    ---> SDMMC1_D2
-        PC11    ---> SDMMC1_D3
-        PC12    ---> SDMMC1_CK
-        PD2     ---> SDMMC1_CMD 
-        */
-        GPIO_InitStruct.Pin = GPIO_PIN_8 | GPIO_PIN_9 | GPIO_PIN_10 | GPIO_PIN_11;
-        GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-        GPIO_InitStruct.Pull = GPIO_PULLUP;
-        GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-        GPIO_InitStruct.Alternate = GPIO_AF12_SDMMC1;
-        HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
-
-        GPIO_InitStruct.Pin = GPIO_PIN_12;
-        GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-        GPIO_InitStruct.Pull = GPIO_NOPULL;
-        GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-        GPIO_InitStruct.Alternate = GPIO_AF12_SDMMC1;
-        HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
-
-        GPIO_InitStruct.Pin = GPIO_PIN_2;
-        GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-        GPIO_InitStruct.Pull = GPIO_PULLUP;
-        GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-        GPIO_InitStruct.Alternate = GPIO_AF12_SDMMC1;
-        HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
-    }
-}
-
-void HAL_SD_MspDeInit(SD_HandleTypeDef* hsd)
-{
-    if(hsd->Instance == SDMMC1)
-    {
-        HAL_GPIO_DeInit(GPIOC, GPIO_PIN_8 | GPIO_PIN_9 | GPIO_PIN_10 | GPIO_PIN_11 | GPIO_PIN_12);
-        HAL_GPIO_DeInit(GPIOD, GPIO_PIN_2);
-    }
 }
 
 /*** GPIO Configuration ***/
