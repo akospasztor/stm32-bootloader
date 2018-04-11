@@ -2506,7 +2506,7 @@
             <group>
                 <name>option</name>
                 <file>
-                    <name>$PROJ_DIR$\..\Middlewares\Third_Party\FatFs\src\option\syscall.c</name>
+                    <name>$PROJ_DIR$\..\Middlewares\Third_Party\FatFs\src\option\unicode.c</name>
                 </file>
             </group>
             <file>

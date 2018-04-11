@@ -25,7 +25,6 @@ static uint8_t BTNcounter = 0;
 extern char  SDPath[4];         /* SD logical drive path */
 extern FATFS SDFatFs;           /* File system object for SD logical drive */
 extern FIL   SDFile;            /* File object for SD */
-extern DIR   SDDir;             /* Directory object for SD */
 
 /* Function prototypes -------------------------------------------------------*/
 void    Enter_Bootloader(void);
@@ -143,14 +142,12 @@ int main(void)
 /*** Bootloader ***************************************************************/
 void Enter_Bootloader(void)
 {
-    FATFS FatFs;
-    FIL fil;
-    FRESULT fr;
-    UINT num;
+    FRESULT  fr;
+    UINT     num;
     uint8_t  i;
     uint64_t data;
     uint32_t cntr = 0;
-    char msg[40] = {0x00};
+    char     msg[40] = {0x00};
     
     /* Check for flash write protection */
     if(Bootloader_GetProtectionStatus() & BL_PROTECTION_WRP)
@@ -179,16 +176,16 @@ void Enter_Bootloader(void)
     if(!SDMMC1_Init())
     {        
         /* Mount SD card */
-        if(f_mount(&FatFs, "", 1) == FR_OK)
+        if(f_mount(&SDFatFs, "", 1) == FR_OK)
         {
             print("SD mounted.");
             /* Open file */
-            fr = f_open(&fil, CONF_FILENAME, FA_READ);
+            fr = f_open(&SDFile, CONF_FILENAME, FA_READ);
             if(fr == FR_OK)
             {
                 print("Software found on SD.");
                 /* Check application size found on SD card */
-                if(Bootloader_CheckSize( f_size(&fil) ) == BL_OK)
+                if(Bootloader_CheckSize( f_size(&SDFile) ) == BL_OK)
                 {
                     print("App size OK.");
                     
@@ -206,7 +203,7 @@ void Enter_Bootloader(void)
                     if(IS_BTN_PRESSED())
                     {
                         print("Programming skipped.");
-                        f_close(&fil);
+                        f_close(&SDFile);
                         return;
                     }
                     
@@ -217,7 +214,7 @@ void Enter_Bootloader(void)
                     do
                     {
                         data = 0xFFFFFFFFFFFFFFFF;
-                        fr = f_read(&fil, &data, 8, &num);
+                        fr = f_read(&SDFile, &data, 8, &num);
                         if(num)
                         {
                             uint8_t status = Bootloader_FlashNext(data);
@@ -244,7 +241,7 @@ void Enter_Bootloader(void)
                     LED_G_OFF();
                     LED_Y_OFF();
                 }
-                f_close(&fil);
+                f_close(&SDFile);
                 
             } 
             else /* f_open fails */
@@ -346,7 +343,7 @@ void HAL_SD_MspInit(SD_HandleTypeDef* hsd)
 
 void HAL_SD_MspDeInit(SD_HandleTypeDef* hsd)
 {
-    if(hsd->Instance==SDMMC1)
+    if(hsd->Instance == SDMMC1)
     {
         HAL_GPIO_DeInit(GPIOC, GPIO_PIN_8 | GPIO_PIN_9 | GPIO_PIN_10 | GPIO_PIN_11 | GPIO_PIN_12);
         HAL_GPIO_DeInit(GPIOD, GPIO_PIN_2);
@@ -358,10 +355,10 @@ void GPIO_Init(void)
 {
     GPIO_InitTypeDef GPIO_InitStruct;
     
-    __HAL_RCC_GPIOD_CLK_ENABLE();
-    __HAL_RCC_GPIOE_CLK_ENABLE();
+    __HAL_RCC_GPIOB_CLK_ENABLE();
+    __HAL_RCC_GPIOC_CLK_ENABLE();
 
-    /*Configure GPIO pin output levels */
+    /* Configure GPIO pin output levels */
     HAL_GPIO_WritePin(LED_G_Port, LED_G_Pin, GPIO_PIN_RESET);
     HAL_GPIO_WritePin(LED_Y_Port, LED_Y_Pin, GPIO_PIN_RESET);
     HAL_GPIO_WritePin(LED_R_Port, LED_R_Pin, GPIO_PIN_RESET);
@@ -390,12 +387,11 @@ void GPIO_Init(void)
 }
 void GPIO_DeInit(void)
 {
+    HAL_GPIO_DeInit(BTN_Port, BTN_Pin);
     HAL_GPIO_DeInit(LED_G_Port, LED_G_Pin);
     HAL_GPIO_DeInit(LED_Y_Port, LED_Y_Pin);
     HAL_GPIO_DeInit(LED_R_Port, LED_R_Pin);
-    HAL_GPIO_DeInit(BTN_Port, BTN_Pin);
-    
-    __HAL_RCC_GPIOE_CLK_DISABLE();
+    HAL_GPIO_DeInit(SD_PWR_Port, SD_PWR_Pin);
 }
 
 /*** System Clock Configuration ***/

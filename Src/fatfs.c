@@ -20,7 +20,6 @@
 char  SDPath[4];        /* SD logical drive path */
 FATFS SDFatFs;          /* File system object for SD logical drive */
 FIL   SDFile;           /* File object for SD */
-DIR   SDDir;            /* Directory object for SD */
 
 /* Functions -----------------------------------------------------------------*/
 uint8_t FATFS_Init(void) 

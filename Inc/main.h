@@ -9,9 +9,6 @@
 /******************************************************************************/
 
 /* Hardware Defines ----------------------------------------------------------*/
-#define SD_PWR_Port         GPIOC
-#define SD_PWR_Pin          GPIO_PIN_7
-
 #define BTN_Port            GPIOB
 #define BTN_Pin             GPIO_PIN_8
 
@@ -21,6 +18,9 @@
 #define LED_Y_Pin           GPIO_PIN_5
 #define LED_G_Port          GPIOB
 #define LED_G_Pin           GPIO_PIN_6
+
+#define SD_PWR_Port         GPIOC
+#define SD_PWR_Pin          GPIO_PIN_7
 
 /* Hardware Macros -----------------------------------------------------------*/
 #define SDCARD_ON()         HAL_GPIO_WritePin(SD_PWR_Port, SD_PWR_Pin, GPIO_PIN_RESET)
