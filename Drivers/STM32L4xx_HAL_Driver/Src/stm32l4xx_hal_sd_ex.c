@@ -150,7 +150,7 @@ uint32_t HAL_SDEx_HighSpeed(SD_HandleTypeDef *hsd)
         tempbuff += 8;
       }
       
-      if((HAL_GetTick()-Timeout) >=  SDMMC_DATATIMEOUT)
+      if((HAL_GetTick()-Timeout) >=  SDMMC_HAL_TIMEOUT/*SDMMC_DATATIMEOUT*/)
       {
         hsd->ErrorCode = HAL_SD_ERROR_TIMEOUT;
         hsd->State= HAL_SD_STATE_READY;
