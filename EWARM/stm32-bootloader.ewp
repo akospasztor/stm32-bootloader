@@ -2189,6 +2189,9 @@
                 <file>
                     <name>$PROJ_DIR$\..\Middlewares\Third_Party\FatFs\src\driver\sd_diskio.c</name>
                 </file>
+                <file>
+                    <name>$PROJ_DIR$\..\Middlewares\Third_Party\FatFs\src\driver\sd_diskio.h</name>
+                </file>
             </group>
             <group>
                 <name>option</name>
