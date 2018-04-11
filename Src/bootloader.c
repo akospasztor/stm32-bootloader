@@ -9,7 +9,7 @@
   *	        implementation uses the official HAL library of ST.
   * @see    Please refer to README for detailed information.
   ******************************************************************************
-  * Copyright (c) 2017 Akos Pasztor.                    https://akospasztor.com
+  * Copyright (c) 2018 Akos Pasztor.                    https://akospasztor.com
   ******************************************************************************
 **/
 

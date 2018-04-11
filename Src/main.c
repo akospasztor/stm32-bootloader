@@ -9,7 +9,7 @@
   *
   * @see    Please refer to README for detailed information. 
   ******************************************************************************
-  * Copyright (c) 2017 Akos Pasztor.                    https://akospasztor.com
+  * Copyright (c) 2018 Akos Pasztor.                    https://akospasztor.com
   ******************************************************************************
 **/
 
@@ -19,7 +19,7 @@
 #include "fatfs.h"
 
 /* Variables -----------------------------------------------------------------*/
-uint8_t BTNcounter = 0;
+static uint8_t BTNcounter = 0;
 
 /* Function prototypes -------------------------------------------------------*/
 void    Enter_Bootloader(void);
