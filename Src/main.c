@@ -18,8 +18,14 @@
 #include "bootloader.h"
 #include "fatfs.h"
 
-/* Variables -----------------------------------------------------------------*/
+/* Private variables ---------------------------------------------------------*/
 static uint8_t BTNcounter = 0;
+
+/* External variables --------------------------------------------------------*/
+extern char  SDPath[4];         /* SD logical drive path */
+extern FATFS SDFatFs;           /* File system object for SD logical drive */
+extern FIL   SDFile;            /* File object for SD */
+extern DIR   SDDir;             /* Directory object for SD */
 
 /* Function prototypes -------------------------------------------------------*/
 void    Enter_Bootloader(void);

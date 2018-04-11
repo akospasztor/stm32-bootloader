@@ -16,17 +16,17 @@
 #define SD_TRANSFER_BUSY            ((uint8_t)0x01)
 #define SD_TRANSFER_ERROR           ((uint8_t)0x02)
 
-#define SD_DATATIMEOUT              ((uint32_t)500)      /* ms */
-
 #define SD_PRESENT                  ((uint8_t)0x01)
 #define SD_NOT_PRESENT              ((uint8_t)0x00)
+
+#define SD_DATATIMEOUT              (150U)  /* ms */
+
+#define SDMMC_IRQ_PRIO              1
+#define SD_DMA_IRQ_PRIO             2
      
 /* Exported functions --------------------------------------------------------*/   
 uint8_t BSP_SD_Init(void);
-void    BSP_SD_DeInit(void);
-uint8_t BSP_SD_ITConfig(void);
-void    BSP_SD_DetectIT(void);
-void    BSP_SD_DetectCallback(void);
+uint8_t BSP_SD_DeInit(void);
 uint8_t BSP_SD_ReadBlocks(uint32_t *pData, uint32_t ReadAddr, uint32_t NumOfBlocks, uint32_t Timeout);
 uint8_t BSP_SD_WriteBlocks(uint32_t *pData, uint32_t WriteAddr, uint32_t NumOfBlocks, uint32_t Timeout);
 uint8_t BSP_SD_ReadBlocks_DMA(uint32_t *pData, uint32_t ReadAddr, uint32_t NumOfBlocks);
@@ -37,6 +37,7 @@ void    BSP_SD_GetCardInfo(BSP_SD_CardInfo *CardInfo);
 uint8_t BSP_SD_IsDetected(void);
 
 __weak void BSP_SD_AbortCallback(void);
+__weak void BSP_SD_ErrorCallback(void);
 __weak void BSP_SD_WriteCpltCallback(void);
 __weak void BSP_SD_ReadCpltCallback(void);
 
