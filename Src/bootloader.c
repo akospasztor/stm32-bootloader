@@ -278,7 +278,7 @@ uint8_t Bootloader_CheckSize(uint32_t appsize)
     return ((FLASH_BASE + FLASH_SIZE - APP_ADDRESS) >= appsize) ? BL_OK : BL_SIZE_ERROR;
 }
 
-/*** Verify checksum of application *******************************************/
+/*** Verify checksum of application located in flash **************************/
 uint8_t Bootloader_VerifyChecksum(void)
 {
 #if (USE_CHECKSUM)

@@ -2,7 +2,7 @@
 #define __MAIN_H
 
 /*** Application-Specific Configuration ***************************************/
-#define CONF_BUILD          "2018-04-11"    /* Bootloader build date [YYYY-MM-DD] */
+#define CONF_BUILD          "2018-04-18"    /* Bootloader build date [YYYY-MM-DD] */
 #define CONF_FILENAME       "GPP.bin"       /* File name of application located on SD card */
 
 #define USE_SWO_TRACE       1               /* For development/debugging: stdout/stderr via SWO trace */

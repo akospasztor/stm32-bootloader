@@ -30,6 +30,7 @@ extern FIL   SDFile;            /* File object for SD */
 void    Enter_Bootloader(void);
 uint8_t SD_Init(void);
 void    SD_DeInit(void);
+void    SD_Eject(void);
 void    GPIO_Init(void);
 void    GPIO_DeInit(void);
 void    SystemClock_Config(void);
@@ -101,7 +102,6 @@ int main(void)
     /* Check if there is application in user flash area */
     if(Bootloader_CheckForApplication() == BL_OK)
     {
-        
 #if (USE_CHECKSUM)
         /* Verify application checksum */
         if(Bootloader_VerifyChecksum() != BL_OK)
@@ -145,6 +145,7 @@ void Enter_Bootloader(void)
     FRESULT  fr;
     UINT     num;
     uint8_t  i;
+    uint8_t  status;
     uint64_t data;
     uint32_t cntr;
     uint32_t addr;
@@ -174,152 +175,172 @@ void Enter_Bootloader(void)
     }
     
     /* Initialize SD card */
-    if(!SD_Init())
-    {        
-        /* Mount SD card */
-        fr = f_mount(&SDFatFs, "", 1);
-        if(fr == FR_OK)
+    if(SD_Init())
+    {
+        /* SD init failed */
+        print("SD card cannot be initialized.");
+        return;
+    }
+    
+    /* Mount SD card */
+    fr = f_mount(&SDFatFs, (TCHAR const*)SDPath, 1);
+    if(fr != FR_OK)
+    {
+        /* f_mount failed */
+        print("SD card cannot be mounted.");
+        sprintf(msg, "FatFs error code: %u", fr);
+        print(msg);
+        return;
+    }
+    print("SD mounted.");
+        
+    /* Open file for programming */
+    fr = f_open(&SDFile, CONF_FILENAME, FA_READ);
+    if(fr != FR_OK)
+    {
+        /* f_open failed */
+        print("File cannot be opened.");
+        sprintf(msg, "FatFs error code: %u", fr);
+        print(msg);
+        
+        SD_Eject();
+        print("SD ejected.");
+        return;
+    }
+    print("Software found on SD.");
+    
+    /* Check size of application found on SD card */
+    if(Bootloader_CheckSize( f_size(&SDFile) ) != BL_OK)
+    {
+        print("Error: app on SD card is too large.");
+        
+        f_close(&SDFile);        
+        SD_Eject();
+        print("SD ejected.");
+        return;
+    }
+    print("App size OK.");    
+    
+    /* Step 1: Init Bootloader and Flash */
+    Bootloader_Init();
+    
+    /* Step 2: Erase Flash */
+    print("Erasing flash...");
+    LED_Y_ON();
+    Bootloader_Erase();
+    LED_Y_OFF();
+    print("Flash erase finished.");
+    
+    /* If BTN is pressed, then skip programming */
+    if(IS_BTN_PRESSED())
+    {
+        print("Programming skipped.");
+        
+        f_close(&SDFile);
+        SD_Eject();
+        print("SD ejected.");
+        return;
+    }
+    
+    /* Step 3: Programming */
+    print("Starting programming...");
+    LED_Y_ON();
+    cntr = 0;
+    Bootloader_FlashBegin();
+    do
+    {
+        data = 0xFFFFFFFFFFFFFFFF;
+        fr = f_read(&SDFile, &data, 8, &num);
+        if(num)
         {
-            print("SD mounted.");
-            
-            /* Open file */
-            fr = f_open(&SDFile, CONF_FILENAME, FA_READ);
-            if(fr == FR_OK)
+            status = Bootloader_FlashNext(data);
+            if(status == BL_OK)
             {
-                print("Software found on SD.");
-                
-                /* Check application size found on SD card */
-                if(Bootloader_CheckSize( f_size(&SDFile) ) == BL_OK)
-                {
-                    print("App size OK.");
-                    
-                    /* Init Bootloader and Flash */
-                    Bootloader_Init();
-                    
-                    /* Erase Flash */
-                    print("Erasing flash...");
-                    LED_Y_ON();
-                    Bootloader_Erase();
-                    LED_Y_OFF();
-                    print("Flash erase finished.");
-                    
-                    /* If BTN is pressed, then skip programming */
-                    if(IS_BTN_PRESSED())
-                    {
-                        print("Programming skipped.");
-                        f_close(&SDFile);
-                        return;
-                    }
-                    
-                    /* Programming */
-                    print("Starting programming...");
-                    LED_Y_ON();
-                    
-                    cntr = 0;
-                    Bootloader_FlashBegin();
-                    do
-                    {
-                        data = 0xFFFFFFFFFFFFFFFF;
-                        fr = f_read(&SDFile, &data, 8, &num);
-                        if(num)
-                        {
-                            uint8_t status = Bootloader_FlashNext(data);
-                            if(status == BL_OK)
-                            {
-                                cntr++;
-                            }
-                            else
-                            {
-                                sprintf(msg, "Programming error at: %lu byte", (cntr*8));
-                                print(msg);
-                                break;
-                            }
-                        }
-                        if(cntr % 256 == 0)
-                        {
-                            /* Toggle green LED during programming */
-                            LED_G_TG();
-                        }
-                    } while((fr == FR_OK) && (num > 0));
-                    Bootloader_FlashEnd();
-                    
-                    print("Programming finished.");
-                    sprintf(msg, "Flashed: %lu bytes.", (cntr*8));
-                    print(msg);
-                    LED_G_OFF();
-                    LED_Y_OFF();
-                }
-                f_close(&SDFile);                
-            } 
-            else /* f_open fails */
-            {
-                print("File cannot be opened.");
-                sprintf(msg, "FatFs error code: %u", fr);
-                print(msg);
-            }
-            
-            /* Verify flash content */
-            fr = f_open(&SDFile, CONF_FILENAME, FA_READ);
-            if(fr == FR_OK)
-            {
-                addr = APP_ADDRESS;
-                cntr = 0;
-                do
-                {
-                    data = 0xFFFFFFFFFFFFFFFF;
-                    fr = f_read(&SDFile, &data, 4, &num);
-                    if(num)
-                    {
-                        if(*(uint32_t*)addr == (uint32_t)data)
-                        {
-                            addr += 4;
-                            cntr++;
-                        }
-                        else
-                        {
-                            sprintf(msg, "Verification error at: %lu byte.", (cntr*4));
-                            print(msg);
-                            cntr = 0;
-                            break;
-                        }
-                    }
-                    if(cntr % 256 == 0)
-                    {
-                        /* Toggle green LED during verification */
-                        LED_G_TG();
-                    }
-                } while((fr == FR_OK) && (num > 0));
-                
-                if(cntr)
-                {
-                    print("Verification passed.");
-                }
-                LED_G_OFF();
+                cntr++;
             }
             else
             {
-                print("File cannot be opened.");
-                sprintf(msg, "FatFs error code: %u", fr);
+                sprintf(msg, "Programming error at: %lu byte", (cntr*8));
                 print(msg);
+                
+                f_close(&SDFile);
+                SD_Eject();
+                print("SD ejected.");
+                
+                LED_G_OFF();
+                LED_Y_OFF();
+                return;
             }
-            
-            /* Eject SD card */
-            f_mount(NULL, "", 1);
-            print("SD ejected.");
-            
-        } 
-        else /* f_mount fails */
-        { 
-            print("SD card cannot be mounted.");
-            sprintf(msg, "FatFs error code: %u", fr);
-            print(msg);
         }
+        if(cntr % 256 == 0)
+        {
+            /* Toggle green LED during programming */
+            LED_G_TG();
+        }
+    } while((fr == FR_OK) && (num > 0));
+    
+    /* Step 4: Finalize Programming */
+    Bootloader_FlashEnd();
+    f_close(&SDFile);
+    LED_G_OFF();
+    LED_Y_OFF();
+    print("Programming finished.");
+    sprintf(msg, "Flashed: %lu bytes.", (cntr*8));
+    print(msg);
+    
+    /* Open file for verification */
+    fr = f_open(&SDFile, CONF_FILENAME, FA_READ);
+    if(fr != FR_OK)
+    {
+        /* f_open failed */
+        print("File cannot be opened.");
+        sprintf(msg, "FatFs error code: %u", fr);
+        print(msg);
         
+        SD_Eject();
+        print("SD ejected.");
+        return;
     }
-    else /* SDMMC1_Init fails */
-    { 
-        print("SD card cannot be initialized.");
-    }
+    
+    /* Step 5: Verify Flash Content */
+    addr = APP_ADDRESS;
+    cntr = 0;
+    do
+    {
+        data = 0xFFFFFFFFFFFFFFFF;
+        fr = f_read(&SDFile, &data, 4, &num);
+        if(num)
+        {
+            if(*(uint32_t*)addr == (uint32_t)data)
+            {
+                addr += 4;
+                cntr++;
+            }
+            else
+            {
+                sprintf(msg, "Verification error at: %lu byte.", (cntr*4));
+                print(msg);
+                
+                f_close(&SDFile);
+                SD_Eject();
+                print("SD ejected.");
+                
+                LED_G_OFF();
+                return;
+            }
+        }
+        if(cntr % 256 == 0)
+        {
+            /* Toggle green LED during verification */
+            LED_G_TG();
+        }
+    } while((fr == FR_OK) && (num > 0));
+    print("Verification passed.");
+    LED_G_OFF();
+    
+    /* Eject SD card */
+    SD_Eject();
+    print("SD ejected.");    
     
     /* Enable flash write protection */
 #if (USE_WRITE_PROTECTION)
@@ -351,11 +372,17 @@ uint8_t SD_Init(void)
     
     return 0;
 }
+
 void SD_DeInit(void)
 {
     BSP_SD_DeInit();
     FATFS_DeInit();
     SDCARD_OFF();
+}
+
+void SD_Eject(void)
+{
+    f_mount(NULL, (TCHAR const*)SDPath, 0);
 }
 
 /*** GPIO Configuration ***/
