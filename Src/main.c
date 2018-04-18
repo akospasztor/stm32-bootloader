@@ -41,7 +41,7 @@ int main(void)
 {   
     HAL_Init();
     SystemClock_Config();
-    GPIO_Init();
+    GPIO_Init();    
     
     LED_ALL_ON();
     print("\nPower up, Boot started.");
@@ -60,9 +60,9 @@ int main(void)
     }
     
     /* Check for user action:
-        - button is pressed >= 1 second:  Enter Bootloader
-        - button is pressed >= 4 seconds: Enter ST System Memory
-        - button is pressed >= 9 seconds: Do nothing, launch application
+        - button is pressed >= 1 second:  Enter Bootloader. Green LED is blinking.
+        - button is pressed >= 4 seconds: Enter ST System Memory. Yellow LED is blinking.
+        - button is pressed >= 9 seconds: Do nothing, launch application.
     */
     while(IS_BTN_PRESSED() && BTNcounter < 90)
     {
@@ -235,7 +235,7 @@ void Enter_Bootloader(void)
                         }
                     } while((fr == FR_OK) && (num > 0));
                     print("Programming finished.");
-                    sprintf(msg, "Flashed: %u of (uint64_t) data.", cntr);
+                    sprintf(msg, "Flashed: %lu bytes.", (cntr*8));
                     print(msg);
                     Bootloader_FlashEnd();
                     LED_G_OFF();
@@ -316,11 +316,18 @@ void GPIO_Init(void)
     HAL_GPIO_WritePin(SD_PWR_Port, SD_PWR_Pin, GPIO_PIN_SET);
     
     /* LED_G_Pin, LED_Y_Pin, LED_R_Pin */
-    GPIO_InitStruct.Pin = LED_G_Pin | LED_Y_Pin | LED_R_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
+    
+    GPIO_InitStruct.Pin = LED_G_Pin;
+    HAL_GPIO_Init(LED_G_Port, &GPIO_InitStruct);
+    
+    GPIO_InitStruct.Pin = LED_Y_Pin;
+    HAL_GPIO_Init(LED_Y_Port, &GPIO_InitStruct);
+    
+    GPIO_InitStruct.Pin = LED_R_Pin;
+    HAL_GPIO_Init(LED_R_Port, &GPIO_InitStruct);
     
     /* SD Card Power Pin */
     GPIO_InitStruct.Pin = SD_PWR_Pin;
@@ -343,6 +350,9 @@ void GPIO_DeInit(void)
     HAL_GPIO_DeInit(LED_Y_Port, LED_Y_Pin);
     HAL_GPIO_DeInit(LED_R_Port, LED_R_Pin);
     HAL_GPIO_DeInit(SD_PWR_Port, SD_PWR_Pin);
+    
+    __HAL_RCC_GPIOB_CLK_DISABLE();
+    __HAL_RCC_GPIOC_CLK_DISABLE();
 }
 
 /*** System Clock Configuration ***/
