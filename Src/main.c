@@ -146,7 +146,8 @@ void Enter_Bootloader(void)
     UINT     num;
     uint8_t  i;
     uint64_t data;
-    uint32_t cntr = 0;
+    uint32_t cntr;
+    uint32_t addr;
     char     msg[40] = {0x00};
     
     /* Check for flash write protection */
@@ -176,14 +177,17 @@ void Enter_Bootloader(void)
     if(!SD_Init())
     {        
         /* Mount SD card */
-        if(f_mount(&SDFatFs, "", 1) == FR_OK)
+        fr = f_mount(&SDFatFs, "", 1);
+        if(fr == FR_OK)
         {
             print("SD mounted.");
+            
             /* Open file */
             fr = f_open(&SDFile, CONF_FILENAME, FA_READ);
             if(fr == FR_OK)
             {
                 print("Software found on SD.");
+                
                 /* Check application size found on SD card */
                 if(Bootloader_CheckSize( f_size(&SDFile) ) == BL_OK)
                 {
@@ -210,6 +214,8 @@ void Enter_Bootloader(void)
                     /* Programming */
                     print("Starting programming...");
                     LED_Y_ON();
+                    
+                    cntr = 0;
                     Bootloader_FlashBegin();
                     do
                     {
@@ -224,8 +230,9 @@ void Enter_Bootloader(void)
                             }
                             else
                             {
-                                sprintf(msg, "Error at: %u", cntr);
+                                sprintf(msg, "Programming error at: %lu byte", (cntr*8));
                                 print(msg);
+                                break;
                             }
                         }
                         if(cntr % 256 == 0)
@@ -234,28 +241,78 @@ void Enter_Bootloader(void)
                             LED_G_TG();
                         }
                     } while((fr == FR_OK) && (num > 0));
+                    Bootloader_FlashEnd();
+                    
                     print("Programming finished.");
                     sprintf(msg, "Flashed: %lu bytes.", (cntr*8));
                     print(msg);
-                    Bootloader_FlashEnd();
                     LED_G_OFF();
                     LED_Y_OFF();
                 }
-                f_close(&SDFile);
-                
+                f_close(&SDFile);                
             } 
             else /* f_open fails */
             {
                 print("File cannot be opened.");
+                sprintf(msg, "FatFs error code: %u", fr);
+                print(msg);
             }
             
+            /* Verify flash content */
+            fr = f_open(&SDFile, CONF_FILENAME, FA_READ);
+            if(fr == FR_OK)
+            {
+                addr = APP_ADDRESS;
+                cntr = 0;
+                do
+                {
+                    data = 0xFFFFFFFFFFFFFFFF;
+                    fr = f_read(&SDFile, &data, 4, &num);
+                    if(num)
+                    {
+                        if(*(uint32_t*)addr == (uint32_t)data)
+                        {
+                            addr += 4;
+                            cntr++;
+                        }
+                        else
+                        {
+                            sprintf(msg, "Verification error at: %lu byte.", (cntr*4));
+                            print(msg);
+                            cntr = 0;
+                            break;
+                        }
+                    }
+                    if(cntr % 256 == 0)
+                    {
+                        /* Toggle green LED during verification */
+                        LED_G_TG();
+                    }
+                } while((fr == FR_OK) && (num > 0));
+                
+                if(cntr)
+                {
+                    print("Verification passed.");
+                }
+                LED_G_OFF();
+            }
+            else
+            {
+                print("File cannot be opened.");
+                sprintf(msg, "FatFs error code: %u", fr);
+                print(msg);
+            }
+            
+            /* Eject SD card */
             f_mount(NULL, "", 1);
-            print("SD dismounted.");
+            print("SD ejected.");
             
         } 
         else /* f_mount fails */
         { 
             print("SD card cannot be mounted.");
+            sprintf(msg, "FatFs error code: %u", fr);
+            print(msg);
         }
         
     }
