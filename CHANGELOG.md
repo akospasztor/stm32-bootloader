@@ -1,4 +1,4 @@
-# Changelog
+# Changelog for STM32 Bootloader
 
 ## [Unreleased]
 - Check checksum of application found on SD card before programming
