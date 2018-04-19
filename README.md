@@ -69,7 +69,7 @@ stm32-bootloader/
   |—— Middlewares/
   `—— Src/
 ```
-`Drivers` and `Middlewares` folders contain the CMSIS, HAL and FatFs libraries for the microcontroller. The bootloader source code and corresponding header files can be found in `Src` and `Inc` folders respectively.
+`Drivers` and `Middlewares` folders contain the CMSIS, HAL and FatFs libraries. The bootloader source code and corresponding header files can be found in `Src` and `Inc` folders respectively.
 
 ## How to use
 The bootloader can be easily customized and tailored to the required hardware and environment, i.e. to perform firmware updates over various interfaces or even to implement over-the-air (OTA) updates if the hardware incorporates wireless communication modules. In order to perform successful in-application-programming, the following sequence has to be kept:
