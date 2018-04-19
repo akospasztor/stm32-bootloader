@@ -11,6 +11,9 @@ Customizable Bootloader for STM32 microcontrollers. This example demonstrates ho
 
 ## Bootloader features
 - Configurable application space
+- Flash erase
+- Flash programming
+- Flash verification after programming
 - Checksum verification
 - Flash protection check, write protection enable/disable
 - Extended error handling, fail-safe design
@@ -19,9 +22,9 @@ Customizable Bootloader for STM32 microcontrollers. This example demonstrates ho
 - Easy to customize and port to other microcontrollers
 
 ## Description
-This demo is implemented on a custom hardware (see Figure 1) equipped with a STM32L476VG microcontroller [[1, 2]](#references). The microSD card is connected to the MCU over SDIO interface. The implementation uses the official HAL library of ST [[3]](#references) and is compiled with IAR EWARM. Programming and debugging is performed over SWD with a SEGGER J-Link debug probe.
+This demo is implemented on a custom hardware (see Figure 1) equipped with a STM32L496VG microcontroller [[1, 2]](#references). The microSD card is connected to the MCU over SDIO interface. The implementation uses the official HAL library of ST [[4]](#references) and is compiled with IAR EWARM. Programming and debugging is performed over SWD with a SEGGER J-Link debug probe.
 
-Note: release v1.03 introduces support for the new STM32L496VG microcontroller [[7]](#references). The individual build configurations for different microcontrollers can be selected with a single click in IAR.
+**Note:** The bootloader currently supports the STM32L496VG and STM32L476VG microcontrollers [[1, 3]](#references) out-of-the-box. The individual build configurations for different microcontrollers can be selected with a single click in IAR. Release v1.03 introduced support for the STM32L496VG microcontroller. Earlier versions support the STM32L476VG microcontroller only. For complete list of changes, please see the [CHANGELOG](CHANGELOG.md) file.
 
 ![System overview](system-overview.png)
 
@@ -86,16 +89,16 @@ __Important notice__: in order to perform a successful application jump from the
 The bootloader can be widely configured in the `bootloader.h` file. The file includes detailed comments and descriptions related to the configurable parameters and definitions.
 
 ## References
-[1] STM32L476VG, http://www.st.com/en/microcontrollers/stm32l476vg.html
+[1] STM32L496VG, http://www.st.com/en/microcontrollers/stm32l496vg.html
 
 [2] RM0351, “STM32L4x5 and STM32L4x6 advanced ARM®-based 32-bit MCUs Reference Manual”, http://www.st.com/resource/en/reference_manual/dm00083560.pdf
 
-[3] UM1884, “Description of STM32L4 HAL and Low Layer drivers”, http://www.st.com/resource/en/user_manual/dm00173145.pdf
+[3] STM32L476VG, http://www.st.com/en/microcontrollers/stm32l476vg.html
 
-[4] AN2606, "STM32 microcontroller system memory boot mode", http://www.st.com/resource/en/application_note/cd00167594.pdf
+[4] UM1884, “Description of STM32L4 HAL and Low Layer drivers”, http://www.st.com/resource/en/user_manual/dm00173145.pdf
 
-[5] AN3156, "USB DFU protocol used in the STM32 bootloader", http://www.st.com/resource/en/application_note/cd00264379.pdf
+[5] AN2606, "STM32 microcontroller system memory boot mode", http://www.st.com/resource/en/application_note/cd00167594.pdf
 
-[6] UM0412, "Getting started with DfuSe USB device firmware upgrade", http://www.st.com/resource/en/user_manual/cd00155676.pdf
+[6] AN3156, "USB DFU protocol used in the STM32 bootloader", http://www.st.com/resource/en/application_note/cd00264379.pdf
 
-[7] STM32L496VG, http://www.st.com/en/microcontrollers/stm32l496vg.html
+[7] UM0412, "Getting started with DfuSe USB device firmware upgrade", http://www.st.com/resource/en/user_manual/cd00155676.pdf
