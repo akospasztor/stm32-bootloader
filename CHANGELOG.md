@@ -4,7 +4,7 @@
 - Check checksum of application found on SD card before programming
 
 
-## [1.08] - 2018-04-18
+## [1.08](https://github.com/akospasztor/stm32-bootloader/releases/tag/v1.08) - 2018-04-18
 ### Added
 - Verify flash content after programming
 - Introduced changelog file
@@ -21,21 +21,21 @@
 - Updated header files
 
 
-## [1.07] - 2017-12-08
+## [1.07](https://github.com/akospasztor/stm32-bootloader/releases/tag/v1.07) - 2017-12-08
 ### Added
 - SD card power on/off support
 ### Changed
 - As a result of recent hardware changes introduced in a device that is developed as part of our ongoing projects, the SD card is now powered on/off with a FET controlled by the MCU to minimize energy consumption. Therefore, the SD card has to be manually powered on during initialization.
 
 
-## [1.06] - 2017-11-13
+## [1.06](https://github.com/akospasztor/stm32-bootloader/releases/tag/v1.06) - 2017-11-13
 ### Added
 - Introduced RAM_SIZE define to precisely check whether the flash contains valid application upon startup
 ### Fixed
 - CheckForApplication() function
 
 
-## [1.05] - 2017-10-30
+## [1.05](https://github.com/akospasztor/stm32-bootloader/releases/tag/v1.05) - 2017-10-30
 ### Added
 - Application-specific configuration defines
 ### Changed
@@ -43,7 +43,7 @@
 - Updated STM32L4xx HAL library to 1.8.1
 
 
-## [1.04] - 2017-10-16
+## [1.04](https://github.com/akospasztor/stm32-bootloader/releases/tag/v1.04) - 2017-10-16
 ### Added
 - Option to skip programming after flash erase operation
 ### Changed
@@ -52,7 +52,7 @@
 - General improvements
 
 
-## [1.03] - 2017-09-21
+## [1.03](https://github.com/akospasztor/stm32-bootloader/releases/tag/v1.03) - 2017-09-21
 ### Added
 - Support for STM32L496VG MCU
 - Multiple build configurations for each supported microcontroller
@@ -64,12 +64,12 @@
 - Updated STM32L4xx HAL library to 1.8.0
 
 
-## [1.02] - 2017-08-11
+## [1.02](https://github.com/akospasztor/stm32-bootloader/releases/tag/v1.02) - 2017-08-11
 ### Fixed
 - General improvements
 
 
-## [1.01] - 2017-07-25
+## [1.01](https://github.com/akospasztor/stm32-bootloader/releases/tag/v1.01) - 2017-07-25
 ### Added
 - Option for clearing reset flags after startup
 ### Fixed
@@ -78,5 +78,6 @@
 - General improvements
 
 
-## [1.00] - 2017-05-20
+## [1.00](https://github.com/akospasztor/stm32-bootloader/releases/tag/v1.00) - 2017-05-20
+### Added
 Initial release
