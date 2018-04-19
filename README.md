@@ -46,12 +46,15 @@ After power-up, the bootloader starts. All three LEDs are flashed for a second, 
     2. Initializes SD card, looks for application binary and opens the file.
     3. Checks the file size whether it fits the application space in the microcontroller flash.
     4. Initializes microcontroller flash.
-    5. Erases the application space.
-    6. Performs flash programming.
-    7. Enables write protection of application space if this feature is enabled in the configuration.
-    8. After successful in-application-programming, the bootloader launches the application.
+    5. Erases the application space. During erase, the yellow LED is on. If the user presses the button and keeps it pressed until the end of the flash erase procedure, the bootloader then interrupts the firmware update and does not perform flash programming after the erase operation. This feature is useful if the user only wants to erase the application space.
+    6. Performs flash programming. During flashing, the green LED is blinking.
+    7. Verifies flash programming by re-opening the firmware file located on the SD card and comparing the content of the file with the flash content.
+    8. Enables write protection of application space if this feature is enabled in the configuration.
+    9. After successful in-application-programming, the bootloader launches the application.
 
 - If the button is pressed for more than 4 seconds: the bootloader launches ST's built-in bootloader located in the internal boot ROM (system memory) of the chip. For more information, please refer to [[4]](#references). With this method, the bootloader can be updated or even a full chip re-programming can be performed easily, for instance by connecting the hardware to the computer via USB and using DFU mode [[5, 6]](#references).
+
+- If the button is kept pressed for more than 9 seconds: the bootloader tries to launch the application located in the flash. This scenario is fully equivalent to the case when the user does not press the button after power-up (see above).
 
 ![Bootloader sequence](bootloader-sequence.png)
 
