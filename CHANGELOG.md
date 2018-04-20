@@ -2,6 +2,7 @@
 
 ## [Unreleased]
 - Check checksum of application found on SD card before programming
+- Switch to semantic versioning
 
 
 ## [1.08](https://github.com/akospasztor/stm32-bootloader/releases/tag/v1.08) - 2018-04-18
@@ -78,6 +79,6 @@
 - General improvements
 
 
-## [1.00](https://github.com/akospasztor/stm32-bootloader/releases/tag/v1.00) - 2017-05-20
+## [1.00](https://github.com/akospasztor/stm32-bootloader/releases/tag/v1.00) - 2017-05-21
 ### Added
 Initial release
