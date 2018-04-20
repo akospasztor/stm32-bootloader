@@ -9,7 +9,7 @@
   *	        implementation uses the official HAL library of ST.
   * @see    Please refer to README for detailed information.
   ******************************************************************************
-  * Copyright (c) 2017 Akos Pasztor.                    https://akospasztor.com
+  * Copyright (c) 2018 Akos Pasztor.                    https://akospasztor.com
   ******************************************************************************
 **/
 
@@ -26,9 +26,12 @@ static uint32_t flash_ptr = APP_ADDRESS;
 /*** Initialize bootloader and flash ******************************************/
 void Bootloader_Init(void)
 {
+    __HAL_RCC_SYSCFG_CLK_ENABLE();
+    __HAL_RCC_FLASH_CLK_ENABLE();
+    
     /* Clear flash flags */
     HAL_FLASH_Unlock();
-    __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_EOP | FLASH_FLAG_PGSERR | FLASH_FLAG_WRPERR | FLASH_FLAG_OPTVERR);
+    __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_ALL_ERRORS);
     HAL_FLASH_Lock();
 }
 
@@ -36,9 +39,9 @@ void Bootloader_Init(void)
 uint8_t Bootloader_Erase(void)
 {
     uint32_t NbrOfPages = 0;
-    uint32_t PageError = 0;
-    FLASH_EraseInitTypeDef pEraseInit;
-    HAL_StatusTypeDef status = HAL_OK;
+    uint32_t PageError  = 0;
+    FLASH_EraseInitTypeDef  pEraseInit;
+    HAL_StatusTypeDef       status = HAL_OK;
 
     HAL_FLASH_Unlock();
 
@@ -75,6 +78,7 @@ void Bootloader_FlashBegin(void)
 {    
     /* Reset flash destination address */
     flash_ptr = APP_ADDRESS;
+    
     /* Unlock flash */
     HAL_FLASH_Unlock();
 }
@@ -120,8 +124,8 @@ void Bootloader_FlashEnd(void)
 /*** Get flash protection status **********************************************/
 uint8_t Bootloader_GetProtectionStatus(void)
 {
-    uint8_t protection = BL_PROTECTION_NONE;
     FLASH_OBProgramInitTypeDef OBStruct = {0};
+    uint8_t protection = BL_PROTECTION_NONE;
     
     HAL_FLASH_Unlock();
     
@@ -202,11 +206,11 @@ uint8_t Bootloader_GetProtectionStatus(void)
 /*** Configure flash write protection ***********************************************/
 uint8_t Bootloader_ConfigProtection(uint32_t protection)
 {
-    FLASH_OBProgramInitTypeDef OBStruct = {0};
-    HAL_StatusTypeDef ret = HAL_ERROR;
+    FLASH_OBProgramInitTypeDef  OBStruct = {0};
+    HAL_StatusTypeDef           status = HAL_ERROR;
     
-    ret = HAL_FLASH_Unlock();
-    ret |= HAL_FLASH_OB_Unlock();
+    status = HAL_FLASH_Unlock();
+    status |= HAL_FLASH_OB_Unlock();
 
     /* Bank 1 */
     OBStruct.WRPArea = OB_WRPAREA_BANK1_AREAA;    
@@ -223,14 +227,14 @@ uint8_t Bootloader_ConfigProtection(uint32_t protection)
         OBStruct.WRPStartOffset = 0xFF;
         OBStruct.WRPEndOffset = 0x00;
     }
-    ret |= HAL_FLASHEx_OBProgram(&OBStruct);
+    status |= HAL_FLASHEx_OBProgram(&OBStruct);
 
     /* Area B is not used */
     OBStruct.WRPArea = OB_WRPAREA_BANK1_AREAB;    
     OBStruct.OptionType = OPTIONBYTE_WRP;
     OBStruct.WRPStartOffset = 0xFF;
     OBStruct.WRPEndOffset = 0x00;
-    ret |= HAL_FLASHEx_OBProgram(&OBStruct);
+    status |= HAL_FLASHEx_OBProgram(&OBStruct);
 
     /* Bank 2 */
     OBStruct.WRPArea = OB_WRPAREA_BANK2_AREAA;
@@ -247,25 +251,25 @@ uint8_t Bootloader_ConfigProtection(uint32_t protection)
         OBStruct.WRPStartOffset = 0xFF;
         OBStruct.WRPEndOffset = 0x00;
     }
-    ret |= HAL_FLASHEx_OBProgram(&OBStruct);
+    status |= HAL_FLASHEx_OBProgram(&OBStruct);
 
     /* Area B is not used */
     OBStruct.WRPArea = OB_WRPAREA_BANK2_AREAB;
     OBStruct.OptionType = OPTIONBYTE_WRP;
     OBStruct.WRPStartOffset = 0xFF;
     OBStruct.WRPEndOffset = 0x00;
-    ret |= HAL_FLASHEx_OBProgram(&OBStruct);
+    status |= HAL_FLASHEx_OBProgram(&OBStruct);
     
-    if(ret == HAL_OK)
+    if(status == HAL_OK)
     {
         /* Loading Flash Option Bytes - this generates a system reset. */ 
-        ret |= HAL_FLASH_OB_Launch();
+        status |= HAL_FLASH_OB_Launch();
     }
     
-    ret |= HAL_FLASH_OB_Lock();
-    ret |= HAL_FLASH_Lock();
+    status |= HAL_FLASH_OB_Lock();
+    status |= HAL_FLASH_Lock();
 
-    return (ret == HAL_OK) ? BL_OK : BL_OBP_ERROR;
+    return (status == HAL_OK) ? BL_OK : BL_OBP_ERROR;
 }
 
 /*** Check if application fits into user flash ********************************/
@@ -274,7 +278,7 @@ uint8_t Bootloader_CheckSize(uint32_t appsize)
     return ((FLASH_BASE + FLASH_SIZE - APP_ADDRESS) >= appsize) ? BL_OK : BL_SIZE_ERROR;
 }
 
-/*** Verify checksum of application *******************************************/
+/*** Verify checksum of application located in flash **************************/
 uint8_t Bootloader_VerifyChecksum(void)
 {
 #if (USE_CHECKSUM)
@@ -346,6 +350,7 @@ void Bootloader_JumpToSysMem(void)
     SysTick->LOAD = 0;
     SysTick->VAL  = 0;
     
+    __HAL_RCC_SYSCFG_CLK_ENABLE();
     __HAL_SYSCFG_REMAPMEMORY_SYSTEMFLASH();
     
     __set_MSP(*(__IO uint32_t*)SYSMEM_ADDRESS);
