@@ -86,7 +86,7 @@ The application image has to be in binary format. If the checksum verification i
 - Initial value: 0xFFFFFFFF
 - Bit order: MSB first
 
-__Important notice__: in order to perform a successful application jump from the bootloader, the vector table of the application firmware should be relocated. When creating an application, the microcontroller startup code sets the vector table location to 0x00000000 in the `system_stm32xxxx.c` file by default. This has to be either disabled (the bootloader can be configured to perform the vector table relocation before the jump) or manually set to the appropriate value which is the start address of the application space.
+__Important notice__: in order to perform a successful application jump from the bootloader, the vector table of the application firmware should be relocated. On system reset, the vector table is fixed at address 0x00000000. When creating an application, the microcontroller startup code sets the vector table offset to 0x0000 in the `system_stm32xxxx.c` file by default. This has to be either disabled (the bootloader can be configured to perform the vector table relocation before the jump) or manually set the the vector table offset register (VTOR) to the appropriate offset value which is the start address of the application space. For more information, please refer to [[8]](#references).
 
 ## Configuration
 The bootloader can be widely configured in the `bootloader.h` file. The file includes detailed comments and descriptions related to the configurable parameters and definitions.
@@ -105,3 +105,5 @@ The bootloader can be widely configured in the `bootloader.h` file. The file inc
 [6] AN3156, "USB DFU protocol used in the STM32 bootloader", http://www.st.com/resource/en/application_note/cd00264379.pdf
 
 [7] UM0412, "Getting started with DfuSe USB device firmware upgrade", http://www.st.com/resource/en/user_manual/cd00155676.pdf
+
+[8] PM0214, "STM32F3 Series, STM32F4 Series, STM32L4 Series and STM32L4+ Series Cortex®-M4 Programming Manual", http://www.st.com/resource/en/programming_manual/dm00046982.pdf
