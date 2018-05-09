@@ -1,41 +1,3 @@
-/**
-  ******************************************************************************
-  * @file    stm32l4xx_hal_conf.h
-  * @author  MCD Application Team
-  * @brief   HAL configuration template file.
-  *          This file should be copied to the application folder and renamed
-  *          to stm32l4xx_hal_conf.h.
-  ******************************************************************************
-  * @attention
-  *
-  * <h2><center>&copy; COPYRIGHT(c) 2017 STMicroelectronics</center></h2>
-  *
-  * Redistribution and use in source and binary forms, with or without modification,
-  * are permitted provided that the following conditions are met:
-  *   1. Redistributions of source code must retain the above copyright notice,
-  *      this list of conditions and the following disclaimer.
-  *   2. Redistributions in binary form must reproduce the above copyright notice,
-  *      this list of conditions and the following disclaimer in the documentation
-  *      and/or other materials provided with the distribution.
-  *   3. Neither the name of STMicroelectronics nor the names of its contributors
-  *      may be used to endorse or promote products derived from this software
-  *      without specific prior written permission.
-  *
-  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-  * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-  * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-  *
-  ******************************************************************************
-  */
-
-/* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __STM32L4xx_HAL_CONF_H
 #define __STM32L4xx_HAL_CONF_H
 
@@ -43,13 +5,14 @@
  extern "C" {
 #endif
 
+#include "main.h" 
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
 
+/* ######################### Custom Definitions ############################# */     
+#define SDMMC_HAL_TIMEOUT   500     /* [ms] */
+
 /* ########################## Module Selection ############################## */
-/**
-  * @brief This is the list of modules to be used in the HAL driver
-  */
 #define HAL_MODULE_ENABLED
 //#define HAL_ADC_MODULE_ENABLED
 //#define HAL_CAN_MODULE_ENABLED
@@ -66,18 +29,18 @@
 //#define HAL_FIREWALL_MODULE_ENABLED
 #define HAL_FLASH_MODULE_ENABLED
 //#define HAL_GFXMMU_MODULE_ENABLED
+#define HAL_GPIO_MODULE_ENABLED
 //#define HAL_HASH_MODULE_ENABLED
 //#define HAL_HCD_MODULE_ENABLED
-//#define HAL_NAND_MODULE_ENABLED
-//#define HAL_NOR_MODULE_ENABLED
-//#define HAL_SRAM_MODULE_ENABLED
-#define HAL_GPIO_MODULE_ENABLED
 //#define HAL_I2C_MODULE_ENABLED
+//#define HAL_I2S_MODULE_ENABLED
 //#define HAL_IRDA_MODULE_ENABLED
 //#define HAL_IWDG_MODULE_ENABLED
 //#define HAL_LCD_MODULE_ENABLED
 //#define HAL_LPTIM_MODULE_ENABLED
 //#define HAL_LTDC_MODULE_ENABLED
+//#define HAL_NAND_MODULE_ENABLED
+//#define HAL_NOR_MODULE_ENABLED
 //#define HAL_OPAMP_MODULE_ENABLED
 //#define HAL_OSPI_MODULE_ENABLED
 //#define HAL_PCD_MODULE_ENABLED
@@ -91,6 +54,7 @@
 //#define HAL_SMARTCARD_MODULE_ENABLED
 //#define HAL_SMBUS_MODULE_ENABLED
 //#define HAL_SPI_MODULE_ENABLED
+//#define HAL_SRAM_MODULE_ENABLED
 //#define HAL_SWPMI_MODULE_ENABLED
 //#define HAL_TIM_MODULE_ENABLED
 //#define HAL_TSC_MODULE_ENABLED
@@ -98,14 +62,13 @@
 //#define HAL_USART_MODULE_ENABLED
 //#define HAL_WWDG_MODULE_ENABLED
 
-
 /* ########################## Oscillator Values adaptation ####################*/
 /**
   * @brief Adjust the value of External High Speed oscillator (HSE) used in your application.
   *        This value is used by the RCC HAL module to compute the system frequency
-  *        (when HSE is used as system clock source, directly or through the PLL).
+  *        (when HSE is used as system clock source, directly or through the PLL).  
   */
-#if !defined  (HSE_VALUE)
+#if !defined  (HSE_VALUE) 
   #define HSE_VALUE    ((uint32_t)8000000U) /*!< Value of the External oscillator in Hz */
 #endif /* HSE_VALUE */
 
@@ -120,11 +83,10 @@
 #if !defined  (MSI_VALUE)
   #define MSI_VALUE    ((uint32_t)4000000U) /*!< Value of the Internal oscillator in Hz*/
 #endif /* MSI_VALUE */
-
 /**
   * @brief Internal High Speed oscillator (HSI) value.
   *        This value is used by the RCC HAL module to compute the system frequency
-  *        (when HSI is used as system clock source, directly or through the PLL).
+  *        (when HSI is used as system clock source, directly or through the PLL). 
   */
 #if !defined  (HSI_VALUE)
   #define HSI_VALUE    ((uint32_t)16000000U) /*!< Value of the Internal oscillator in Hz*/
@@ -138,18 +100,19 @@
   *        which is subject to manufacturing process variations.
   */
 #if !defined  (HSI48_VALUE) 
-  #define HSI48_VALUE   ((uint32_t)48000000U) /*!< Value of the Internal High Speed oscillator for USB FS/SDMMC/RNG in Hz.
-                                               The real value my vary depending on manufacturing process variations.*/
+ #define HSI48_VALUE   ((uint32_t)48000000U) /*!< Value of the Internal High Speed oscillator for USB FS/SDMMC/RNG in Hz.
+                                              The real value my vary depending on manufacturing process variations.*/
 #endif /* HSI48_VALUE */
 
 /**
   * @brief Internal Low Speed oscillator (LSI) value.
   */
 #if !defined  (LSI_VALUE) 
-  #define LSI_VALUE  ((uint32_t)32000U)      /*!< LSI Typical Value in Hz*/
-#endif /* LSI_VALUE */                       /*!< Value of the Internal Low Speed oscillator in Hz
-                                              The real value may vary depending on the variations
-                                              in voltage and temperature.*/
+ #define LSI_VALUE  ((uint32_t)32000U)       /*!< LSI Typical Value in Hz*/
+#endif /* LSI_VALUE */                      /*!< Value of the Internal Low Speed oscillator in Hz
+                                             The real value may vary depending on the variations
+                                             in voltage and temperature.*/
+
 /**
   * @brief External Low Speed oscillator (LSE) value.
   *        This value is used by the UART, RTC HAL module to compute the system frequency
@@ -159,7 +122,7 @@
 #endif /* LSE_VALUE */
 
 #if !defined  (LSE_STARTUP_TIMEOUT)
-  #define LSE_STARTUP_TIMEOUT    ((uint32_t)5000U)  /*!< Time out for LSE start up, in ms */
+  #define LSE_STARTUP_TIMEOUT    ((uint32_t)5000U)   /*!< Time out for LSE start up, in ms */
 #endif /* HSE_STARTUP_TIMEOUT */
 
 /**
@@ -168,7 +131,7 @@
   *        frequency.
   */
 #if !defined  (EXTERNAL_SAI1_CLOCK_VALUE)
-  #define EXTERNAL_SAI1_CLOCK_VALUE    ((uint32_t)48000U) /*!< Value of the SAI1 External clock source in Hz*/
+  #define EXTERNAL_SAI1_CLOCK_VALUE    ((uint32_t)2097000U) /*!< Value of the SAI1 External clock source in Hz*/
 #endif /* EXTERNAL_SAI1_CLOCK_VALUE */
 
 /**
@@ -177,7 +140,7 @@
   *        frequency.
   */
 #if !defined  (EXTERNAL_SAI2_CLOCK_VALUE)
-  #define EXTERNAL_SAI2_CLOCK_VALUE    ((uint32_t)48000U) /*!< Value of the SAI2 External clock source in Hz*/
+  #define EXTERNAL_SAI2_CLOCK_VALUE    ((uint32_t)2097000U) /*!< Value of the SAI2 External clock source in Hz*/
 #endif /* EXTERNAL_SAI2_CLOCK_VALUE */
 
 /* Tip: To avoid modifying this file each time you need to use different HSE,
@@ -186,20 +149,21 @@
 /* ########################### System Configuration ######################### */
 /**
   * @brief This is the HAL system configuration section
-  */
-#define  VDD_VALUE                    ((uint32_t)3000U) /*!< Value of VDD in mv */
-#define  TICK_INT_PRIORITY            ((uint32_t)0x00U) /*!< tick interrupt priority */
-#define  USE_RTOS                     0U
-#define  PREFETCH_ENABLE              0U
-#define  INSTRUCTION_CACHE_ENABLE     1U
-#define  DATA_CACHE_ENABLE            1U
+  */     
+  
+#define  VDD_VALUE                  ((uint32_t)3000U) /*!< Value of VDD in mv */           
+#define  TICK_INT_PRIORITY          ((uint32_t)0U)    /*!< tick interrupt priority */            
+#define  USE_RTOS                   0U     
+#define  PREFETCH_ENABLE            0U
+#define  INSTRUCTION_CACHE_ENABLE   1U
+#define  DATA_CACHE_ENABLE          1U
 
 /* ########################## Assert Selection ############################## */
 /**
-  * @brief Uncomment the line below to expanse the "assert_param" macro in the
+  * @brief Uncomment the line below to expanse the "assert_param" macro in the 
   *        HAL drivers code
   */
-/* #define USE_FULL_ASSERT               1U */
+/* #define USE_FULL_ASSERT    1U */
 
 /* ################## SPI peripheral configuration ########################## */
 
@@ -208,7 +172,7 @@
  * Deactivated: CRC code cleaned from driver
  */
 
-#define USE_SPI_CRC                   1U
+#define USE_SPI_CRC                 0U
 
 /* Includes ------------------------------------------------------------------*/
 /**
@@ -217,6 +181,7 @@
 
 #ifdef HAL_RCC_MODULE_ENABLED
   #include "stm32l4xx_hal_rcc.h"
+  #include "stm32l4xx_hal_rcc_ex.h"
 #endif /* HAL_RCC_MODULE_ENABLED */
 
 #ifdef HAL_GPIO_MODULE_ENABLED
@@ -225,6 +190,7 @@
 
 #ifdef HAL_DMA_MODULE_ENABLED
   #include "stm32l4xx_hal_dma.h"
+  #include "stm32l4xx_hal_dma_ex.h"
 #endif /* HAL_DMA_MODULE_ENABLED */
 
 #ifdef HAL_DFSDM_MODULE_ENABLED
@@ -409,9 +375,9 @@
   *         If expr is true, it returns no value.
   * @retval None
   */
-  #define assert_param(expr) ((expr) ? (void)0U : assert_failed((char *)__FILE__, __LINE__))
+  #define assert_param(expr) ((expr) ? (void)0U : assert_failed((uint8_t *)__FILE__, __LINE__))
 /* Exported functions ------------------------------------------------------- */
-  void assert_failed(char *file, uint32_t line);
+  void assert_failed(uint8_t* file, uint32_t line);
 #else
   #define assert_param(expr) ((void)0U)
 #endif /* USE_FULL_ASSERT */
@@ -421,6 +387,5 @@
 #endif
 
 #endif /* __STM32L4xx_HAL_CONF_H */
-
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

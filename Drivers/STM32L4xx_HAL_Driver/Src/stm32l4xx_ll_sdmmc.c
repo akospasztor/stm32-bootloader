@@ -1209,16 +1209,16 @@ static uint32_t SDMMC_GetCmdError(SDMMC_TypeDef *SDMMCx)
 {
   /* 8 is the number of required instructions cycles for the below loop statement.
   The SDMMC_CMDTIMEOUT is expressed in ms */
-  register uint32_t count = SDMMC_CMDTIMEOUT * (SystemCoreClock / 8 /1000);
+  register uint32_t count = (SDMMC_CMDTIMEOUT * (SystemCoreClock / 1000) / 8);
   
   do
   {
-    if (count-- == 0)
+    if((count--) == 1)
     {
       return SDMMC_ERROR_TIMEOUT;
     }
     
-  }while(!__SDMMC_GET_FLAG(SDMMCx, SDMMC_FLAG_CMDSENT));
+  } while( !__SDMMC_GET_FLAG(SDMMCx, SDMMC_FLAG_CMDSENT) );
   
   /* Clear all the static flags */
   __SDMMC_CLEAR_FLAG(SDMMCx, SDMMC_STATIC_CMD_FLAGS);

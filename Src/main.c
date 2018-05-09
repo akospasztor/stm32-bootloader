@@ -9,7 +9,7 @@
   *
   * @see    Please refer to README for detailed information. 
   ******************************************************************************
-  * Copyright (c) 2017 Akos Pasztor.                    https://akospasztor.com
+  * Copyright (c) 2018 Akos Pasztor.                    https://akospasztor.com
   ******************************************************************************
 **/
 
@@ -18,13 +18,19 @@
 #include "bootloader.h"
 #include "fatfs.h"
 
-/* Variables -----------------------------------------------------------------*/
-uint8_t BTNcounter = 0;
+/* Private variables ---------------------------------------------------------*/
+static uint8_t BTNcounter = 0;
+
+/* External variables --------------------------------------------------------*/
+extern char  SDPath[4];         /* SD logical drive path */
+extern FATFS SDFatFs;           /* File system object for SD logical drive */
+extern FIL   SDFile;            /* File object for SD */
 
 /* Function prototypes -------------------------------------------------------*/
 void    Enter_Bootloader(void);
-uint8_t SDMMC1_Init(void);
-void    SDMMC1_DeInit(void);
+uint8_t SD_Init(void);
+void    SD_DeInit(void);
+void    SD_Eject(void);
 void    GPIO_Init(void);
 void    GPIO_DeInit(void);
 void    SystemClock_Config(void);
@@ -36,7 +42,7 @@ int main(void)
 {   
     HAL_Init();
     SystemClock_Config();
-    GPIO_Init();
+    GPIO_Init();    
     
     LED_ALL_ON();
     print("\nPower up, Boot started.");
@@ -55,9 +61,9 @@ int main(void)
     }
     
     /* Check for user action:
-        - button is pressed >= 1 second:  Enter Bootloader
-        - button is pressed >= 4 seconds: Enter ST System Memory
-        - button is pressed >= 9 seconds: Do nothing, launch application
+        - button is pressed >= 1 second:  Enter Bootloader. Green LED is blinking.
+        - button is pressed >= 4 seconds: Enter ST System Memory. Yellow LED is blinking.
+        - button is pressed >= 9 seconds: Do nothing, launch application.
     */
     while(IS_BTN_PRESSED() && BTNcounter < 90)
     {
@@ -96,7 +102,6 @@ int main(void)
     /* Check if there is application in user flash area */
     if(Bootloader_CheckForApplication() == BL_OK)
     {
-        
 #if (USE_CHECKSUM)
         /* Verify application checksum */
         if(Bootloader_VerifyChecksum() != BL_OK)
@@ -116,7 +121,7 @@ int main(void)
         LED_G_OFF();
         
         /* De-initialize bootloader hardware & peripherals */
-        SDMMC1_DeInit();
+        SD_DeInit();
         GPIO_DeInit();
         
         /* Launch application */
@@ -137,14 +142,14 @@ int main(void)
 /*** Bootloader ***************************************************************/
 void Enter_Bootloader(void)
 {
-    FATFS FatFs;
-    FIL fil;
-    FRESULT fr;
-    UINT num;
+    FRESULT  fr;
+    UINT     num;
     uint8_t  i;
+    uint8_t  status;
     uint64_t data;
-    uint32_t cntr = 0;
-    char msg[40] = {0x00};
+    uint32_t cntr;
+    uint32_t addr;
+    char     msg[40] = {0x00};
     
     /* Check for flash write protection */
     if(Bootloader_GetProtectionStatus() & BL_PROTECTION_WRP)
@@ -170,96 +175,172 @@ void Enter_Bootloader(void)
     }
     
     /* Initialize SD card */
-    if(!SDMMC1_Init())
-    {        
-        /* Mount SD card */
-        if(f_mount(&FatFs, "", 1) == FR_OK)
-        {
-            print("SD mounted.");
-            /* Open file */
-            fr = f_open(&fil, CONF_FILENAME, FA_READ);
-            if(fr == FR_OK)
-            {
-                print("Software found on SD.");
-                /* Check application size found on SD card */
-                if(Bootloader_CheckSize( f_size(&fil) ) == BL_OK)
-                {
-                    print("App size OK.");
-                    
-                    /* Init Bootloader and Flash */
-                    Bootloader_Init();
-                    
-                    /* Erase Flash */
-                    print("Erasing flash...");
-                    LED_Y_ON();
-                    Bootloader_Erase();
-                    LED_Y_OFF();
-                    print("Flash erase finished.");
-                    
-                    /* If BTN is pressed, then skip programming */
-                    if(IS_BTN_PRESSED())
-                    {
-                        print("Programming skipped.");
-                        f_close(&fil);
-                        return;
-                    }
-                    
-                    /* Programming */
-                    print("Starting programming...");
-                    LED_Y_ON();
-                    Bootloader_FlashBegin();
-                    do
-                    {
-                        data = 0xFFFFFFFFFFFFFFFF;
-                        fr = f_read(&fil, &data, 8, &num);
-                        if(num)
-                        {
-                            uint8_t status = Bootloader_FlashNext(data);
-                            if(status == BL_OK)
-                            {
-                                cntr++;
-                            }
-                            else
-                            {
-                                sprintf(msg, "Error at: %u", cntr);
-                                print(msg);
-                            }
-                        }
-                        if(cntr % 256 == 0)
-                        {
-                            /* Toggle green LED during programming */
-                            LED_G_TG();
-                        }
-                    } while((fr == FR_OK) && (num > 0));
-                    print("Programming finished.");
-                    sprintf(msg, "Flashed: %u of (uint64_t) data.", cntr);
-                    print(msg);
-                    Bootloader_FlashEnd();
-                    LED_G_OFF();
-                    LED_Y_OFF();
-                }
-                f_close(&fil);
-                
-            } 
-            else /* f_open fails */
-            {
-                print("File cannot be opened.");
-            }
-            
-            f_mount(NULL, "", 1);
-            print("SD dismounted.");
-            
-        } 
-        else /* f_mount fails */
-        { 
-            print("SD card cannot be mounted.");
-        }
-        
-    }
-    else /* SDMMC1_Init fails */
-    { 
+    if(SD_Init())
+    {
+        /* SD init failed */
         print("SD card cannot be initialized.");
+        return;
     }
+    
+    /* Mount SD card */
+    fr = f_mount(&SDFatFs, (TCHAR const*)SDPath, 1);
+    if(fr != FR_OK)
+    {
+        /* f_mount failed */
+        print("SD card cannot be mounted.");
+        sprintf(msg, "FatFs error code: %u", fr);
+        print(msg);
+        return;
+    }
+    print("SD mounted.");
+        
+    /* Open file for programming */
+    fr = f_open(&SDFile, CONF_FILENAME, FA_READ);
+    if(fr != FR_OK)
+    {
+        /* f_open failed */
+        print("File cannot be opened.");
+        sprintf(msg, "FatFs error code: %u", fr);
+        print(msg);
+        
+        SD_Eject();
+        print("SD ejected.");
+        return;
+    }
+    print("Software found on SD.");
+    
+    /* Check size of application found on SD card */
+    if(Bootloader_CheckSize( f_size(&SDFile) ) != BL_OK)
+    {
+        print("Error: app on SD card is too large.");
+        
+        f_close(&SDFile);        
+        SD_Eject();
+        print("SD ejected.");
+        return;
+    }
+    print("App size OK.");    
+    
+    /* Step 1: Init Bootloader and Flash */
+    Bootloader_Init();
+    
+    /* Step 2: Erase Flash */
+    print("Erasing flash...");
+    LED_Y_ON();
+    Bootloader_Erase();
+    LED_Y_OFF();
+    print("Flash erase finished.");
+    
+    /* If BTN is pressed, then skip programming */
+    if(IS_BTN_PRESSED())
+    {
+        print("Programming skipped.");
+        
+        f_close(&SDFile);
+        SD_Eject();
+        print("SD ejected.");
+        return;
+    }
+    
+    /* Step 3: Programming */
+    print("Starting programming...");
+    LED_Y_ON();
+    cntr = 0;
+    Bootloader_FlashBegin();
+    do
+    {
+        data = 0xFFFFFFFFFFFFFFFF;
+        fr = f_read(&SDFile, &data, 8, &num);
+        if(num)
+        {
+            status = Bootloader_FlashNext(data);
+            if(status == BL_OK)
+            {
+                cntr++;
+            }
+            else
+            {
+                sprintf(msg, "Programming error at: %lu byte", (cntr*8));
+                print(msg);
+                
+                f_close(&SDFile);
+                SD_Eject();
+                print("SD ejected.");
+                
+                LED_G_OFF();
+                LED_Y_OFF();
+                return;
+            }
+        }
+        if(cntr % 256 == 0)
+        {
+            /* Toggle green LED during programming */
+            LED_G_TG();
+        }
+    } while((fr == FR_OK) && (num > 0));
+    
+    /* Step 4: Finalize Programming */
+    Bootloader_FlashEnd();
+    f_close(&SDFile);
+    LED_G_OFF();
+    LED_Y_OFF();
+    print("Programming finished.");
+    sprintf(msg, "Flashed: %lu bytes.", (cntr*8));
+    print(msg);
+    
+    /* Open file for verification */
+    fr = f_open(&SDFile, CONF_FILENAME, FA_READ);
+    if(fr != FR_OK)
+    {
+        /* f_open failed */
+        print("File cannot be opened.");
+        sprintf(msg, "FatFs error code: %u", fr);
+        print(msg);
+        
+        SD_Eject();
+        print("SD ejected.");
+        return;
+    }
+    
+    /* Step 5: Verify Flash Content */
+    addr = APP_ADDRESS;
+    cntr = 0;
+    do
+    {
+        data = 0xFFFFFFFFFFFFFFFF;
+        fr = f_read(&SDFile, &data, 4, &num);
+        if(num)
+        {
+            if(*(uint32_t*)addr == (uint32_t)data)
+            {
+                addr += 4;
+                cntr++;
+            }
+            else
+            {
+                sprintf(msg, "Verification error at: %lu byte.", (cntr*4));
+                print(msg);
+                
+                f_close(&SDFile);
+                SD_Eject();
+                print("SD ejected.");
+                
+                LED_G_OFF();
+                return;
+            }
+        }
+        if(cntr % 256 == 0)
+        {
+            /* Toggle green LED during verification */
+            LED_G_TG();
+        }
+    } while((fr == FR_OK) && (num > 0));
+    print("Verification passed.");
+    LED_G_OFF();
+    
+    /* Eject SD card */
+    SD_Eject();
+    print("SD ejected.");    
     
     /* Enable flash write protection */
 #if (USE_WRITE_PROTECTION)
@@ -272,16 +353,10 @@ void Enter_Bootloader(void)
 #endif
 }
 
-/*** SDIO *********************************************************************/
-uint8_t SDMMC1_Init(void)
+/*** SD Card ******************************************************************/
+uint8_t SD_Init(void)
 {
     SDCARD_ON();
-    
-    if(BSP_SD_Init())
-    {
-        /* Error */
-        return 1;
-    }
     
     if(FATFS_Init())
     {
@@ -289,62 +364,25 @@ uint8_t SDMMC1_Init(void)
         return 1;
     }
     
+    if(BSP_SD_Init())
+    {
+        /* Error */
+        return 1;
+    }
+    
     return 0;
 }
-void SDMMC1_DeInit(void)
+
+void SD_DeInit(void)
 {
-    FATFS_DeInit();
     BSP_SD_DeInit();
+    FATFS_DeInit();
     SDCARD_OFF();
 }
 
-void HAL_SD_MspInit(SD_HandleTypeDef* hsd)
+void SD_Eject(void)
 {
-    GPIO_InitTypeDef GPIO_InitStruct;
-    if(hsd->Instance==SDMMC1)
-    {
-        __HAL_RCC_GPIOC_CLK_ENABLE();
-        __HAL_RCC_GPIOD_CLK_ENABLE();
-        __HAL_RCC_SDMMC1_CLK_ENABLE();
-
-        /* SDMMC1 GPIO Configuration    
-        PC8     ---> SDMMC1_D0
-        PC9     ---> SDMMC1_D1
-        PC10    ---> SDMMC1_D2
-        PC11    ---> SDMMC1_D3
-        PC12    ---> SDMMC1_CK
-        PD2     ---> SDMMC1_CMD 
-        */
-        GPIO_InitStruct.Pin = GPIO_PIN_8 | GPIO_PIN_9 | GPIO_PIN_10 | GPIO_PIN_11;
-        GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-        GPIO_InitStruct.Pull = GPIO_PULLUP;
-        GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-        GPIO_InitStruct.Alternate = GPIO_AF12_SDMMC1;
-        HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
-
-        GPIO_InitStruct.Pin = GPIO_PIN_12;
-        GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-        GPIO_InitStruct.Pull = GPIO_NOPULL;
-        GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-        GPIO_InitStruct.Alternate = GPIO_AF12_SDMMC1;
-        HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
-
-        GPIO_InitStruct.Pin = GPIO_PIN_2;
-        GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
-        GPIO_InitStruct.Pull = GPIO_PULLUP;
-        GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
-        GPIO_InitStruct.Alternate = GPIO_AF12_SDMMC1;
-        HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
-    }
-}
-
-void HAL_SD_MspDeInit(SD_HandleTypeDef* hsd)
-{
-    if(hsd->Instance==SDMMC1)
-    {
-        HAL_GPIO_DeInit(GPIOC, GPIO_PIN_8 | GPIO_PIN_9 | GPIO_PIN_10 | GPIO_PIN_11 | GPIO_PIN_12);
-        HAL_GPIO_DeInit(GPIOD, GPIO_PIN_2);
-    }
+    f_mount(NULL, (TCHAR const*)SDPath, 0);
 }
 
 /*** GPIO Configuration ***/
@@ -352,21 +390,28 @@ void GPIO_Init(void)
 {
     GPIO_InitTypeDef GPIO_InitStruct;
     
-    __HAL_RCC_GPIOD_CLK_ENABLE();
-    __HAL_RCC_GPIOE_CLK_ENABLE();
+    __HAL_RCC_GPIOB_CLK_ENABLE();
+    __HAL_RCC_GPIOC_CLK_ENABLE();
 
-    /*Configure GPIO pin output levels */
+    /* Configure GPIO pin output levels */
     HAL_GPIO_WritePin(LED_G_Port, LED_G_Pin, GPIO_PIN_RESET);
     HAL_GPIO_WritePin(LED_Y_Port, LED_Y_Pin, GPIO_PIN_RESET);
     HAL_GPIO_WritePin(LED_R_Port, LED_R_Pin, GPIO_PIN_RESET);
     HAL_GPIO_WritePin(SD_PWR_Port, SD_PWR_Pin, GPIO_PIN_SET);
     
     /* LED_G_Pin, LED_Y_Pin, LED_R_Pin */
-    GPIO_InitStruct.Pin = LED_G_Pin | LED_Y_Pin | LED_R_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
+    
+    GPIO_InitStruct.Pin = LED_G_Pin;
+    HAL_GPIO_Init(LED_G_Port, &GPIO_InitStruct);
+    
+    GPIO_InitStruct.Pin = LED_Y_Pin;
+    HAL_GPIO_Init(LED_Y_Port, &GPIO_InitStruct);
+    
+    GPIO_InitStruct.Pin = LED_R_Pin;
+    HAL_GPIO_Init(LED_R_Port, &GPIO_InitStruct);
     
     /* SD Card Power Pin */
     GPIO_InitStruct.Pin = SD_PWR_Pin;
@@ -384,12 +429,14 @@ void GPIO_Init(void)
 }
 void GPIO_DeInit(void)
 {
+    HAL_GPIO_DeInit(BTN_Port, BTN_Pin);
     HAL_GPIO_DeInit(LED_G_Port, LED_G_Pin);
     HAL_GPIO_DeInit(LED_Y_Port, LED_Y_Pin);
     HAL_GPIO_DeInit(LED_R_Port, LED_R_Pin);
-    HAL_GPIO_DeInit(BTN_Port, BTN_Pin);
+    HAL_GPIO_DeInit(SD_PWR_Port, SD_PWR_Pin);
     
-    __HAL_RCC_GPIOE_CLK_DISABLE();
+    __HAL_RCC_GPIOB_CLK_DISABLE();
+    __HAL_RCC_GPIOC_CLK_DISABLE();
 }
 
 /*** System Clock Configuration ***/

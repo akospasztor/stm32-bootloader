@@ -9,7 +9,7 @@
   *	        function prototypes and other required macros and definitions.
   * @see    Please refer to README for detailed information.
   ******************************************************************************
-  * Copyright (c) 2017 Akos Pasztor.                    https://akospasztor.com
+  * Copyright (c) 2018 Akos Pasztor.                    https://akospasztor.com
   ******************************************************************************
 **/
 
