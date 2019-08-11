@@ -6,7 +6,7 @@
   * @file   fatfs.c
   * @brief  FatFS application
   *         Code for FatFS application
-  *         
+  *
   *
   ******************************************************************************
   * Copyright (c) 2018 Akos Pasztor.                    https://akospasztor.com
@@ -22,7 +22,7 @@ FATFS SDFatFs;          /* File system object for SD logical drive */
 FIL   SDFile;           /* File object for SD */
 
 /* Functions -----------------------------------------------------------------*/
-uint8_t FATFS_Init(void) 
+uint8_t FATFS_Init(void)
 {
     return FATFS_LinkDriver(&SD_Driver, SDPath);
 }
@@ -33,11 +33,11 @@ uint8_t FATFS_DeInit(void)
 }
 
 /**
-  * @brief  Gets Time from RTC 
+  * @brief  Gets Time from RTC
   * @param  None
   * @retval Time in DWORD
   */
 DWORD get_fattime(void)
-{    
+{
     return (DWORD)0;
 }

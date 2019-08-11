@@ -2,7 +2,7 @@
 #define _FFCONF 68300	/* Revision ID */
 
 /*-----------------------------------------------------------------------------/
-/ Additional user header to be used  
+/ Additional user header to be used
 /-----------------------------------------------------------------------------*/
 #include "stm32l4xx_hal.h"
 #include "bsp_driver_sd.h"
@@ -138,7 +138,7 @@
 #define _VOLUMES            1
 /* Number of volumes (logical drives) to be used. */
 
-/* USER CODE BEGIN Volumes */  
+/* USER CODE BEGIN Volumes */
 #define _STR_VOLUME_ID      0       /* 0:Use only 0-9 for drive ID, 1:Use strings for drive ID */
 #define _VOLUME_STRS        "RAM","NAND","CF","SD1","SD2","USB1","USB2","USB3"
 /* _STR_VOLUME_ID switches string support of volume ID.
@@ -146,7 +146,7 @@
 /  number in the path name. _VOLUME_STRS defines the drive ID strings for each
 /  logical drives. Number of items must be equal to _VOLUMES. Valid characters for
 /  the drive ID strings are: A-Z and 0-9. */
-/* USER CODE END Volumes */  
+/* USER CODE END Volumes */
 
 #define _MULTI_PARTITION    0       /* 0:Single partition, 1:Multiple partition */
 /* This option switches support of multi-partition on a physical drive.
@@ -205,7 +205,7 @@
 /  defined by _NORTC_MON, _NORTC_MDAY and _NORTC_YEAR in local time.
 /  To enable timestamp function (_FS_NORTC = 0), get_fattime() function need to be
 /  added to the project to get current time form real-time clock. _NORTC_MON,
-/  _NORTC_MDAY and _NORTC_YEAR have no effect. 
+/  _NORTC_MDAY and _NORTC_YEAR have no effect.
 /  These options have no effect at read-only configuration (_FS_READONLY = 1). */
 
 #define _FS_LOCK            0       /* 0:Disable or >=1:Enable */

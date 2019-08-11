@@ -7,11 +7,11 @@
 /* Exported types ------------------------------------------------------------*/
 #define BSP_SD_CardInfo             HAL_SD_CardInfoTypeDef
 
-/* Exported constants --------------------------------------------------------*/     
+/* Exported constants --------------------------------------------------------*/
 #define MSD_OK                      ((uint8_t)0x00)
 #define MSD_ERROR                   ((uint8_t)0x01)
 #define MSD_ERROR_SD_NOT_PRESENT    ((uint8_t)0x02)
-  
+
 #define SD_TRANSFER_OK              ((uint8_t)0x00)
 #define SD_TRANSFER_BUSY            ((uint8_t)0x01)
 #define SD_TRANSFER_ERROR           ((uint8_t)0x02)
@@ -23,8 +23,8 @@
 
 #define SDMMC_IRQ_PRIO              1
 #define SD_DMA_IRQ_PRIO             2
-     
-/* Exported functions --------------------------------------------------------*/   
+
+/* Exported functions --------------------------------------------------------*/
 uint8_t BSP_SD_Init(void);
 uint8_t BSP_SD_DeInit(void);
 uint8_t BSP_SD_ReadBlocks(uint32_t *pData, uint32_t ReadAddr, uint32_t NumOfBlocks, uint32_t Timeout);

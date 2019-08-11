@@ -19,4 +19,3 @@ uint8_t FATFS_DeInit(void);
 #endif
 
 #endif /* __fatfs_H */
-

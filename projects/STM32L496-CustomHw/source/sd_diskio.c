@@ -22,18 +22,18 @@
 /*
  * Depending on the use case, the SD card initialization could be done at the
  * application level: if it is the case, disable the define below to disable
- * the BSP_SD_Init() call in the SD_Initialize() and manually add a call to 
+ * the BSP_SD_Init() call in the SD_Initialize() and manually add a call to
  * BSP_SD_Init() elsewhere in the application.
  */
 //#define ENABLE_SD_INIT
-     
+
 /* Enable the define below to use the SD driver with DMA.
  * The define has effect in SD_read and SD_write.
  * BSP_DRIVER_SD should handle the DMA MSP initialization.
  */
 #define ENABLE_SD_DMA_DRIVER
 
-/* 
+/*
  * When using cachable memory region, it may be needed to maintain the cache
  * validity. Enable the define below to activate a cache maintenance at each
  * read and write operation.
@@ -55,7 +55,7 @@ DRESULT SD_read (BYTE, BYTE*, DWORD, UINT);
 #if _USE_WRITE == 1
 DRESULT SD_write (BYTE, const BYTE*, DWORD, UINT);
 #endif /* _USE_WRITE == 1 */
-  
+
 #if _USE_IOCTL == 1
 DRESULT SD_ioctl (BYTE, BYTE, void*);
 #endif  /* _USE_IOCTL == 1 */
@@ -96,7 +96,7 @@ static DSTATUS SD_CheckStatus(BYTE lun)
 DSTATUS SD_initialize(BYTE lun)
 {
     Stat = STA_NOINIT;
-    
+
 #if defined(ENABLE_SD_INIT)
     if(BSP_SD_Init() == MSD_OK)
     {
@@ -105,10 +105,10 @@ DSTATUS SD_initialize(BYTE lun)
 #else
     Stat = SD_CheckStatus(lun);
 #endif
-    
+
     ReadStatus = 0;
     WriteStatus = 0;
-    
+
     return Stat;
 }
 
@@ -134,17 +134,17 @@ DRESULT SD_read(BYTE lun, BYTE *buff, DWORD sector, UINT count)
 {
     DRESULT  res;
     uint32_t timeout;
-    
+
 #if defined(ENABLE_SD_DMA_DRIVER)
     /* Use SD Driver in DMA mode */
-    
+
 #if defined(ENABLE_SD_DMA_CACHE_MAINTENANCE)
     uint32_t alignedAddr;
 #endif /* SD_DMA_CACHE_MAINTENANCE */
-    
+
     res = RES_ERROR;
     ReadStatus = 0;
-    
+
     if(BSP_SD_ReadBlocks_DMA((uint32_t*)buff, (uint32_t)(sector), count) == MSD_OK)
     {
         /* Wait for DMA Complete */
@@ -152,7 +152,7 @@ DRESULT SD_read(BYTE lun, BYTE *buff, DWORD sector, UINT count)
         while((ReadStatus == 0) && ((HAL_GetTick() - timeout) < SD_TIMEOUT))
         {
         }
-        
+
         /* In case of a timeout return error */
         if(ReadStatus == 0)
         {
@@ -179,9 +179,9 @@ DRESULT SD_read(BYTE lun, BYTE *buff, DWORD sector, UINT count)
             }
         }
     }
-    
+
     return res;
-    
+
 #else
     /* Use SD Driver in blocking mode */
     res = RES_ERROR;
@@ -199,7 +199,7 @@ DRESULT SD_read(BYTE lun, BYTE *buff, DWORD sector, UINT count)
             }
         }
     }
-    
+
     return res;
 #endif /* ENABLE_SD_DMA_DRIVER */
 }
@@ -218,19 +218,19 @@ DRESULT SD_write(BYTE lun, const BYTE *buff, DWORD sector, UINT count)
 {
     DRESULT  res;
     uint32_t timeout;
-    
+
 #if defined(ENABLE_SD_DMA_DRIVER)
     /* Use SD Driver in DMA mode */
-    
+
 #if defined(ENABLE_SD_DMA_CACHE_MAINTENANCE)
     uint32_t alignedAddr;
     alignedAddr = (uint32_t)buff &  ~0x1F;
     SCB_CleanDCache_by_Addr((uint32_t*)alignedAddr, count*BLOCKSIZE + ((uint32_t)buff - alignedAddr));
 #endif
-    
+
     res = RES_ERROR;
     WriteStatus = 0;
-    
+
     if(BSP_SD_WriteBlocks_DMA((uint32_t*)buff, (uint32_t)(sector), count) == MSD_OK)
     {
         /* Wait for DMA complete */
@@ -238,7 +238,7 @@ DRESULT SD_write(BYTE lun, const BYTE *buff, DWORD sector, UINT count)
         while((WriteStatus == 0) && ((HAL_GetTick() - timeout) < SD_TIMEOUT))
         {
         }
-        
+
         /* In case of a timeout return error */
         if(WriteStatus == 0)
         {
@@ -260,7 +260,7 @@ DRESULT SD_write(BYTE lun, const BYTE *buff, DWORD sector, UINT count)
     }
 
     return res;
-    
+
 #else
     /* Use SD Driver in blocking mode */
     res = RES_ERROR;
@@ -278,7 +278,7 @@ DRESULT SD_write(BYTE lun, const BYTE *buff, DWORD sector, UINT count)
             }
         }
     }
-    
+
     return res;
 #endif /* ENABLE_SD_DMA_DRIVER */
 }
@@ -297,7 +297,7 @@ DRESULT SD_ioctl(BYTE lun, BYTE cmd, void *buff)
   DRESULT res = RES_ERROR;
   BSP_SD_CardInfo CardInfo;
 
-  if(Stat & STA_NOINIT) 
+  if(Stat & STA_NOINIT)
   {
       return RES_NOTRDY;
   }
@@ -355,6 +355,6 @@ void BSP_SD_ReadCpltCallback(void)
   * @retval None
   */
 void BSP_SD_WriteCpltCallback(void)
-{    
+{
     WriteStatus = 1;
 }

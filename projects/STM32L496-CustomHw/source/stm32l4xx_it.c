@@ -6,8 +6,8 @@
   * @file   stm32l4xx_it.c
   * @brief  Interrupt Service Routines
   *	        This file contains the exception and peripheral interrupt handlers.
-  *	
-  * 
+  *
+  *
   ******************************************************************************
   * Copyright (c) 2018 Akos Pasztor.                    https://akospasztor.com
   ******************************************************************************
@@ -21,7 +21,7 @@
 extern SD_HandleTypeDef hsd1;
 
 /******************************************************************************/
-/*            Cortex-M4 Processor Interruption and Exception Handlers         */ 
+/*            Cortex-M4 Processor Interruption and Exception Handlers         */
 /******************************************************************************/
 
 /**
@@ -29,7 +29,7 @@ extern SD_HandleTypeDef hsd1;
 */
 void NMI_Handler(void)
 {
-    
+
 }
 
 /**
@@ -114,7 +114,7 @@ void SysTick_Handler(void)
 * @note  SDMMC DMA Tx, Rx
 */
 void DMA2_Channel5_IRQHandler(void)
-{   
+{
     if((hsd1.Context == (SD_CONTEXT_DMA | SD_CONTEXT_READ_SINGLE_BLOCK)) ||
        (hsd1.Context == (SD_CONTEXT_DMA | SD_CONTEXT_READ_MULTIPLE_BLOCK)))
     {
@@ -134,5 +134,3 @@ void SDMMC1_IRQHandler(void)
 {
     HAL_SD_IRQHandler(&hsd1);
 }
-
-
