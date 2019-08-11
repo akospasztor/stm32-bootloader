@@ -17,29 +17,42 @@
 #define __BOOTLOADER_H
 
 /*** Bootloader Configuration *************************************************/
-#define USE_CHECKSUM            0       /* Check application checksum on startup */
-#define USE_WRITE_PROTECTION    0       /* Enable write protection after performing in-app-programming */
-#define SET_VECTOR_TABLE        1       /* Automatically set vector table location before launching application */
-#define CLEAR_RESET_FLAGS       1       /* If enabled: bootloader clears reset flags. (This occurs only when OBL RST flag is active.)
-                                           If disabled: bootloader does not clear reset flags, not even when OBL RST is active. */
+/* Select target MCU family: please define the target MCU family type below.
+   Currently supported MCU families:
+    - STM32L4
+*/
+#define STM32L4
+
+#define USE_CHECKSUM            0   /* Check application checksum on startup */
+#define USE_WRITE_PROTECTION    0   /* Enable write protection after performing in-app-programming */
+#define SET_VECTOR_TABLE        1   /* Automatically set vector table location before launching application */
+#define CLEAR_RESET_FLAGS       1   /* If enabled: bootloader clears reset flags. (This occurs only when OBL RST flag is active.)
+                                       If disabled: bootloader does not clear reset flags, not even when OBL RST is active. */
 
 #define APP_ADDRESS     (uint32_t)0x08008000    /* Start address of application space in flash */
 #define END_ADDRESS     (uint32_t)0x080FFFFB    /* End address of application space (addr. of last byte) */
 #define CRC_ADDRESS     (uint32_t)0x080FFFFC    /* Start address of application checksum in flash */
 #define SYSMEM_ADDRESS  (uint32_t)0x1FFF0000    /* Address of System Memory (ST Bootloader) */
-
-/* MCU RAM size, used for checking accurately whether flash contains valid application */
-#if (STM32L496xx)
-#define RAM_SIZE        (uint32_t)0x00040000
-#elif (STM32L476xx)
-#define RAM_SIZE        (uint32_t)0x00018000
-#endif
 /******************************************************************************/
 
-/* Defines -------------------------------------------------------------------*/
-#define FLASH_PAGE_NBPERBANK    256             /* Number of pages per bank in flash */
-#define APP_SIZE        (uint32_t)(((END_ADDRESS - APP_ADDRESS) + 3) / 4) /* Size of application in DWORD (32bits or 4bytes) */
+/* Includes ------------------------------------------------------------------*/
+/* Include the appropriate header file */
+#if defined (STM32L4)
+ #include "stm32l4xx.h"
+#else
+ #error "Target MCU header file is not defined or unsupported."
+#endif
 
+/* Defines -------------------------------------------------------------------*/
+/* Size of application in DWORD (32bits or 4bytes) */
+#define APP_SIZE                (uint32_t)(((END_ADDRESS - APP_ADDRESS) + 3) / 4)
+/* Number of pages per bank in flash */
+#define FLASH_PAGE_NBPERBANK    (256)
+/* MCU RAM information (to check whether flash contains valid application) */
+#define RAM_BASE                SRAM1_BASE
+#define RAM_SIZE                SRAM1_SIZE_MAX
+
+/* Enumerations --------------------------------------------------------------*/
 /* Bootloader Error Codes */
 enum
 {
@@ -69,7 +82,7 @@ void    Bootloader_FlashBegin(void);
 uint8_t Bootloader_FlashNext(uint64_t data);
 void    Bootloader_FlashEnd(void);
 
-uint8_t Bootloader_GetProtectionStatus(void); 
+uint8_t Bootloader_GetProtectionStatus(void);
 uint8_t Bootloader_ConfigProtection(uint32_t protection);
 
 uint8_t Bootloader_CheckSize(uint32_t appsize);

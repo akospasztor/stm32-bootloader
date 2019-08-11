@@ -5,7 +5,7 @@
   * @author Akos Pasztor
   * @file   bootloader.c
   * @brief  Bootloader implementation
-  *	        This file contains the functions of the bootloader. The bootloader 
+  *	        This file contains the functions of the bootloader. The bootloader
   *	        implementation uses the official HAL library of ST.
   * @see    Please refer to README for detailed information.
   ******************************************************************************
@@ -13,7 +13,7 @@
   ******************************************************************************
 **/
 
-#include "stm32l4xx.h"
+/* Includes ------------------------------------------------------------------*/
 #include "bootloader.h"
 
 /* Private typedef -----------------------------------------------------------*/
@@ -28,7 +28,7 @@ void Bootloader_Init(void)
 {
     __HAL_RCC_SYSCFG_CLK_ENABLE();
     __HAL_RCC_FLASH_CLK_ENABLE();
-    
+
     /* Clear flash flags */
     HAL_FLASH_Unlock();
     __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_ALL_ERRORS);
@@ -69,16 +69,16 @@ uint8_t Bootloader_Erase(void)
     }
 
     HAL_FLASH_Lock();
-    
+
     return (status == HAL_OK) ? BL_OK : BL_ERASE_ERROR;
 }
 
 /*** Begin flash programming **************************************************/
 void Bootloader_FlashBegin(void)
-{    
+{
     /* Reset flash destination address */
     flash_ptr = APP_ADDRESS;
-    
+
     /* Unlock flash */
     HAL_FLASH_Unlock();
 }
@@ -91,8 +91,8 @@ uint8_t Bootloader_FlashNext(uint64_t data)
         HAL_FLASH_Lock();
         return BL_WRITE_ERROR;
     }
-    
-    if(HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD, flash_ptr, data) == HAL_OK)      
+
+    if(HAL_FLASH_Program(FLASH_TYPEPROGRAM_DOUBLEWORD, flash_ptr, data) == HAL_OK)
     {
         /* Check the written value */
         if(*(uint64_t*)flash_ptr != data)
@@ -100,7 +100,7 @@ uint8_t Bootloader_FlashNext(uint64_t data)
             /* Flash content doesn't match source content */
             HAL_FLASH_Lock();
             return BL_WRITE_ERROR;
-        }   
+        }
         /* Increment Flash destination address */
         flash_ptr += 8;
     }
@@ -110,13 +110,13 @@ uint8_t Bootloader_FlashNext(uint64_t data)
         HAL_FLASH_Lock();
         return BL_WRITE_ERROR;
     }
-    
+
     return BL_OK;
 }
 
 /*** Finish flash programming *************************************************/
 void Bootloader_FlashEnd(void)
-{   
+{
     /* Lock flash */
     HAL_FLASH_Lock();
 }
@@ -126,9 +126,9 @@ uint8_t Bootloader_GetProtectionStatus(void)
 {
     FLASH_OBProgramInitTypeDef OBStruct = {0};
     uint8_t protection = BL_PROTECTION_NONE;
-    
+
     HAL_FLASH_Unlock();
-    
+
     /** Bank 1 **/
     OBStruct.PCROPConfig = FLASH_BANK_1;
     OBStruct.WRPArea = OB_WRPAREA_BANK1_AREAA;
@@ -149,7 +149,7 @@ uint8_t Bootloader_GetProtectionStatus(void)
             protection |= BL_PROTECTION_WRP;
         }
     }
-    
+
     OBStruct.WRPArea = OB_WRPAREA_BANK1_AREAB;
     HAL_FLASHEx_OBGetConfig(&OBStruct);
     /* WRP Area_B */
@@ -160,7 +160,7 @@ uint8_t Bootloader_GetProtectionStatus(void)
             protection |= BL_PROTECTION_WRP;
         }
     }
-    
+
     /** Bank 2 **/
     OBStruct.PCROPConfig = FLASH_BANK_2;
     OBStruct.WRPArea = OB_WRPAREA_BANK2_AREAA;
@@ -181,7 +181,7 @@ uint8_t Bootloader_GetProtectionStatus(void)
             protection |= BL_PROTECTION_WRP;
         }
     }
-    
+
     OBStruct.WRPArea = OB_WRPAREA_BANK2_AREAB;
     HAL_FLASHEx_OBGetConfig(&OBStruct);
     /* WRP Area_B */
@@ -192,13 +192,13 @@ uint8_t Bootloader_GetProtectionStatus(void)
             protection |= BL_PROTECTION_WRP;
         }
     }
-   
+
     /** RDP **/
     if(OBStruct.RDPLevel != OB_RDP_LEVEL_0)
     {
         protection |= BL_PROTECTION_RDP;
-    }    
-    
+    }
+
     HAL_FLASH_Lock();
     return protection;
 }
@@ -208,12 +208,12 @@ uint8_t Bootloader_ConfigProtection(uint32_t protection)
 {
     FLASH_OBProgramInitTypeDef  OBStruct = {0};
     HAL_StatusTypeDef           status = HAL_ERROR;
-    
+
     status = HAL_FLASH_Unlock();
     status |= HAL_FLASH_OB_Unlock();
 
     /* Bank 1 */
-    OBStruct.WRPArea = OB_WRPAREA_BANK1_AREAA;    
+    OBStruct.WRPArea = OB_WRPAREA_BANK1_AREAA;
     OBStruct.OptionType = OPTIONBYTE_WRP;
     if(protection & BL_PROTECTION_WRP)
     {
@@ -230,7 +230,7 @@ uint8_t Bootloader_ConfigProtection(uint32_t protection)
     status |= HAL_FLASHEx_OBProgram(&OBStruct);
 
     /* Area B is not used */
-    OBStruct.WRPArea = OB_WRPAREA_BANK1_AREAB;    
+    OBStruct.WRPArea = OB_WRPAREA_BANK1_AREAB;
     OBStruct.OptionType = OPTIONBYTE_WRP;
     OBStruct.WRPStartOffset = 0xFF;
     OBStruct.WRPEndOffset = 0x00;
@@ -259,13 +259,13 @@ uint8_t Bootloader_ConfigProtection(uint32_t protection)
     OBStruct.WRPStartOffset = 0xFF;
     OBStruct.WRPEndOffset = 0x00;
     status |= HAL_FLASHEx_OBProgram(&OBStruct);
-    
+
     if(status == HAL_OK)
     {
-        /* Loading Flash Option Bytes - this generates a system reset. */ 
+        /* Loading Flash Option Bytes - this generates a system reset. */
         status |= HAL_FLASH_OB_Launch();
     }
-    
+
     status |= HAL_FLASH_OB_Lock();
     status |= HAL_FLASH_Lock();
 
@@ -284,7 +284,7 @@ uint8_t Bootloader_VerifyChecksum(void)
 #if (USE_CHECKSUM)
     CRC_HandleTypeDef CrcHandle;
     volatile uint32_t calculatedCrc = 0;
-    
+
     __HAL_RCC_CRC_CLK_ENABLE();
     CrcHandle.Instance = CRC;
     CrcHandle.Init.DefaultPolynomialUse    = DEFAULT_POLYNOMIAL_ENABLE;
@@ -293,15 +293,15 @@ uint8_t Bootloader_VerifyChecksum(void)
     CrcHandle.Init.OutputDataInversionMode = CRC_OUTPUTDATA_INVERSION_DISABLE;
     CrcHandle.InputDataFormat              = CRC_INPUTDATA_FORMAT_WORDS;
     if(HAL_CRC_Init(&CrcHandle) != HAL_OK)
-    {    
+    {
         return BL_CHKS_ERROR;
     }
-    
+
     calculatedCrc = HAL_CRC_Calculate(&CrcHandle, (uint32_t*)APP_ADDRESS, APP_SIZE);
-    
+
     __HAL_RCC_CRC_FORCE_RESET();
     __HAL_RCC_CRC_RELEASE_RESET();
-    
+
     if( (*(uint32_t*)CRC_ADDRESS) == calculatedCrc )
     {
         return BL_OK;
@@ -321,18 +321,18 @@ void Bootloader_JumpToApplication(void)
 {
     uint32_t  JumpAddress = *(__IO uint32_t*)(APP_ADDRESS + 4);
     pFunction Jump = (pFunction)JumpAddress;
-    
+
     HAL_RCC_DeInit();
     HAL_DeInit();
-    
+
     SysTick->CTRL = 0;
     SysTick->LOAD = 0;
     SysTick->VAL  = 0;
-    
+
 #if (SET_VECTOR_TABLE)
     SCB->VTOR = APP_ADDRESS;
 #endif
-    
+
     __set_MSP(*(__IO uint32_t*)APP_ADDRESS);
     Jump();
 }
@@ -342,19 +342,19 @@ void Bootloader_JumpToSysMem(void)
 {
     uint32_t  JumpAddress = *(__IO uint32_t*)(SYSMEM_ADDRESS + 4);
     pFunction Jump = (pFunction)JumpAddress;
-    
+
     HAL_RCC_DeInit();
     HAL_DeInit();
-    
+
     SysTick->CTRL = 0;
     SysTick->LOAD = 0;
     SysTick->VAL  = 0;
-    
+
     __HAL_RCC_SYSCFG_CLK_ENABLE();
     __HAL_SYSCFG_REMAPMEMORY_SYSTEMFLASH();
-    
+
     __set_MSP(*(__IO uint32_t*)SYSMEM_ADDRESS);
     Jump();
-    
+
     while(1);
 }
