@@ -26,13 +26,13 @@ This demo is implemented on a custom hardware (see Figure 1) equipped with a STM
 
 **Note:** The bootloader currently supports the STM32L496VG and STM32L476VG microcontrollers [[1, 3]](#references) out-of-the-box. The individual build configurations for different microcontrollers can be selected with a single click in IAR. Release v1.03 introduced support for the STM32L496VG microcontroller. Earlier versions support the STM32L476VG microcontroller only. For complete list of changes, please see the [CHANGELOG](CHANGELOG.md) file.
 
-![System overview](system-overview.png)
+![System overview](docs/img/system-overview.png)
 
 *Figure 1: System overview*
 
-The microcontroller flash is organized as follows: by default the first 32kBytes (16 pages) of the flash is reserved for the bootloader and the rest of the flash is the application space. 
+The microcontroller flash is organized as follows: by default the first 32kBytes (16 pages) of the flash is reserved for the bootloader and the rest of the flash is the application space.
 
-![Flash organization](flash-organization.png)
+![Flash organization](docs/img/flash-organization.png)
 
 *Figure 2: Flash organization*
 
@@ -56,7 +56,7 @@ After power-up, the bootloader starts. All three LEDs are flashed for a second, 
 
 - If the button is kept pressed for more than 9 seconds: the bootloader tries to launch the application located in the flash. This scenario is fully equivalent to the case when the user does not press the button after power-up (see above).
 
-![Bootloader sequence](bootloader-sequence.png)
+![Bootloader sequence](docs/img/bootloader-sequence.png)
 
 *Figure 3: Bootloader sequence*
 
