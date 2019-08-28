@@ -50,13 +50,14 @@ The various demonstrations reside in the `projects` folder. Each example project
 This repository contains the following examples.
 
 |Microcontroller |Hardware           |Project                       |
-|----------------|-------------------|------------------------------|
-|STM32L476VG     |Custom             |[projects/STM32L476-CustomHw] |
-|STM32L496VG     |Custom             |[projects/STM32L496-CustomHw] |
-|STM32L496VG     |[32L496GDISCOVERY] |[projects/STM32L496-CustomHw] |
+|----------------|-------------------|-------------------------------|
+|STM32L476VG     |Custom             |[projects/STM32L476-CustomHw]  |
+|STM32L496VG     |Custom             |[projects/STM32L496-CustomHw]  |
+|STM32L496AG     |[32L496GDISCOVERY] |[projects/STM32L496-Discovery] |
 
 [projects/STM32L476-CustomHw]: projects/STM32L476-CustomHw/
 [projects/STM32L496-CustomHw]: projects/STM32L496-CustomHw/
+[projects/STM32L496-Discovery]: projects/STM32L496-Discovery/
 [32L496GDISCOVERY]: https://www.st.com/en/evaluation-tools/32l496gdiscovery.html
 
 ## How to use
