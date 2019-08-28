@@ -47,7 +47,17 @@ The bootloader source code and corresponding header file can be found in `lib/st
 The various demonstrations reside in the `projects` folder. Each example project contains an `include` and `source` folder where the header and source files are located respectively. The compiler and SDK-specific files are located in their respective subfolders. Furthermore, every example project has a dedicated README file explaining its functionality in detail.
 
 ## Examples
-[TODO]
+This repository contains the following examples.
+
+|Microcontroller |Hardware           |Project                       |
+|----------------|-------------------|------------------------------|
+|STM32L476VG     |Custom             |[projects/STM32L476-CustomHw] |
+|STM32L496VG     |Custom             |[projects/STM32L496-CustomHw] |
+|STM32L496VG     |[32L496GDISCOVERY] |[projects/STM32L496-CustomHw] |
+
+[projects/STM32L476-CustomHw]: projects/STM32L476-CustomHw/
+[projects/STM32L496-CustomHw]: projects/STM32L496-CustomHw/
+[32L496GDISCOVERY]: https://www.st.com/en/evaluation-tools/32l496gdiscovery.html
 
 ## How to use
 The bootloader can be easily customized and tailored to the required hardware and environment, i.e. to perform firmware updates over various interfaces or even to implement over-the-air (OTA) updates if the hardware incorporates wireless communication modules. In order to perform successful in-application-programming, the following sequence has to be kept:
