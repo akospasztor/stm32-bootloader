@@ -52,20 +52,20 @@
 #define RAM_SIZE                SRAM1_SIZE_MAX
 
 /* Enumerations --------------------------------------------------------------*/
-/* Bootloader Error Codes */
-enum
+/*! Bootloader error codes */
+enum eBootloaderErrorCodes
 {
-    BL_OK = 0,
-    BL_NO_APP,
-    BL_SIZE_ERROR,
-    BL_CHKS_ERROR,
-    BL_ERASE_ERROR,
-    BL_WRITE_ERROR,
-    BL_OBP_ERROR
+    BL_OK = 0,          /*!< No error */
+    BL_NO_APP,          /*!< No app TODO */
+    BL_SIZE_ERROR,      /*!< Size error TODO */
+    BL_CHKS_ERROR,      /*!< Chks error TODO */
+    BL_ERASE_ERROR,     /*!< Erase error TODO */
+    BL_WRITE_ERROR,     /*!< Write error TODO */
+    BL_OBP_ERROR        /*!< OBP error TODO */
 };
 
-/* Flash Protection Types */
-enum
+/*! Flash Protection Types */
+enum eFlashProtectionTypes
 {
     BL_PROTECTION_NONE  = 0,
     BL_PROTECTION_WRP   = 0x1,

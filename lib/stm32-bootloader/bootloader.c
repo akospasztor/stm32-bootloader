@@ -16,13 +16,17 @@
 #include "bootloader.h"
 
 /* Private typedef -----------------------------------------------------------*/
-typedef void (*pFunction)(void);
+typedef void (*pFunction)(void);            /*!< Function pointer definition. */
 
 /* Private variables ---------------------------------------------------------*/
-static uint32_t flash_ptr = APP_ADDRESS;
+static uint32_t flash_ptr = APP_ADDRESS;    /*!< Private variable for tracking flashing progress. */
 
 
-/*** Initialize bootloader and flash ******************************************/
+/**
+ * @brief  Initialize bootloader and flash.
+ * @param  None
+ * @retval None
+*/
 void Bootloader_Init(void)
 {
     __HAL_RCC_SYSCFG_CLK_ENABLE();
@@ -34,6 +38,13 @@ void Bootloader_Init(void)
     HAL_FLASH_Lock();
 }
 
+/**
+ * @brief  Erase flash
+ * @param  None
+ * @return Bootloader error codes ::bootloader_error_codes
+ * @retval BL_OK: upon success
+ * @retval BL_ERR: upon failure
+*/
 /*** Erase flash **************************************************************/
 uint8_t Bootloader_Erase(void)
 {
