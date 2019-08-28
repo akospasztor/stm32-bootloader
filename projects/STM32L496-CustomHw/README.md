@@ -1,4 +1,4 @@
-# STM32 Bootloader demonstration on STM32L496VG
+# STM32 Bootloader demo on STM32L496 (custom hardware)
 This example utilizes the STM32L496VG microcontroller and it demonstrates how to perform in-application-programming of a firmware located on external SD card with FAT32 file system.
 
 Please refer to the main [README](../../README.md) for the complete description about the functionality and operation of the bootloader library.
