@@ -1,15 +1,14 @@
 /**
   ******************************************************************************
-  * STM32L4 Bootloader
+  * STM32 Bootloader Implementation Source
   ******************************************************************************
   * @author Akos Pasztor
   * @file   bootloader.c
-  * @brief  Bootloader implementation
-  *	        This file contains the functions of the bootloader. The bootloader
+  * @brief  This file contains the functions of the bootloader. The bootloader
   *	        implementation uses the official HAL library of ST.
   * @see    Please refer to README for detailed information.
   ******************************************************************************
-  * Copyright (c) 2018 Akos Pasztor.                    https://akospasztor.com
+  * @copyright (c) 2019 Akos Pasztor.                   https://akospasztor.com
   ******************************************************************************
 **/
 

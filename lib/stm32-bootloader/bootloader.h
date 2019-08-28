@@ -1,15 +1,14 @@
 /**
   ******************************************************************************
-  * STM32L4 Bootloader
+  * STM32 Bootloader Implementation Header
   ******************************************************************************
   * @author Akos Pasztor
   * @file   bootloader.h
-  * @brief  Bootloader header
-  *	        This file contains the bootloader configuration parameters,
+  * @brief  This file contains the bootloader configuration parameters,
   *	        function prototypes and other required macros and definitions.
   * @see    Please refer to README for detailed information.
   ******************************************************************************
-  * Copyright (c) 2018 Akos Pasztor.                    https://akospasztor.com
+  * @copyright (c) 2019 Akos Pasztor.                   https://akospasztor.com
   ******************************************************************************
 **/
 
