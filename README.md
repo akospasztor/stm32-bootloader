@@ -49,7 +49,7 @@ The various demonstrations reside in the `projects` folder. Each example project
 ## Examples
 This repository contains the following examples.
 
-|Microcontroller |Hardware           |Project                      |
+|Microcontroller |Hardware           |Project path                 |
 |----------------|-------------------|-----------------------------|
 |STM32L476VG     |Custom             |projects/STM32L476-CustomHw  |
 |STM32L496VG     |Custom             |projects/STM32L496-CustomHw  |
