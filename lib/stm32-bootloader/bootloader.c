@@ -1,15 +1,14 @@
 /**
   ******************************************************************************
-  * STM32L4 Bootloader
+  * STM32 Bootloader Source
   ******************************************************************************
   * @author Akos Pasztor
   * @file   bootloader.c
-  * @brief  Bootloader implementation
-  *	        This file contains the functions of the bootloader. The bootloader
+  * @brief  This file contains the functions of the bootloader. The bootloader
   *	        implementation uses the official HAL library of ST.
   * @see    Please refer to README for detailed information.
   ******************************************************************************
-  * Copyright (c) 2018 Akos Pasztor.                    https://akospasztor.com
+  * @copyright (c) 2019 Akos Pasztor.                   https://akospasztor.com
   ******************************************************************************
 **/
 
@@ -17,14 +16,19 @@
 #include "bootloader.h"
 
 /* Private typedef -----------------------------------------------------------*/
-typedef void (*pFunction)(void);
+typedef void (*pFunction)(void);            /*!< Function pointer definition */
 
 /* Private variables ---------------------------------------------------------*/
-static uint32_t flash_ptr = APP_ADDRESS;
+static uint32_t flash_ptr = APP_ADDRESS;    /*!< Private variable for tracking flashing progress */
 
 
-/*** Initialize bootloader and flash ******************************************/
-void Bootloader_Init(void)
+/**
+  * @brief  This function initializes bootloader and flash.
+  * @param  None
+  * @return Bootloader error code ::eBootloaderErrorCodes
+  * @retval BL_OK is returned in every case
+*/
+uint8_t Bootloader_Init(void)
 {
     __HAL_RCC_SYSCFG_CLK_ENABLE();
     __HAL_RCC_FLASH_CLK_ENABLE();
@@ -33,9 +37,17 @@ void Bootloader_Init(void)
     HAL_FLASH_Unlock();
     __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_ALL_ERRORS);
     HAL_FLASH_Lock();
+
+    return BL_OK;
 }
 
-/*** Erase flash **************************************************************/
+/**
+  * @brief  This function erases the user application area in flash
+  * @param  None
+  * @return Bootloader error code ::eBootloaderErrorCodes
+  * @retval BL_OK: upon success
+  * @retval BL_ERR: upon failure
+*/
 uint8_t Bootloader_Erase(void)
 {
     uint32_t NbrOfPages = 0;
@@ -73,17 +85,33 @@ uint8_t Bootloader_Erase(void)
     return (status == HAL_OK) ? BL_OK : BL_ERASE_ERROR;
 }
 
-/*** Begin flash programming **************************************************/
-void Bootloader_FlashBegin(void)
+/**
+  * @brief  Begin flash programming: this function unlocks the flash and sets
+  *         the data pointer to the start of application flash area.
+  * @see    README for futher information
+  * @return Bootloader error code ::eBootloaderErrorCodes
+  * @retval BL_OK is returned in every case
+*/
+uint8_t Bootloader_FlashBegin(void)
 {
     /* Reset flash destination address */
     flash_ptr = APP_ADDRESS;
 
     /* Unlock flash */
     HAL_FLASH_Unlock();
+
+    return BL_OK;
 }
 
-/*** Program 64bit data into flash ********************************************/
+/**
+  * @brief  Program 64bit data into flash: this function writes a 4byte (64bit)
+  *         data chunk into the flash and increments the data pointer.
+  * @see    README for futher information
+  * @param  data: 64bit data chunk to be written into flash
+  * @return Bootloader error code ::eBootloaderErrorCodes
+  * @retval BL_OK: upon success
+  * @retval BL_WRITE_ERROR: upon failure
+*/
 uint8_t Bootloader_FlashNext(uint64_t data)
 {
     if( !(flash_ptr <= (FLASH_BASE + FLASH_SIZE - 8)) || (flash_ptr < APP_ADDRESS) )
@@ -114,14 +142,27 @@ uint8_t Bootloader_FlashNext(uint64_t data)
     return BL_OK;
 }
 
-/*** Finish flash programming *************************************************/
-void Bootloader_FlashEnd(void)
+/**
+  * @brief  Finish flash programming: this function finalizes the flash
+  *         programming by locking the flash.
+  * @see    README for futher information
+  * @param  None
+  * @return Bootloader error code ::eBootloaderErrorCodes
+  * @retval BL_OK is returned in every case
+*/
+uint8_t Bootloader_FlashEnd(void)
 {
     /* Lock flash */
     HAL_FLASH_Lock();
+
+    return BL_OK;
 }
 
-/*** Get flash protection status **********************************************/
+/**
+  * @brief  This function returns the protection status of flash.
+  * @param  None
+  * @return Flash protection status ::eFlashProtectionTypes
+*/
 uint8_t Bootloader_GetProtectionStatus(void)
 {
     FLASH_OBProgramInitTypeDef OBStruct = {0};
@@ -129,7 +170,7 @@ uint8_t Bootloader_GetProtectionStatus(void)
 
     HAL_FLASH_Unlock();
 
-    /** Bank 1 **/
+    /* Bank 1 */
     OBStruct.PCROPConfig = FLASH_BANK_1;
     OBStruct.WRPArea = OB_WRPAREA_BANK1_AREAA;
     HAL_FLASHEx_OBGetConfig(&OBStruct);
@@ -161,7 +202,7 @@ uint8_t Bootloader_GetProtectionStatus(void)
         }
     }
 
-    /** Bank 2 **/
+    /* Bank 2 */
     OBStruct.PCROPConfig = FLASH_BANK_2;
     OBStruct.WRPArea = OB_WRPAREA_BANK2_AREAA;
     HAL_FLASHEx_OBGetConfig(&OBStruct);
@@ -193,7 +234,7 @@ uint8_t Bootloader_GetProtectionStatus(void)
         }
     }
 
-    /** RDP **/
+    /* RDP */
     if(OBStruct.RDPLevel != OB_RDP_LEVEL_0)
     {
         protection |= BL_PROTECTION_RDP;
@@ -203,7 +244,13 @@ uint8_t Bootloader_GetProtectionStatus(void)
     return protection;
 }
 
-/*** Configure flash write protection ***********************************************/
+/**
+  * @brief  This function configures the wirte protection of flash.
+  * @param  protection: protection type ::eFlashProtectionTypes
+  * @return Bootloader error code ::eBootloaderErrorCodes
+  * @retval BL_OK: upon success
+  * @retval BL_OBP_ERROR: upon failure
+*/
 uint8_t Bootloader_ConfigProtection(uint32_t protection)
 {
     FLASH_OBProgramInitTypeDef  OBStruct = {0};
@@ -272,13 +319,28 @@ uint8_t Bootloader_ConfigProtection(uint32_t protection)
     return (status == HAL_OK) ? BL_OK : BL_OBP_ERROR;
 }
 
-/*** Check if application fits into user flash ********************************/
+/**
+  * @brief  This function checks whether the new application fits into flash.
+  * @param  appsize: size of application
+  * @return Bootloader error code ::eBootloaderErrorCodes
+  * @retval BL_OK: if application fits into flash
+  * @retval BL_SIZE_ERROR: if application does not fit into flash
+*/
 uint8_t Bootloader_CheckSize(uint32_t appsize)
 {
     return ((FLASH_BASE + FLASH_SIZE - APP_ADDRESS) >= appsize) ? BL_OK : BL_SIZE_ERROR;
 }
 
-/*** Verify checksum of application located in flash **************************/
+/**
+  * @brief  This function verifies the checksum of application located in flash.
+  *         If ::USE_CHECKSUM configuration parameter is disabled then the
+  *         function always returns an error code.
+  * @param  None
+  * @return Bootloader error code ::eBootloaderErrorCodes
+  * @retval BL_OK: if calculated checksum matches the application checksum
+  * @retval BL_CHKS_ERROR: upon checksum mismatch or when ::USE_CHECKSUM is
+  *         disabled
+*/
 uint8_t Bootloader_VerifyChecksum(void)
 {
 #if (USE_CHECKSUM)
@@ -310,13 +372,33 @@ uint8_t Bootloader_VerifyChecksum(void)
     return BL_CHKS_ERROR;
 }
 
-/*** Check for application in user flash **************************************/
+/**
+  * @brief  This function checks whether a valid application exists in flash.
+  *         The check is performed by checking the very first DWORD (4 bytes).
+  *         In case of a valid application, this DWORD must represent the
+  *         initialization location of stack pointer - which must be within the
+  *         boundaries of RAM.
+  * @param  None
+  * @return Bootloader error code ::eBootloaderErrorCodes
+  * @retval BL_OK: if first DWORD represents a valid stack pointer location
+  * @retval BL_NO_APP: first DWORD value is out of RAM boundaries
+*/
 uint8_t Bootloader_CheckForApplication(void)
 {
     return ( ((*(__IO uint32_t*)APP_ADDRESS) & ~(RAM_SIZE-1)) == 0x20000000 ) ? BL_OK : BL_NO_APP;
 }
 
-/*** Jump to application ******************************************************/
+/**
+  * @brief  This function performs the jump to the user application in flash.
+  * @details The function carries out the following operations:
+  *  - De-initialize the clock and peripheral configuration
+  *  - Stop the systick
+  *  - Set the vector table location (if ::SET_VECTOR_TABLE is enabled)
+  *  - Sets the stack pointer location
+  *  - Perform the jump
+  * @param  None
+  * @retval None
+*/
 void Bootloader_JumpToApplication(void)
 {
     uint32_t  JumpAddress = *(__IO uint32_t*)(APP_ADDRESS + 4);
@@ -337,7 +419,17 @@ void Bootloader_JumpToApplication(void)
     Jump();
 }
 
-/*** Jump to System Memory (ST Bootloader) ************************************/
+/**
+  * @brief  This function performs the jump to the MCU System Memory (ST
+  *         Bootloader).
+  * @details The function carries out the following operations:
+  *  - De-initialize the clock and peripheral configuration
+  *  - Stop the systick
+  *  - Remap the system flash memory
+  *  - Perform the jump
+  * @param  None
+  * @retval None
+*/
 void Bootloader_JumpToSysMem(void)
 {
     uint32_t  JumpAddress = *(__IO uint32_t*)(SYSMEM_ADDRESS + 4);
