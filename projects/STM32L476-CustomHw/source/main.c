@@ -455,7 +455,7 @@ void SystemClock_Config(void)
     RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_MSI;
     RCC_OscInitStruct.PLL.PLLM = 1;
     RCC_OscInitStruct.PLL.PLLN = 24;
-    RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV7;
+    RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
     RCC_OscInitStruct.PLL.PLLQ = RCC_PLLQ_DIV2;
     RCC_OscInitStruct.PLL.PLLR = RCC_PLLR_DIV2;
     if(HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
@@ -479,7 +479,7 @@ void SystemClock_Config(void)
     PeriphClkInit.PLLSAI1.PLLSAI1Source = RCC_PLLSOURCE_MSI;
     PeriphClkInit.PLLSAI1.PLLSAI1M = 1;
     PeriphClkInit.PLLSAI1.PLLSAI1N = 24;
-    PeriphClkInit.PLLSAI1.PLLSAI1P = RCC_PLLP_DIV7;
+    PeriphClkInit.PLLSAI1.PLLSAI1P = RCC_PLLP_DIV2;
     PeriphClkInit.PLLSAI1.PLLSAI1Q = RCC_PLLQ_DIV2;
     PeriphClkInit.PLLSAI1.PLLSAI1R = RCC_PLLR_DIV2;
     PeriphClkInit.PLLSAI1.PLLSAI1ClockOut = RCC_PLLSAI1_48M2CLK;
