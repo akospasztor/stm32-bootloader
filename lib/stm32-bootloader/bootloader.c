@@ -380,10 +380,10 @@ uint8_t Bootloader_VerifyChecksum(void)
 
 /**
   * @brief  This function checks whether a valid application exists in flash.
-  *         The check is performed by checking the very first DWORD (4 bytes).
-  *         In case of a valid application, this DWORD must represent the
-  *         initialization location of stack pointer - which must be within the
-  *         boundaries of RAM.
+  *         The check is performed by checking the very first DWORD (4 bytes) of
+  *         the application firmware. In case of a valid application, this DWORD
+  *         must represent the initialization location of stack pointer - which
+  *         must be within the boundaries of RAM.
   * @param  None
   * @return Bootloader error code ::eBootloaderErrorCodes
   * @retval BL_OK: if first DWORD represents a valid stack pointer location
@@ -391,7 +391,7 @@ uint8_t Bootloader_VerifyChecksum(void)
 */
 uint8_t Bootloader_CheckForApplication(void)
 {
-    return ( ((*(__IO uint32_t*)APP_ADDRESS) & ~(RAM_SIZE-1)) == 0x20000000 ) ? BL_OK : BL_NO_APP;
+    return (((*(uint32_t*)APP_ADDRESS) - RAM_BASE) < RAM_SIZE) ? BL_OK : BL_NO_APP;
 }
 
 /**
