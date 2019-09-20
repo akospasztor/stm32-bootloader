@@ -15,6 +15,12 @@
 /* Includes ------------------------------------------------------------------*/
 #include "bootloader.h"
 
+/* Private defines -----------------------------------------------------------*/
+#define BOOTLOADER_VERSION_MAJOR    1       /*!< Major version */
+#define BOOTLOADER_VERSION_MINOR    1       /*!< Minor version */
+#define BOOTLOADER_VERSION_PATCH    0       /*!< Patch version */
+#define BOOTLOADER_VERSION_RC       0       /*!< Release candidate version */
+
 /* Private typedef -----------------------------------------------------------*/
 typedef void (*pFunction)(void);            /*!< Function pointer definition */
 
@@ -449,4 +455,23 @@ void Bootloader_JumpToSysMem(void)
     Jump();
 
     while(1);
+}
+
+/**
+  * @brief  This function returns the version number of the bootloader library.
+  *         Semantic versioning is used for numbering.
+  * @see    Semantic versioning: https://semver.org
+  * @param  None
+  * @return Bootloader version number combined into an uint32_t:
+  *          - [31:24] Major version
+  *          - [23:16] Minor version
+  *          - [15:8]  Patch version
+  *          - [7:0]   Release candidate version
+*/
+uint32_t Bootloader_GetVersion(void)
+{
+    return ((BOOTLOADER_VERSION_MAJOR << 24) |
+            (BOOTLOADER_VERSION_MINOR << 16) |
+            (BOOTLOADER_VERSION_PATCH << 8)  |
+            (BOOTLOADER_VERSION_RC));
 }

@@ -42,16 +42,16 @@
 #define CLEAR_RESET_FLAGS       1
 
 /** Start address of application space in flash */
-#define APP_ADDRESS     (uint32_t)0x08008000
+#define APP_ADDRESS             (uint32_t)0x08008000
 
 /** End address of application space (address of last byte) */
-#define END_ADDRESS     (uint32_t)0x080FFFFB
+#define END_ADDRESS             (uint32_t)0x080FFFFB
 
 /** Start address of application checksum in flash */
-#define CRC_ADDRESS     (uint32_t)0x080FFFFC
+#define CRC_ADDRESS             (uint32_t)0x080FFFFC
 
 /** Address of System Memory (ST Bootloader) */
-#define SYSMEM_ADDRESS  (uint32_t)0x1FFF0000
+#define SYSMEM_ADDRESS          (uint32_t)0x1FFF0000
 /** @} */
 /* End of configuration ------------------------------------------------------*/
 
@@ -97,20 +97,22 @@ enum eFlashProtectionTypes
 };
 
 /* Functions -----------------------------------------------------------------*/
-uint8_t Bootloader_Init(void);
-uint8_t Bootloader_Erase(void);
+uint8_t  Bootloader_Init(void);
+uint8_t  Bootloader_Erase(void);
 
-uint8_t Bootloader_FlashBegin(void);
-uint8_t Bootloader_FlashNext(uint64_t data);
-uint8_t Bootloader_FlashEnd(void);
+uint8_t  Bootloader_FlashBegin(void);
+uint8_t  Bootloader_FlashNext(uint64_t data);
+uint8_t  Bootloader_FlashEnd(void);
 
-uint8_t Bootloader_GetProtectionStatus(void);
-uint8_t Bootloader_ConfigProtection(uint32_t protection);
+uint8_t  Bootloader_GetProtectionStatus(void);
+uint8_t  Bootloader_ConfigProtection(uint32_t protection);
 
-uint8_t Bootloader_CheckSize(uint32_t appsize);
-uint8_t Bootloader_VerifyChecksum(void);
-uint8_t Bootloader_CheckForApplication(void);
-void    Bootloader_JumpToApplication(void);
-void    Bootloader_JumpToSysMem(void);
+uint8_t  Bootloader_CheckSize(uint32_t appsize);
+uint8_t  Bootloader_VerifyChecksum(void);
+uint8_t  Bootloader_CheckForApplication(void);
+void     Bootloader_JumpToApplication(void);
+void     Bootloader_JumpToSysMem(void);
+
+uint32_t Bootloader_GetVersion(void);
 
 #endif /* __BOOTLOADER_H */
