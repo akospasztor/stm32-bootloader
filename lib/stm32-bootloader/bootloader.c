@@ -15,6 +15,12 @@
 /* Includes ------------------------------------------------------------------*/
 #include "bootloader.h"
 
+/* Private defines -----------------------------------------------------------*/
+#define BOOTLOADER_VERSION_MAJOR    1       /*!< Major version */
+#define BOOTLOADER_VERSION_MINOR    1       /*!< Minor version */
+#define BOOTLOADER_VERSION_PATCH    0       /*!< Patch version */
+#define BOOTLOADER_VERSION_RC       0       /*!< Release candidate version */
+
 /* Private typedef -----------------------------------------------------------*/
 typedef void (*pFunction)(void);            /*!< Function pointer definition */
 
@@ -374,10 +380,10 @@ uint8_t Bootloader_VerifyChecksum(void)
 
 /**
   * @brief  This function checks whether a valid application exists in flash.
-  *         The check is performed by checking the very first DWORD (4 bytes).
-  *         In case of a valid application, this DWORD must represent the
-  *         initialization location of stack pointer - which must be within the
-  *         boundaries of RAM.
+  *         The check is performed by checking the very first DWORD (4 bytes) of
+  *         the application firmware. In case of a valid application, this DWORD
+  *         must represent the initialization location of stack pointer - which
+  *         must be within the boundaries of RAM.
   * @param  None
   * @return Bootloader error code ::eBootloaderErrorCodes
   * @retval BL_OK: if first DWORD represents a valid stack pointer location
@@ -385,7 +391,7 @@ uint8_t Bootloader_VerifyChecksum(void)
 */
 uint8_t Bootloader_CheckForApplication(void)
 {
-    return ( ((*(__IO uint32_t*)APP_ADDRESS) & ~(RAM_SIZE-1)) == 0x20000000 ) ? BL_OK : BL_NO_APP;
+    return (((*(uint32_t*)APP_ADDRESS) - RAM_BASE) < RAM_SIZE) ? BL_OK : BL_NO_APP;
 }
 
 /**
@@ -449,4 +455,23 @@ void Bootloader_JumpToSysMem(void)
     Jump();
 
     while(1);
+}
+
+/**
+  * @brief  This function returns the version number of the bootloader library.
+  *         Semantic versioning is used for numbering.
+  * @see    Semantic versioning: https://semver.org
+  * @param  None
+  * @return Bootloader version number combined into an uint32_t:
+  *          - [31:24] Major version
+  *          - [23:16] Minor version
+  *          - [15:8]  Patch version
+  *          - [7:0]   Release candidate version
+*/
+uint32_t Bootloader_GetVersion(void)
+{
+    return ((BOOTLOADER_VERSION_MAJOR << 24) |
+            (BOOTLOADER_VERSION_MINOR << 16) |
+            (BOOTLOADER_VERSION_PATCH << 8)  |
+            (BOOTLOADER_VERSION_RC));
 }
