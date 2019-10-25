@@ -44,12 +44,21 @@ int main(void)
     SystemClock_Config();
     GPIO_Init();
 
+    print("\nPower up, Boot started.");
+
     while(1)
     {
-        LED_ALL_ON();
-        print("\nPower up, Boot started.");
-        HAL_Delay(500);
-        LED_ALL_OFF();
+        if(IS_BTN_PRESSED())
+        {
+            LED_G1_ON();
+            LED_G2_ON();
+        }
+        else
+        {
+            LED_G1_OFF();
+            LED_G2_OFF();
+        }
+        print("\nasd\n");
         HAL_Delay(500);
     }
 
@@ -69,16 +78,38 @@ int main(void)
         - button is pressed >= 4 seconds: Enter ST System Memory. Yellow LED is blinking.
         - button is pressed >= 9 seconds: Do nothing, launch application.
     */
-    while(IS_BTN_PRESSED() && BTNcounter < 90)
+    while((IS_BTN_PRESSED()) && (BTNcounter < 90))
     {
-        if(BTNcounter == 10) { print("Release button to enter Bootloader."); }
-        if(BTNcounter == 40) { print("Release button to enter System Memory."); }
+        if(BTNcounter == 10)
+        {
+            print("Release button to enter Bootloader.");
+        }
+        if(BTNcounter == 40)
+        {
+            print("Release button to enter System Memory.");
+        }
 
-        if(BTNcounter < 10)         { LED_ALL_ON(); }
-        else if(BTNcounter == 10)   { LED_ALL_OFF(); }
-        else if(BTNcounter < 40)    { LED_G_TG(); }
-        else if(BTNcounter == 40)   { LED_G_OFF(); LED_Y_ON(); }
-        else                        { LED_Y_TG(); }
+        if(BTNcounter < 10)
+        {
+            LED_ALL_ON();
+        }
+        else if(BTNcounter == 10)
+        {
+            LED_ALL_OFF();
+        }
+        else if(BTNcounter < 40)
+        {
+            LED_G1_TG();
+        }
+        else if(BTNcounter == 40)
+        {
+            LED_G1_OFF();
+            LED_G2_ON();
+        }
+        else
+        {
+            LED_G2_TG();
+        }
 
         BTNcounter++;
         HAL_Delay(100);
@@ -120,9 +151,9 @@ int main(void)
 #endif
 
         print("Launching Application.");
-        LED_G_ON();
+        LED_G1_ON();
         HAL_Delay(1000);
-        LED_G_OFF();
+        LED_G2_OFF();
 
         /* De-initialize bootloader hardware & peripherals */
         SD_DeInit();
@@ -161,7 +192,7 @@ void Enter_Bootloader(void)
 //        LED_R_ON();
         for(i=0; i<100; ++i)
         {
-            LED_Y_TG();
+            LED_G2_TG();
             HAL_Delay(50);
             if(IS_BTN_PRESSED())
             {
@@ -170,7 +201,7 @@ void Enter_Bootloader(void)
             }
         }
 //        LED_R_OFF();
-        LED_Y_OFF();
+        LED_G2_OFF();
         print("Button was not pressed, write protection is still active.");
         print("Exiting Bootloader.");
         return;
@@ -228,9 +259,9 @@ void Enter_Bootloader(void)
 
     /* Step 2: Erase Flash */
     print("Erasing flash...");
-    LED_Y_ON();
+    LED_G2_ON();
     Bootloader_Erase();
-    LED_Y_OFF();
+    LED_G2_OFF();
     print("Flash erase finished.");
 
     /* If BTN is pressed, then skip programming */
@@ -246,7 +277,7 @@ void Enter_Bootloader(void)
 
     /* Step 3: Programming */
     print("Starting programming...");
-    LED_Y_ON();
+    LED_G2_ON();
     cntr = 0;
     Bootloader_FlashBegin();
     do
@@ -269,23 +300,23 @@ void Enter_Bootloader(void)
                 SD_Eject();
                 print("SD ejected.");
 
-                LED_G_OFF();
-                LED_Y_OFF();
+                LED_G1_OFF();
+                LED_G2_OFF();
                 return;
             }
         }
         if(cntr % 256 == 0)
         {
             /* Toggle green LED during programming */
-            LED_G_TG();
+            LED_G1_TG();
         }
     } while((fr == FR_OK) && (num > 0));
 
     /* Step 4: Finalize Programming */
     Bootloader_FlashEnd();
     f_close(&SDFile);
-    LED_G_OFF();
-    LED_Y_OFF();
+    LED_G1_OFF();
+    LED_G2_OFF();
     print("Programming finished.");
     sprintf(msg, "Flashed: %lu bytes.", (cntr*8));
     print(msg);
@@ -327,18 +358,18 @@ void Enter_Bootloader(void)
                 SD_Eject();
                 print("SD ejected.");
 
-                LED_G_OFF();
+                LED_G1_OFF();
                 return;
             }
         }
         if(cntr % 256 == 0)
         {
             /* Toggle green LED during verification */
-            LED_G_TG();
+            LED_G1_TG();
         }
     } while((fr == FR_OK) && (num > 0));
     print("Verification passed.");
-    LED_G_OFF();
+    LED_G1_OFF();
 
     /* Eject SD card */
     SD_Eject();
@@ -391,37 +422,39 @@ void GPIO_Init(void)
 
     __HAL_RCC_GPIOA_CLK_ENABLE();
     __HAL_RCC_GPIOB_CLK_ENABLE();
+    __HAL_RCC_GPIOC_CLK_ENABLE();
 
     /* Configure GPIO pin output levels */
-    HAL_GPIO_WritePin(LED_G_Port, LED_G_Pin, GPIO_PIN_RESET);
-    HAL_GPIO_WritePin(LED_Y_Port, LED_Y_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(LED_G1_Port, LED_G1_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(LED_G2_Port, LED_G2_Pin, GPIO_PIN_RESET);
 
-    /* LED_G_Pin, LED_Y_Pin */
+    /* LED_G1_Pin, LED_G2_Pin */
     GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
 
-    GPIO_InitStruct.Pin = LED_G_Pin;
-    HAL_GPIO_Init(LED_G_Port, &GPIO_InitStruct);
+    GPIO_InitStruct.Pin = LED_G1_Pin;
+    HAL_GPIO_Init(LED_G1_Port, &GPIO_InitStruct);
 
-    GPIO_InitStruct.Pin = LED_Y_Pin;
-    HAL_GPIO_Init(LED_Y_Port, &GPIO_InitStruct);
+    GPIO_InitStruct.Pin = LED_G2_Pin;
+    HAL_GPIO_Init(LED_G2_Port, &GPIO_InitStruct);
 
     /* User Button */
     GPIO_InitStruct.Pin = BTN_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-    GPIO_InitStruct.Pull = GPIO_PULLUP;
+    GPIO_InitStruct.Pull = GPIO_PULLDOWN;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(BTN_Port, &GPIO_InitStruct);
 }
 void GPIO_DeInit(void)
 {
     HAL_GPIO_DeInit(BTN_Port, BTN_Pin);
-    HAL_GPIO_DeInit(LED_G_Port, LED_G_Pin);
-    HAL_GPIO_DeInit(LED_Y_Port, LED_Y_Pin);
+    HAL_GPIO_DeInit(LED_G1_Port, LED_G1_Pin);
+    HAL_GPIO_DeInit(LED_G2_Port, LED_G2_Pin);
 
     __HAL_RCC_GPIOA_CLK_DISABLE();
     __HAL_RCC_GPIOB_CLK_DISABLE();
+    __HAL_RCC_GPIOC_CLK_DISABLE();
 }
 
 /*** System Clock Configuration ***/
@@ -519,8 +552,7 @@ void Error_Handler(void)
 {
     while(1)
     {
-        //TODO
-        HAL_Delay(500);
+        __NOP();
     }
 }
 

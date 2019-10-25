@@ -2,31 +2,33 @@
 #define __MAIN_H
 
 /*** Application-Specific Configuration ***************************************/
-#define CONF_FILENAME       "demo.bin"      /* File name of application located on SD card */
-#define USE_SWO_TRACE       1               /* For development/debugging: stdout/stderr via SWO trace */
+/* File name of application located on SD card */
+#define CONF_FILENAME       "app-demo.bin"
+/* For development/debugging: stdout/stderr via SWO trace */
+#define USE_SWO_TRACE       1
 /******************************************************************************/
 
 /* Hardware Defines ----------------------------------------------------------*/
 #define BTN_Port            GPIOC
 #define BTN_Pin             GPIO_PIN_13
 
-#define LED_Y_Port          GPIOA
-#define LED_Y_Pin           GPIO_PIN_5
-#define LED_G_Port          GPIOB
-#define LED_G_Pin           GPIO_PIN_13
+#define LED_G1_Port         GPIOA
+#define LED_G1_Pin          GPIO_PIN_5
+#define LED_G2_Port         GPIOB
+#define LED_G2_Pin          GPIO_PIN_13
 
 /* Hardware Macros -----------------------------------------------------------*/
-#define LED_G_ON()          HAL_GPIO_WritePin(LED_G_Port, LED_G_Pin, GPIO_PIN_SET)
-#define LED_G_OFF()         HAL_GPIO_WritePin(LED_G_Port, LED_G_Pin, GPIO_PIN_RESET)
-#define LED_G_TG()          HAL_GPIO_TogglePin(LED_G_Port, LED_G_Pin)
-#define LED_Y_ON()          HAL_GPIO_WritePin(LED_Y_Port, LED_Y_Pin, GPIO_PIN_SET)
-#define LED_Y_OFF()         HAL_GPIO_WritePin(LED_Y_Port, LED_Y_Pin, GPIO_PIN_RESET)
-#define LED_Y_TG()          HAL_GPIO_TogglePin(LED_Y_Port, LED_Y_Pin)
+#define LED_G1_ON()         HAL_GPIO_WritePin(LED_G1_Port, LED_G1_Pin, GPIO_PIN_SET)
+#define LED_G1_OFF()        HAL_GPIO_WritePin(LED_G1_Port, LED_G1_Pin, GPIO_PIN_RESET)
+#define LED_G1_TG()         HAL_GPIO_TogglePin(LED_G1_Port, LED_G1_Pin)
+#define LED_G2_ON()         HAL_GPIO_WritePin(LED_G2_Port, LED_G2_Pin, GPIO_PIN_RESET)
+#define LED_G2_OFF()        HAL_GPIO_WritePin(LED_G2_Port, LED_G2_Pin, GPIO_PIN_SET)
+#define LED_G2_TG()         HAL_GPIO_TogglePin(LED_G2_Port, LED_G2_Pin)
 
-#define LED_ALL_ON()        do { LED_G_ON(); LED_Y_ON(); } while(0)
-#define LED_ALL_OFF()       do { LED_G_OFF(); LED_Y_OFF(); } while(0)
+#define LED_ALL_ON()        do { LED_G1_ON(); LED_G2_ON(); } while(0)
+#define LED_ALL_OFF()       do { LED_G1_OFF(); LED_G2_OFF(); } while(0)
 
-#define IS_BTN_PRESSED()    ((HAL_GPIO_ReadPin(BTN_Port, BTN_Pin) == GPIO_PIN_RESET) ? 1 : 0)
+#define IS_BTN_PRESSED()    ((HAL_GPIO_ReadPin(BTN_Port, BTN_Pin) == GPIO_PIN_SET) ? 1 : 0)
 
 
 #endif /* __MAIN_H */
