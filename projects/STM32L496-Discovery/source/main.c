@@ -20,6 +20,7 @@
 
 /* Private variables ---------------------------------------------------------*/
 static uint8_t BTNcounter = 0;
+static UART_HandleTypeDef huart2;
 
 /* External variables --------------------------------------------------------*/
 extern char  SDPath[4];         /* SD logical drive path */
@@ -31,6 +32,8 @@ void    Enter_Bootloader(void);
 uint8_t SD_Init(void);
 void    SD_DeInit(void);
 void    SD_Eject(void);
+void    UART2_Init(void);
+void    UART2_DeInit(void);
 void    GPIO_Init(void);
 void    GPIO_DeInit(void);
 void    SystemClock_Config(void);
@@ -401,6 +404,55 @@ void SD_Eject(void)
     f_mount(NULL, (TCHAR const*)SDPath, 0);
 }
 
+/*** UART Configuration ***/
+void UART2_Init(void)
+{
+    __HAL_RCC_USART2_CLK_ENABLE();
+    __HAL_RCC_GPIOA_CLK_ENABLE();
+    __HAL_RCC_GPIOD_CLK_ENABLE();
+
+    huart2.Instance = USART2;
+    huart2.Init.BaudRate = 115200;
+    huart2.Init.WordLength = UART_WORDLENGTH_8B;
+    huart2.Init.StopBits = UART_STOPBITS_1;
+    huart2.Init.Parity = UART_PARITY_NONE;
+    huart2.Init.Mode = UART_MODE_TX_RX;
+    huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+    huart2.Init.OverSampling = UART_OVERSAMPLING_16;
+    huart2.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
+    huart2.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
+    if(HAL_UART_Init(&huart2) != HAL_OK)
+    {
+        Error_Handler();
+    }
+
+    GPIO_InitStruct.Pin = GPIO_PIN_6;
+    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+    GPIO_InitStruct.Alternate = GPIO_AF7_USART2;
+    HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
+
+    GPIO_InitStruct.Pin = GPIO_PIN_2;
+    GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+    GPIO_InitStruct.Alternate = GPIO_AF7_USART2;
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+}
+void UART2_DeInit(void)
+{
+    HAL_UART_DeInit(&huart2);
+    __HAL_RCC_USART2_CLK_DISABLE();
+
+    HAL_GPIO_DeInit(GPIOA, GPIO_PIN_2);
+    HAL_GPIO_DeInit(GPIOD, GPIO_PIN_6);
+
+    __HAL_RCC_USART2_FORCE_RESET();
+    __HAL_RCC_USART2_RELEASE_RESET();
+}
+
 /*** GPIO Configuration ***/
 void GPIO_Init(void)
 {
@@ -478,7 +530,8 @@ void SystemClock_Config(void)
         Error_Handler();
     }
 
-    PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_SDMMC1;
+    PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_SDMMC1 | RCC_PERIPHCLK_USART2;
+    PeriphClkInit.Usart2ClockSelection = RCC_USART2CLKSOURCE_PCLK1;
     PeriphClkInit.Sdmmc1ClockSelection = RCC_SDMMC1CLKSOURCE_PLLSAI1;
     PeriphClkInit.PLLSAI1.PLLSAI1Source = RCC_PLLSOURCE_MSI;
     PeriphClkInit.PLLSAI1.PLLSAI1M = 1;
@@ -499,7 +552,7 @@ void SystemClock_Config(void)
     }
 
     /* Configure the Systick */
-    HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/1000);
+    HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq() / 1000);
     HAL_SYSTICK_CLKSourceConfig(SYSTICK_CLKSOURCE_HCLK);
     HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
 }
