@@ -46,22 +46,6 @@ int main(void)
 
     print("\nPower up, Boot started.");
 
-    while(1)
-    {
-        if(IS_BTN_PRESSED())
-        {
-            LED_G1_ON();
-            LED_G2_ON();
-        }
-        else
-        {
-            LED_G1_OFF();
-            LED_G2_OFF();
-        }
-        print("\nasd\n");
-        HAL_Delay(500);
-    }
-
     /* Check system reset flags */
     if(__HAL_RCC_GET_FLAG(RCC_FLAG_OBLRST))
     {
@@ -74,8 +58,8 @@ int main(void)
     }
 
     /* Check for user action:
-        - button is pressed >= 1 second:  Enter Bootloader. Green LED is blinking.
-        - button is pressed >= 4 seconds: Enter ST System Memory. Yellow LED is blinking.
+        - button is pressed >= 1 second:  Enter Bootloader. LD2 is blinking.
+        - button is pressed >= 5 seconds: Enter ST System Memory. LD3 is blinking.
         - button is pressed >= 9 seconds: Do nothing, launch application.
     */
     while((IS_BTN_PRESSED()) && (BTNcounter < 90))
@@ -84,7 +68,7 @@ int main(void)
         {
             print("Release button to enter Bootloader.");
         }
-        if(BTNcounter == 40)
+        if(BTNcounter == 50)
         {
             print("Release button to enter System Memory.");
         }
@@ -97,11 +81,11 @@ int main(void)
         {
             LED_ALL_OFF();
         }
-        else if(BTNcounter < 40)
+        else if(BTNcounter < 50)
         {
             LED_G1_TG();
         }
-        else if(BTNcounter == 40)
+        else if(BTNcounter == 50)
         {
             LED_G1_OFF();
             LED_G2_ON();
@@ -120,18 +104,20 @@ int main(void)
     /* Perform required actions based on button press duration */
     if(BTNcounter < 90)
     {
-        if(BTNcounter > 40)
+        if(BTNcounter > 50)
         {
             print("Entering System Memory...");
             HAL_Delay(1000);
-            Bootloader_JumpToSysMem();
+//            Bootloader_JumpToSysMem();
         }
         else if(BTNcounter > 10)
         {
             print("Entering Bootloader...");
-            Enter_Bootloader();
+//            Enter_Bootloader();
         }
     }
+
+    while(1);
 
 
     /* Check if there is application in user flash area */
@@ -425,8 +411,8 @@ void GPIO_Init(void)
     __HAL_RCC_GPIOC_CLK_ENABLE();
 
     /* Configure GPIO pin output levels */
-    HAL_GPIO_WritePin(LED_G1_Port, LED_G1_Pin, GPIO_PIN_RESET);
-    HAL_GPIO_WritePin(LED_G2_Port, LED_G2_Pin, GPIO_PIN_RESET);
+    LED_G1_OFF();
+    LED_G2_OFF();
 
     /* LED_G1_Pin, LED_G2_Pin */
     GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
