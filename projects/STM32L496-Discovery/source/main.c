@@ -9,7 +9,7 @@
   *
   * @see    Please refer to README for detailed information.
   ******************************************************************************
-  * Copyright (c) 2019 Akos Pasztor.                    https://akospasztor.com
+  * @copyright (c) 2019 Akos Pasztor.                   https://akospasztor.com
   ******************************************************************************
 **/
 

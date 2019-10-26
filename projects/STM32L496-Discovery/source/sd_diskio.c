@@ -9,7 +9,7 @@
   *         used by the FatFs module. The driver uses the HAL library of ST.
   *
   ******************************************************************************
-  * Copyright (c) 2018 Akos Pasztor.                    https://akospasztor.com
+  * @copyright (c) 2019 Akos Pasztor.                   https://akospasztor.com
   ******************************************************************************
 **/
 
