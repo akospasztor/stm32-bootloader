@@ -2,7 +2,21 @@
 
 ## [Unreleased]
 - Check checksum of application found on SD card before programming
-- Switch to semantic versioning
+
+## 1.1.0
+Released: 2019-10-26 | Download: [1.1.0](https://github.com/akospasztor/stm32-bootloader/releases/tag/v1.1.0)
+### Added
+- Dedicated and separate project for all demonstrations
+- New implementation for STM32L496 discovery board
+- Dedicated readme file for each project
+- New bootloader library documentation, generated with Doxygen
+- GitHub Actions workflow to generate documentation and publish to GitHub pages
+### Changed
+- Complete repository overhaul
+- Switched to semantic versioning
+### Fixed
+- CheckForApplication issue
+- Updated README
 
 
 ## 1.08
