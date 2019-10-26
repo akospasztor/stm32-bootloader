@@ -1,5 +1,5 @@
 # STM32 Bootloader demo on 32L496GDISCOVERY
-This example utilizes the 32L496GDISCOVERY discovery board from ST [[1]](#references), equipped with a STM32L496AG microcontroller [[3]](#references). This project demonstrates how to perform in-application-programming of a firmware located on external SD card with FAT32 file system.
+This example utilizes the 32L496GDISCOVERY discovery board from ST [[1]](#references), equipped with a STM32L496AG microcontroller [[2]](#references). This project demonstrates how to perform in-application-programming of a firmware located on external SD card with FAT32 file system.
 
 Please refer to the main [README](../../README.md) for the complete description about the functionality and operation of the bootloader library.
 
