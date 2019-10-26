@@ -17,6 +17,7 @@
 #include "main.h"
 #include "bootloader.h"
 #include "fatfs.h"
+#include <string.h>
 
 /* Private variables ---------------------------------------------------------*/
 static uint8_t BTNcounter = 0;
@@ -46,17 +47,20 @@ int main(void)
     HAL_Init();
     SystemClock_Config();
     GPIO_Init();
+#if (USE_VCP)
+    UART2_Init();
+#endif /* USE_VCP */
 
-    print("\nPower up, Boot started.");
+    print("\nPower up, Boot started.\n");
 
     /* Check system reset flags */
     if(__HAL_RCC_GET_FLAG(RCC_FLAG_OBLRST))
     {
-        print("OBL flag is active.");
+        print("OBL flag is active.\n");
 #if (CLEAR_RESET_FLAGS)
         /* Clear system reset flags */
         __HAL_RCC_CLEAR_RESET_FLAGS();
-        print("Reset flags cleared.");
+        print("Reset flags cleared.\n");
 #endif
     }
 
@@ -69,11 +73,11 @@ int main(void)
     {
         if(BTNcounter == 10)
         {
-            print("Release button to enter Bootloader.");
+            print("Release button to enter Bootloader.\n");
         }
         if(BTNcounter == 50)
         {
-            print("Release button to enter System Memory.");
+            print("Release button to enter System Memory.\n");
         }
 
         if(BTNcounter < 10)
@@ -109,13 +113,13 @@ int main(void)
     {
         if(BTNcounter > 50)
         {
-            print("Entering System Memory...");
+            print("Entering System Memory...\n");
             HAL_Delay(1000);
 //            Bootloader_JumpToSysMem();
         }
         else if(BTNcounter > 10)
         {
-            print("Entering Bootloader...");
+            print("Entering Bootloader...\n");
 //            Enter_Bootloader();
         }
     }
@@ -130,16 +134,16 @@ int main(void)
         /* Verify application checksum */
         if(Bootloader_VerifyChecksum() != BL_OK)
         {
-            print("Checksum Error.");
+            print("Checksum Error.\n");
             Error_Handler();
         }
         else
         {
-            print("Checksum OK.");
+            print("Checksum OK.\n");
         }
 #endif
 
-        print("Launching Application.");
+        print("Launching Application.\n");
         LED_G1_ON();
         HAL_Delay(1000);
         LED_G2_OFF();
@@ -153,7 +157,7 @@ int main(void)
     }
 
     /* No application found */
-    print("No application in flash.");
+    print("No application in flash.\n");
     while(1)
     {
         //TODO
@@ -407,6 +411,8 @@ void SD_Eject(void)
 /*** UART Configuration ***/
 void UART2_Init(void)
 {
+    GPIO_InitTypeDef GPIO_InitStruct;
+
     __HAL_RCC_USART2_CLK_ENABLE();
     __HAL_RCC_GPIOA_CLK_ENABLE();
     __HAL_RCC_GPIOD_CLK_ENABLE();
@@ -577,9 +583,9 @@ void HAL_MspInit(void)
 /*** Debug ***/
 void print(const char* str)
 {
-#if (USE_SWO_TRACE)
-    puts(str);
-#endif
+#if (USE_VCP)
+    HAL_UART_Transmit(&huart2, (uint8_t*)str, (uint16_t)strlen(str), 100);
+#endif /* USE_VCP */
 }
 
 /**
@@ -598,12 +604,12 @@ void Error_Handler(void)
 #ifdef USE_FULL_ASSERT
 
 /**
-   * @brief Reports the name of the source file and the source line number
-   * where the assert_param error has occurred.
-   * @param file: pointer to the source file name
-   * @param line: assert_param error line source number
-   * @retval None
-   */
+  * @brief  Reports the name of the source file and the source line number
+  *         where the assert_param error has occurred.
+  * @param  file: pointer to the source file name
+  * @param  line: assert_param error line source number
+  * @retval None
+  */
 void assert_failed(uint8_t* file, uint32_t line)
 {
 

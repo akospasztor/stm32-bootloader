@@ -4,8 +4,8 @@
 /*** Application-Specific Configuration ***************************************/
 /* File name of application located on SD card */
 #define CONF_FILENAME       "app-demo.bin"
-/* For development/debugging: stdout/stderr via SWO trace */
-#define USE_SWO_TRACE       0
+/* For development/debugging: print messages to ST-LINK VCP */
+#define USE_VCP             1
 /******************************************************************************/
 
 /* Hardware Defines ----------------------------------------------------------*/
