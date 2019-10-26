@@ -67,7 +67,7 @@ int main(void)
 
     /* Check for user action:
         - button is pressed >= 1 second:  Enter Bootloader. LD2 is blinking.
-        - button is pressed >= 5 seconds: Enter ST System Memory. LD3 is blinking.
+        - button is pressed >= 4 seconds: Enter ST System Memory. LD3 is blinking.
         - button is pressed >= 9 seconds: Do nothing, launch application.
     */
     while((IS_BTN_PRESSED()) && (BTNcounter < 90))
@@ -76,7 +76,7 @@ int main(void)
         {
             print("Release button to enter Bootloader.\n");
         }
-        if(BTNcounter == 50)
+        if(BTNcounter == 40)
         {
             print("Release button to enter System Memory.\n");
         }
@@ -89,11 +89,11 @@ int main(void)
         {
             LED_ALL_OFF();
         }
-        else if(BTNcounter < 50)
+        else if(BTNcounter < 40)
         {
             LED_G1_TG();
         }
-        else if(BTNcounter == 50)
+        else if(BTNcounter == 40)
         {
             LED_G1_OFF();
             LED_G2_ON();
@@ -112,7 +112,7 @@ int main(void)
     /* Perform required actions based on button press duration */
     if(BTNcounter < 90)
     {
-        if(BTNcounter > 50)
+        if(BTNcounter > 40)
         {
             print("Entering System Memory...\n");
             HAL_Delay(1000);
