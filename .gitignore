@@ -1,3 +1,6 @@
-EWARM/settings/
-EWARM/L476/
-EWARM/L496/
+.vscode/
+**/EWARM/*.dep
+**/EWARM/settings/
+**/EWARM/**/Exe/
+**/EWARM/**/List/
+**/EWARM/**/Obj/
