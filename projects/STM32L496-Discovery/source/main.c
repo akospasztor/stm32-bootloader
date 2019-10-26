@@ -9,7 +9,7 @@
   *
   * @see    Please refer to README for detailed information.
   ******************************************************************************
-  * Copyright (c) 2018 Akos Pasztor.                    https://akospasztor.com
+  * Copyright (c) 2019 Akos Pasztor.                    https://akospasztor.com
   ******************************************************************************
 **/
 
@@ -29,7 +29,7 @@ extern FATFS SDFatFs;           /* File system object for SD logical drive */
 extern FIL   SDFile;            /* File object for SD */
 
 /* Function prototypes -------------------------------------------------------*/
-void    Enter_Bootloader(void);
+uint8_t Enter_Bootloader(void);
 uint8_t SD_Init(void);
 void    SD_DeInit(void);
 void    SD_Eject(void);
@@ -47,6 +47,7 @@ int main(void)
     HAL_Init();
     SystemClock_Config();
     GPIO_Init();
+
 #if (USE_VCP)
     UART2_Init();
 #endif /* USE_VCP */
@@ -115,17 +116,14 @@ int main(void)
         {
             print("Entering System Memory...\n");
             HAL_Delay(1000);
-//            Bootloader_JumpToSysMem();
+            Bootloader_JumpToSysMem();
         }
         else if(BTNcounter > 10)
         {
             print("Entering Bootloader...\n");
-//            Enter_Bootloader();
+            Enter_Bootloader();
         }
     }
-
-    while(1);
-
 
     /* Check if there is application in user flash area */
     if(Bootloader_CheckForApplication() == BL_OK)
@@ -145,12 +143,19 @@ int main(void)
 
         print("Launching Application.\n");
         LED_G1_ON();
-        HAL_Delay(1000);
+        HAL_Delay(200);
+        LED_G1_OFF();
+        LED_G2_ON();
+        HAL_Delay(200);
         LED_G2_OFF();
+        HAL_Delay(1000);
 
         /* De-initialize bootloader hardware & peripherals */
         SD_DeInit();
         GPIO_DeInit();
+#if (USE_VCP)
+        UART2_DeInit();
+#endif /* USE_VCP */
 
         /* Launch application */
         Bootloader_JumpToApplication();
@@ -160,13 +165,17 @@ int main(void)
     print("No application in flash.\n");
     while(1)
     {
-        //TODO
         Error_Handler();
     }
 }
 
-/*** Bootloader ***************************************************************/
-void Enter_Bootloader(void)
+/**
+  * @brief  This function executes the bootloader sequence.
+  * @param  None
+  * @retval Application error code ::eApplicationErrorCodes
+  *
+  */
+uint8_t Enter_Bootloader(void)
 {
     FRESULT  fr;
     UINT     num;
@@ -180,32 +189,31 @@ void Enter_Bootloader(void)
     /* Check for flash write protection */
     if(Bootloader_GetProtectionStatus() & BL_PROTECTION_WRP)
     {
-        print("Application space in flash is write protected.");
-        print("Press button to disable flash write protection...");
-//        LED_R_ON();
-        for(i=0; i<100; ++i)
+        print("Application space in flash is write protected.\n");
+        print("Press button to disable flash write protection...\n");
+        LED_ALL_ON();
+        for(i = 0; i < 100; ++i)
         {
-            LED_G2_TG();
+            LED_ALL_TG();
             HAL_Delay(50);
             if(IS_BTN_PRESSED())
             {
-                print("Disabling write protection and generating system reset...");
+                print("Disabling write protection and generating system reset...\n");
                 Bootloader_ConfigProtection(BL_PROTECTION_NONE);
             }
         }
-//        LED_R_OFF();
-        LED_G2_OFF();
-        print("Button was not pressed, write protection is still active.");
-        print("Exiting Bootloader.");
-        return;
+        LED_ALL_OFF();
+        print("Button was not pressed, write protection is still active.\n");
+        print("Exiting Bootloader.\n");
+        return ERR_WRP_ACTIVE;
     }
 
     /* Initialize SD card */
     if(SD_Init())
     {
         /* SD init failed */
-        print("SD card cannot be initialized.");
-        return;
+        print("SD card cannot be initialized.\n");
+        return ERR_SD_INIT;
     }
 
     /* Mount SD card */
@@ -213,63 +221,63 @@ void Enter_Bootloader(void)
     if(fr != FR_OK)
     {
         /* f_mount failed */
-        print("SD card cannot be mounted.");
-        sprintf(msg, "FatFs error code: %u", fr);
+        print("SD card cannot be mounted.\n");
+        sprintf(msg, "FatFs error code: %u\n", fr);
         print(msg);
-        return;
+        return ERR_SD_MOUNT;
     }
-    print("SD mounted.");
+    print("SD mounted.\n");
 
     /* Open file for programming */
     fr = f_open(&SDFile, CONF_FILENAME, FA_READ);
     if(fr != FR_OK)
     {
         /* f_open failed */
-        print("File cannot be opened.");
-        sprintf(msg, "FatFs error code: %u", fr);
+        print("File cannot be opened.\n");
+        sprintf(msg, "FatFs error code: %u\n", fr);
         print(msg);
 
         SD_Eject();
-        print("SD ejected.");
-        return;
+        print("SD ejected.\n");
+        return ERR_SD_FILE;
     }
-    print("Software found on SD.");
+    print("Software found on SD.\n");
 
     /* Check size of application found on SD card */
-    if(Bootloader_CheckSize( f_size(&SDFile) ) != BL_OK)
+    if(Bootloader_CheckSize(f_size(&SDFile)) != BL_OK)
     {
-        print("Error: app on SD card is too large.");
+        print("Error: app on SD card is too large.\n");
 
         f_close(&SDFile);
         SD_Eject();
-        print("SD ejected.");
-        return;
+        print("SD ejected.\n");
+        return ERR_APP_LARGE;
     }
-    print("App size OK.");
+    print("App size OK.\n");
 
     /* Step 1: Init Bootloader and Flash */
     Bootloader_Init();
 
     /* Step 2: Erase Flash */
-    print("Erasing flash...");
+    print("Erasing flash...\n");
     LED_G2_ON();
     Bootloader_Erase();
     LED_G2_OFF();
-    print("Flash erase finished.");
+    print("Flash erase finished.\n");
 
     /* If BTN is pressed, then skip programming */
     if(IS_BTN_PRESSED())
     {
-        print("Programming skipped.");
+        print("Programming skipped.\n");
 
         f_close(&SDFile);
         SD_Eject();
         print("SD ejected.");
-        return;
+        return ERR_OK;
     }
 
     /* Step 3: Programming */
-    print("Starting programming...");
+    print("Starting programming...\n");
     LED_G2_ON();
     cntr = 0;
     Bootloader_FlashBegin();
@@ -286,16 +294,15 @@ void Enter_Bootloader(void)
             }
             else
             {
-                sprintf(msg, "Programming error at: %lu byte", (cntr*8));
+                sprintf(msg, "Programming error at: %lu byte\n", (cntr*8));
                 print(msg);
 
                 f_close(&SDFile);
                 SD_Eject();
-                print("SD ejected.");
+                print("SD ejected.\n");
 
-                LED_G1_OFF();
-                LED_G2_OFF();
-                return;
+                LED_ALL_OFF();
+                return ERR_FLASH;
             }
         }
         if(cntr % 256 == 0)
@@ -308,10 +315,9 @@ void Enter_Bootloader(void)
     /* Step 4: Finalize Programming */
     Bootloader_FlashEnd();
     f_close(&SDFile);
-    LED_G1_OFF();
-    LED_G2_OFF();
-    print("Programming finished.");
-    sprintf(msg, "Flashed: %lu bytes.", (cntr*8));
+    LED_ALL_OFF();
+    print("Programming finished.\n");
+    sprintf(msg, "Flashed: %lu bytes.\n", (cntr*8));
     print(msg);
 
     /* Open file for verification */
@@ -319,13 +325,13 @@ void Enter_Bootloader(void)
     if(fr != FR_OK)
     {
         /* f_open failed */
-        print("File cannot be opened.");
-        sprintf(msg, "FatFs error code: %u", fr);
+        print("File cannot be opened.\n");
+        sprintf(msg, "FatFs error code: %u\n", fr);
         print(msg);
 
         SD_Eject();
         print("SD ejected.");
-        return;
+        return ERR_SD_FILE;
     }
 
     /* Step 5: Verify Flash Content */
@@ -344,15 +350,15 @@ void Enter_Bootloader(void)
             }
             else
             {
-                sprintf(msg, "Verification error at: %lu byte.", (cntr*4));
+                sprintf(msg, "Verification error at: %lu byte.\n", (cntr*4));
                 print(msg);
 
                 f_close(&SDFile);
                 SD_Eject();
-                print("SD ejected.");
+                print("SD ejected.\n");
 
                 LED_G1_OFF();
-                return;
+                return ERR_VERIFY;
             }
         }
         if(cntr % 256 == 0)
@@ -361,54 +367,76 @@ void Enter_Bootloader(void)
             LED_G1_TG();
         }
     } while((fr == FR_OK) && (num > 0));
-    print("Verification passed.");
+    print("Verification passed.\n");
     LED_G1_OFF();
 
     /* Eject SD card */
     SD_Eject();
-    print("SD ejected.");
+    print("SD ejected.\n");
 
     /* Enable flash write protection */
 #if (USE_WRITE_PROTECTION)
-    print("Enablig flash write protection and generating system reset...");
+    print("Enablig flash write protection and generating system reset...\n");
     if(Bootloader_ConfigProtection(BL_PROTECTION_WRP) != BL_OK)
     {
-        print("Failed to enable write protection.");
-        print("Exiting Bootloader.");
+        print("Failed to enable write protection.\n");
+        print("Exiting Bootloader.\n");
     }
 #endif
+
+    return ERR_OK;
 }
 
-/*** SD Card ******************************************************************/
+/**
+  * @brief  This function initializes and mounts the SD card.
+  * @param  None
+  * @retval None
+  */
 uint8_t SD_Init(void)
 {
     if(FATFS_Init())
     {
-        /* Error */
-        return 1;
+        /* FatFs initialization error */
+        return ERR_SD_INIT;
     }
 
     if(BSP_SD_Init())
     {
-        /* Error */
-        return 1;
+        /* SD Card initialization error */
+        return ERR_SD_INIT;
     }
 
-    return 0;
+    return ERR_OK;
 }
 
+/**
+  * @brief  This function de-initializes the SD card.
+  * @param  None
+  * @retval None
+  */
 void SD_DeInit(void)
 {
     BSP_SD_DeInit();
     FATFS_DeInit();
 }
 
+/**
+  * @brief  This function ejects the SD card.
+  * @param  None
+  * @retval None
+  */
 void SD_Eject(void)
 {
     f_mount(NULL, (TCHAR const*)SDPath, 0);
 }
 
-/*** UART Configuration ***/
+/**
+  * @brief  UART2 initialization function. UART2 is used for debugging. The
+  *         data sent over UART2 is forwarded to the USB virtual com port by the
+  *         ST-LINK located on the discovery board.
+  * @param  None
+  * @retval None
+  */
 void UART2_Init(void)
 {
     GPIO_InitTypeDef GPIO_InitStruct;
@@ -447,6 +475,12 @@ void UART2_Init(void)
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
 }
+
+/**
+  * @brief  UART2 de-initialization function.
+  * @param  None
+  * @retval None
+  */
 void UART2_DeInit(void)
 {
     HAL_UART_DeInit(&huart2);
@@ -459,7 +493,11 @@ void UART2_DeInit(void)
     __HAL_RCC_USART2_RELEASE_RESET();
 }
 
-/*** GPIO Configuration ***/
+/**
+  * @brief  GPIO initialization function for LEDs and push-button.
+  * @param  None
+  * @retval None
+  */
 void GPIO_Init(void)
 {
     GPIO_InitTypeDef GPIO_InitStruct;
@@ -490,6 +528,12 @@ void GPIO_Init(void)
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(BTN_Port, &GPIO_InitStruct);
 }
+
+/**
+  * @brief  GPIO de-initialization function.
+  * @param  None
+  * @retval None
+  */
 void GPIO_DeInit(void)
 {
     HAL_GPIO_DeInit(BTN_Port, BTN_Pin);
@@ -501,7 +545,11 @@ void GPIO_DeInit(void)
     __HAL_RCC_GPIOC_CLK_DISABLE();
 }
 
-/*** System Clock Configuration ***/
+/**
+  * @brief  System clock configuration function.
+  * @param  None
+  * @retval None
+  */
 void SystemClock_Config(void)
 {
     RCC_OscInitTypeDef RCC_OscInitStruct;
@@ -563,7 +611,11 @@ void SystemClock_Config(void)
     HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
 }
 
-/*** HAL MSP init ***/
+/**
+  * @brief  HAL MSP callback function
+  * @param  None
+  * @retval None
+  */
 void HAL_MspInit(void)
 {
     __HAL_RCC_SYSCFG_CLK_ENABLE();
@@ -580,7 +632,11 @@ void HAL_MspInit(void)
     HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
 }
 
-/*** Debug ***/
+/**
+  * @brief  Debug over UART2 -> ST-LINK -> USB Virtual Com Port
+  * @param  str: string to be written to UART2
+  * @retval None
+  */
 void print(const char* str)
 {
 #if (USE_VCP)
@@ -597,12 +653,16 @@ void Error_Handler(void)
 {
     while(1)
     {
-        __NOP();
+        LED_G1_ON();
+        HAL_Delay(250);
+        LED_G1_OFF();
+        LED_G2_ON();
+        HAL_Delay(250);
+        LED_G2_OFF();
     }
 }
 
 #ifdef USE_FULL_ASSERT
-
 /**
   * @brief  Reports the name of the source file and the source line number
   *         where the assert_param error has occurred.
@@ -614,5 +674,4 @@ void assert_failed(uint8_t* file, uint32_t line)
 {
 
 }
-
 #endif
