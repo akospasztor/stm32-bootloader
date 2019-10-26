@@ -3,6 +3,8 @@ Customizable Bootloader for STM32 microcontrollers. This project includes demons
 
 Each example uses the same bootloader library located in the `lib/stm32-bootloader` folder. The examples are located in the `projects` folder and they come with a separate, dedicated README file with description related to that specific implementation.
 
+Please refer to <https://akospasztor.github.io/stm32-bootloader> for complete documentation of the bootloader library source code.
+
 ## Table of Contents
 - [Bootloader features](#bootloader-features)
 - [Source code organization](#source-code-organization)
