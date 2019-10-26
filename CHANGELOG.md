@@ -46,7 +46,7 @@ Released: 2017-12-08 | Download: [1.07](https://github.com/akospasztor/stm32-boo
 
 
 ## 1.06
-Released: 2017-11-13 | Donwload: [1.06](https://github.com/akospasztor/stm32-bootloader/releases/tag/v1.06)
+Released: 2017-11-13 | Download: [1.06](https://github.com/akospasztor/stm32-bootloader/releases/tag/v1.06)
 ### Added
 - Introduced RAM_SIZE define to precisely check whether the flash contains valid application upon startup
 ### Fixed
@@ -104,4 +104,4 @@ Released: 2017-07-25 | Download: [1.01](https://github.com/akospasztor/stm32-boo
 ## 1.00
 Released: 2017-05-21 | Download: [1.00](https://github.com/akospasztor/stm32-bootloader/releases/tag/v1.00)
 ### Added
-Initial release
+- Initial release
