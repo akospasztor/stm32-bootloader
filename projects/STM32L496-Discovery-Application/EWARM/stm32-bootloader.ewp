@@ -651,11 +651,11 @@
                 </option>
                 <option>
                     <name>OCOutputOverride</name>
-                    <state>0</state>
+                    <state>1</state>
                 </option>
                 <option>
                     <name>OOCOutputFile</name>
-                    <state>stm32-bootloader.bin</state>
+                    <state>app-demo.bin</state>
                 </option>
                 <option>
                     <name>OOCCommandLineProducer</name>

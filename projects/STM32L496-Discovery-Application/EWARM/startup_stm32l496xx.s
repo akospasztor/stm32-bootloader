@@ -164,7 +164,7 @@ __vector_table
         DCD     SWPMI1_IRQHandler                 ; Serial Wire Interface global interrupt
         DCD     TSC_IRQHandler                    ; Touch Sense Controller global interrupt
         DCD     LCD_IRQHandler                    ; LCD global interrupt
-        DCD     0                                 ; Reserved        
+        DCD     0                                 ; Reserved
         DCD     RNG_IRQHandler                    ; RNG global interrupt
         DCD     FPU_IRQHandler                    ; FPU
         DCD     CRS_IRQHandler                    ; CRS error
@@ -175,7 +175,7 @@ __vector_table
         DCD     CAN2_RX0_IRQHandler               ; CAN2 RX0
         DCD     CAN2_RX1_IRQHandler               ; CAN2 RX1
         DCD     CAN2_SCE_IRQHandler               ; CAN2 SCE
-        DCD     DMA2D_IRQHandler                  ; DMA2D global interrupt       
+        DCD     DMA2D_IRQHandler                  ; DMA2D global interrupt
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;
@@ -639,12 +639,12 @@ RNG_IRQHandler
         SECTION .text:CODE:NOROOT:REORDER(1)
 FPU_IRQHandler
         B FPU_IRQHandler
-        
+
         PUBWEAK CRS_IRQHandler
         SECTION .text:CODE:NOROOT:REORDER(1)
 CRS_IRQHandler
-        B CRS_IRQHandler        
-        
+        B CRS_IRQHandler
+
         PUBWEAK I2C4_EV_IRQHandler
         SECTION .text:CODE:NOROOT:REORDER(1)
 I2C4_EV_IRQHandler
@@ -653,13 +653,13 @@ I2C4_EV_IRQHandler
         PUBWEAK I2C4_ER_IRQHandler
         SECTION .text:CODE:NOROOT:REORDER(1)
 I2C4_ER_IRQHandler
-        B I2C4_ER_IRQHandler 
-        
+        B I2C4_ER_IRQHandler
+
         PUBWEAK DCMI_IRQHandler
         SECTION .text:CODE:NOROOT:REORDER(1)
 DCMI_IRQHandler
-        B DCMI_IRQHandler                 
-        
+        B DCMI_IRQHandler
+
         PUBWEAK CAN2_TX_IRQHandler
         SECTION .text:CODE:NOROOT:REORDER(1)
 CAN2_TX_IRQHandler
@@ -679,11 +679,11 @@ CAN2_RX1_IRQHandler
         SECTION .text:CODE:NOROOT:REORDER(1)
 CAN2_SCE_IRQHandler
         B CAN2_SCE_IRQHandler
-        
+
         PUBWEAK DMA2D_IRQHandler
         SECTION .text:CODE:NOROOT:REORDER(1)
 DMA2D_IRQHandler
-        B DMA2D_IRQHandler                  
+        B DMA2D_IRQHandler
 
         END
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

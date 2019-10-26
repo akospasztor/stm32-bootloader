@@ -32,16 +32,37 @@ int main(void)
     SystemClock_Config();
     GPIO_Init();
 
-    print("\nApplication started.\n");
-
     while(1)
     {
         LED_G1_ON();
-        LED_G2_OFF();
-        HAL_Delay(500);
+        HAL_Delay(150);
         LED_G1_OFF();
+        HAL_Delay(350);
+
+        LED_G1_ON();
+        HAL_Delay(150);
+        LED_G1_OFF();
+        HAL_Delay(850);
+
         LED_G2_ON();
-        HAL_Delay(500);
+        HAL_Delay(150);
+        LED_G2_OFF();
+        HAL_Delay(350);
+
+        LED_G2_ON();
+        HAL_Delay(150);
+        LED_G2_OFF();
+        HAL_Delay(850);
+
+        LED_ALL_ON();
+        HAL_Delay(150);
+        LED_ALL_OFF();
+        HAL_Delay(350);
+
+        LED_ALL_ON();
+        HAL_Delay(150);
+        LED_ALL_OFF();
+        HAL_Delay(850);
     }
 }
 
