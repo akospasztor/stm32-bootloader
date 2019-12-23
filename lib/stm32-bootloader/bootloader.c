@@ -110,7 +110,7 @@ uint8_t Bootloader_FlashBegin(void)
 }
 
 /**
-  * @brief  Program 64bit data into flash: this function writes a 4byte (64bit)
+  * @brief  Program 64bit data into flash: this function writes an 8byte (64bit)
   *         data chunk into the flash and increments the data pointer.
   * @see    README for futher information
   * @param  data: 64bit data chunk to be written into flash
