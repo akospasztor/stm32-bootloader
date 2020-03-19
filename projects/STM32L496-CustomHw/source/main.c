@@ -1,17 +1,17 @@
 /**
-  ******************************************************************************
-  * STM32L4 Bootloader
-  ******************************************************************************
-  * @author Akos Pasztor
-  * @file   main.c
-  * @brief  Main program
-  *	        This file demonstrates the usage of the bootloader.
-  *
-  * @see    Please refer to README for detailed information.
-  ******************************************************************************
-  * Copyright (c) 2018 Akos Pasztor.                    https://akospasztor.com
-  ******************************************************************************
-**/
+ *******************************************************************************
+ * STM32L4 Bootloader
+ *******************************************************************************
+ * @author Akos Pasztor
+ * @file   main.c
+ * @brief  Main program
+ *	       This file demonstrates the usage of the bootloader.
+ *
+ * @see    Please refer to README for detailed information.
+ *******************************************************************************
+ * Copyright (c) 2020 Akos Pasztor.                     https://akospasztor.com
+ *******************************************************************************
+ */
 
 #include "stm32l4xx.h"
 #include "main.h"
@@ -22,9 +22,9 @@
 static uint8_t BTNcounter = 0;
 
 /* External variables --------------------------------------------------------*/
-extern char  SDPath[4];         /* SD logical drive path */
-extern FATFS SDFatFs;           /* File system object for SD logical drive */
-extern FIL   SDFile;            /* File object for SD */
+extern char  SDPath[4]; /* SD logical drive path */
+extern FATFS SDFatFs;   /* File system object for SD logical drive */
+extern FIL   SDFile;    /* File object for SD */
 
 /* Function prototypes -------------------------------------------------------*/
 void    Enter_Bootloader(void);
@@ -53,7 +53,7 @@ int main(void)
     if(__HAL_RCC_GET_FLAG(RCC_FLAG_OBLRST))
     {
         print("OBL flag is active.");
-#if (CLEAR_RESET_FLAGS)
+#if(CLEAR_RESET_FLAGS)
         /* Clear system reset flags */
         __HAL_RCC_CLEAR_RESET_FLAGS();
         print("Reset flags cleared.");
@@ -61,20 +61,44 @@ int main(void)
     }
 
     /* Check for user action:
-        - button is pressed >= 1 second:  Enter Bootloader. Green LED is blinking.
-        - button is pressed >= 4 seconds: Enter ST System Memory. Yellow LED is blinking.
+        - button is pressed >= 1 second:  Enter Bootloader. Green LED is
+          blinking.
+        - button is pressed >= 4 seconds: Enter ST System Memory. Yellow LED is
+          blinking.
         - button is pressed >= 9 seconds: Do nothing, launch application.
     */
     while(IS_BTN_PRESSED() && BTNcounter < 90)
     {
-        if(BTNcounter == 10) { print("Release button to enter Bootloader."); }
-        if(BTNcounter == 40) { print("Release button to enter System Memory."); }
+        if(BTNcounter == 10)
+        {
+            print("Release button to enter Bootloader.");
+        }
+        if(BTNcounter == 40)
+        {
+            print("Release button to enter System Memory.");
+        }
 
-        if(BTNcounter < 10)         { LED_ALL_ON(); }
-        else if(BTNcounter == 10)   { LED_ALL_OFF(); }
-        else if(BTNcounter < 40)    { LED_G_TG(); }
-        else if(BTNcounter == 40)   { LED_G_OFF(); LED_Y_ON(); }
-        else                        { LED_Y_TG(); }
+        if(BTNcounter < 10)
+        {
+            LED_ALL_ON();
+        }
+        else if(BTNcounter == 10)
+        {
+            LED_ALL_OFF();
+        }
+        else if(BTNcounter < 40)
+        {
+            LED_G_TG();
+        }
+        else if(BTNcounter == 40)
+        {
+            LED_G_OFF();
+            LED_Y_ON();
+        }
+        else
+        {
+            LED_Y_TG();
+        }
 
         BTNcounter++;
         HAL_Delay(100);
@@ -98,11 +122,10 @@ int main(void)
         }
     }
 
-
     /* Check if there is application in user flash area */
     if(Bootloader_CheckForApplication() == BL_OK)
     {
-#if (USE_CHECKSUM)
+#if(USE_CHECKSUM)
         /* Verify application checksum */
         if(Bootloader_VerifyChecksum() != BL_OK)
         {
@@ -132,10 +155,14 @@ int main(void)
     print("No application in flash.");
     while(1)
     {
-        LED_R_ON();     HAL_Delay(150);
-        LED_R_OFF();    HAL_Delay(150);
-        LED_R_ON();     HAL_Delay(150);
-        LED_R_OFF();    HAL_Delay(1050);
+        LED_R_ON();
+        HAL_Delay(150);
+        LED_R_OFF();
+        HAL_Delay(150);
+        LED_R_ON();
+        HAL_Delay(150);
+        LED_R_OFF();
+        HAL_Delay(1050);
     }
 }
 
@@ -157,13 +184,14 @@ void Enter_Bootloader(void)
         print("Application space in flash is write protected.");
         print("Press button to disable flash write protection...");
         LED_R_ON();
-        for(i=0; i<100; ++i)
+        for(i = 0; i < 100; ++i)
         {
             LED_Y_TG();
             HAL_Delay(50);
             if(IS_BTN_PRESSED())
             {
-                print("Disabling write protection and generating system reset...");
+                print("Disabling write protection and generating system "
+                      "reset...");
                 Bootloader_ConfigProtection(BL_PROTECTION_NONE);
             }
         }
@@ -210,7 +238,7 @@ void Enter_Bootloader(void)
     print("Software found on SD.");
 
     /* Check size of application found on SD card */
-    if(Bootloader_CheckSize( f_size(&SDFile) ) != BL_OK)
+    if(Bootloader_CheckSize(f_size(&SDFile)) != BL_OK)
     {
         print("Error: app on SD card is too large.");
 
@@ -250,7 +278,7 @@ void Enter_Bootloader(void)
     do
     {
         data = 0xFFFFFFFFFFFFFFFF;
-        fr = f_read(&SDFile, &data, 8, &num);
+        fr   = f_read(&SDFile, &data, 8, &num);
         if(num)
         {
             status = Bootloader_FlashNext(data);
@@ -260,7 +288,7 @@ void Enter_Bootloader(void)
             }
             else
             {
-                sprintf(msg, "Programming error at: %lu byte", (cntr*8));
+                sprintf(msg, "Programming error at: %lu byte", (cntr * 8));
                 print(msg);
 
                 f_close(&SDFile);
@@ -285,7 +313,7 @@ void Enter_Bootloader(void)
     LED_G_OFF();
     LED_Y_OFF();
     print("Programming finished.");
-    sprintf(msg, "Flashed: %lu bytes.", (cntr*8));
+    sprintf(msg, "Flashed: %lu bytes.", (cntr * 8));
     print(msg);
 
     /* Open file for verification */
@@ -308,7 +336,7 @@ void Enter_Bootloader(void)
     do
     {
         data = 0xFFFFFFFFFFFFFFFF;
-        fr = f_read(&SDFile, &data, 4, &num);
+        fr   = f_read(&SDFile, &data, 4, &num);
         if(num)
         {
             if(*(uint32_t*)addr == (uint32_t)data)
@@ -318,7 +346,7 @@ void Enter_Bootloader(void)
             }
             else
             {
-                sprintf(msg, "Verification error at: %lu byte.", (cntr*4));
+                sprintf(msg, "Verification error at: %lu byte.", (cntr * 4));
                 print(msg);
 
                 f_close(&SDFile);
@@ -343,7 +371,7 @@ void Enter_Bootloader(void)
     print("SD ejected.");
 
     /* Enable flash write protection */
-#if (USE_WRITE_PROTECTION)
+#if(USE_WRITE_PROTECTION)
     print("Enablig flash write protection and generating system reset...");
     if(Bootloader_ConfigProtection(BL_PROTECTION_WRP) != BL_OK)
     {
@@ -400,8 +428,8 @@ void GPIO_Init(void)
     HAL_GPIO_WritePin(SD_PWR_Port, SD_PWR_Pin, GPIO_PIN_SET);
 
     /* LED_G_Pin, LED_Y_Pin, LED_R_Pin */
-    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
 
     GPIO_InitStruct.Pin = LED_G_Pin;
@@ -414,16 +442,16 @@ void GPIO_Init(void)
     HAL_GPIO_Init(LED_R_Port, &GPIO_InitStruct);
 
     /* SD Card Power Pin */
-    GPIO_InitStruct.Pin = SD_PWR_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Pin   = SD_PWR_Pin;
+    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(SD_PWR_Port, &GPIO_InitStruct);
 
     /* User Button */
-    GPIO_InitStruct.Pin = BTN_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-    GPIO_InitStruct.Pull = GPIO_PULLUP;
+    GPIO_InitStruct.Pin   = BTN_Pin;
+    GPIO_InitStruct.Mode  = GPIO_MODE_INPUT;
+    GPIO_InitStruct.Pull  = GPIO_PULLUP;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(BTN_Port, &GPIO_InitStruct);
 }
@@ -442,30 +470,31 @@ void GPIO_DeInit(void)
 /*** System Clock Configuration ***/
 void SystemClock_Config(void)
 {
-    RCC_OscInitTypeDef RCC_OscInitStruct;
-    RCC_ClkInitTypeDef RCC_ClkInitStruct;
+    RCC_OscInitTypeDef       RCC_OscInitStruct;
+    RCC_ClkInitTypeDef       RCC_ClkInitStruct;
     RCC_PeriphCLKInitTypeDef PeriphClkInit;
 
     /* Initializes the CPU, AHB and APB bus clocks */
-    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_MSI;
-    RCC_OscInitStruct.MSIState = RCC_MSI_ON;
+    RCC_OscInitStruct.OscillatorType      = RCC_OSCILLATORTYPE_MSI;
+    RCC_OscInitStruct.MSIState            = RCC_MSI_ON;
     RCC_OscInitStruct.MSICalibrationValue = 0;
-    RCC_OscInitStruct.MSIClockRange = RCC_MSIRANGE_6;
-    RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
-    RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_MSI;
-    RCC_OscInitStruct.PLL.PLLM = 1;
-    RCC_OscInitStruct.PLL.PLLN = 24;
-    RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
-    RCC_OscInitStruct.PLL.PLLQ = RCC_PLLQ_DIV2;
-    RCC_OscInitStruct.PLL.PLLR = RCC_PLLR_DIV2;
+    RCC_OscInitStruct.MSIClockRange       = RCC_MSIRANGE_6;
+    RCC_OscInitStruct.PLL.PLLState        = RCC_PLL_ON;
+    RCC_OscInitStruct.PLL.PLLSource       = RCC_PLLSOURCE_MSI;
+    RCC_OscInitStruct.PLL.PLLM            = 1;
+    RCC_OscInitStruct.PLL.PLLN            = 24;
+    RCC_OscInitStruct.PLL.PLLP            = RCC_PLLP_DIV2;
+    RCC_OscInitStruct.PLL.PLLQ            = RCC_PLLQ_DIV2;
+    RCC_OscInitStruct.PLL.PLLR            = RCC_PLLR_DIV2;
     if(HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
     {
         Error_Handler();
     }
 
-    RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
-    RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
-    RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
+    RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK |
+                                  RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
+    RCC_ClkInitStruct.SYSCLKSource   = RCC_SYSCLKSOURCE_PLLCLK;
+    RCC_ClkInitStruct.AHBCLKDivider  = RCC_SYSCLK_DIV1;
     RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
     RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
@@ -474,14 +503,14 @@ void SystemClock_Config(void)
         Error_Handler();
     }
 
-    PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_SDMMC1;
-    PeriphClkInit.Sdmmc1ClockSelection = RCC_SDMMC1CLKSOURCE_PLLSAI1;
-    PeriphClkInit.PLLSAI1.PLLSAI1Source = RCC_PLLSOURCE_MSI;
-    PeriphClkInit.PLLSAI1.PLLSAI1M = 1;
-    PeriphClkInit.PLLSAI1.PLLSAI1N = 24;
-    PeriphClkInit.PLLSAI1.PLLSAI1P = RCC_PLLP_DIV2;
-    PeriphClkInit.PLLSAI1.PLLSAI1Q = RCC_PLLQ_DIV2;
-    PeriphClkInit.PLLSAI1.PLLSAI1R = RCC_PLLR_DIV2;
+    PeriphClkInit.PeriphClockSelection    = RCC_PERIPHCLK_SDMMC1;
+    PeriphClkInit.Sdmmc1ClockSelection    = RCC_SDMMC1CLKSOURCE_PLLSAI1;
+    PeriphClkInit.PLLSAI1.PLLSAI1Source   = RCC_PLLSOURCE_MSI;
+    PeriphClkInit.PLLSAI1.PLLSAI1M        = 1;
+    PeriphClkInit.PLLSAI1.PLLSAI1N        = 24;
+    PeriphClkInit.PLLSAI1.PLLSAI1P        = RCC_PLLP_DIV2;
+    PeriphClkInit.PLLSAI1.PLLSAI1Q        = RCC_PLLQ_DIV2;
+    PeriphClkInit.PLLSAI1.PLLSAI1R        = RCC_PLLR_DIV2;
     PeriphClkInit.PLLSAI1.PLLSAI1ClockOut = RCC_PLLSAI1_48M2CLK;
     if(HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
     {
@@ -495,7 +524,7 @@ void SystemClock_Config(void)
     }
 
     /* Configure the Systick */
-    HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq()/1000);
+    HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq() / 1000);
     HAL_SYSTICK_CLKSourceConfig(SYSTICK_CLKSOURCE_HCLK);
     HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
 }
@@ -520,16 +549,16 @@ void HAL_MspInit(void)
 /*** Debug ***/
 void print(const char* str)
 {
-#if (USE_SWO_TRACE)
+#if(USE_SWO_TRACE)
     puts(str);
 #endif
 }
 
 /**
-  * @brief  This function is executed in case of error occurrence.
-  * @param  None
-  * @retval None
-  */
+ * @brief  This function is executed in case of error occurrence.
+ * @param  None
+ * @retval None
+ */
 void Error_Handler(void)
 {
     while(1)
@@ -542,15 +571,14 @@ void Error_Handler(void)
 #ifdef USE_FULL_ASSERT
 
 /**
-   * @brief Reports the name of the source file and the source line number
-   * where the assert_param error has occurred.
-   * @param file: pointer to the source file name
-   * @param line: assert_param error line source number
-   * @retval None
-   */
+ * @brief Reports the name of the source file and the source line number
+ * where the assert_param error has occurred.
+ * @param file: pointer to the source file name
+ * @param line: assert_param error line source number
+ * @retval None
+ */
 void assert_failed(uint8_t* file, uint32_t line)
 {
-
 }
 
 #endif

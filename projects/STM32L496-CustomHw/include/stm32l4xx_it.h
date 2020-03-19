@@ -2,7 +2,7 @@
 #define __STM32L4xx_IT_H
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/

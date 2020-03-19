@@ -1,25 +1,25 @@
 /**
-  ******************************************************************************
-  * STM32L4 Bootloader
-  ******************************************************************************
-  * @author Akos Pasztor
-  * @file   fatfs.c
-  * @brief  FatFS application
-  *         Code for FatFS application
-  *
-  *
-  ******************************************************************************
-  * Copyright (c) 2018 Akos Pasztor.                    https://akospasztor.com
-  ******************************************************************************
-**/
+ *******************************************************************************
+ * STM32L4 Bootloader
+ *******************************************************************************
+ * @author Akos Pasztor
+ * @file   fatfs.c
+ * @brief  FatFS application
+ *         Code for FatFS application
+ *
+ *
+ *******************************************************************************
+ * Copyright (c) 2020 Akos Pasztor.                     https://akospasztor.com
+ *******************************************************************************
+ */
 
 #include "fatfs.h"
 #include "main.h"
 
 /* Variables -----------------------------------------------------------------*/
-char  SDPath[4];        /* SD logical drive path */
-FATFS SDFatFs;          /* File system object for SD logical drive */
-FIL   SDFile;           /* File object for SD */
+char  SDPath[4]; /* SD logical drive path */
+FATFS SDFatFs;   /* File system object for SD logical drive */
+FIL   SDFile;    /* File object for SD */
 
 /* Functions -----------------------------------------------------------------*/
 uint8_t FATFS_Init(void)
@@ -33,10 +33,10 @@ uint8_t FATFS_DeInit(void)
 }
 
 /**
-  * @brief  Gets Time from RTC
-  * @param  None
-  * @retval Time in DWORD
-  */
+ * @brief  Gets Time from RTC
+ * @param  None
+ * @retval Time in DWORD
+ */
 DWORD get_fattime(void)
 {
     return (DWORD)0;
