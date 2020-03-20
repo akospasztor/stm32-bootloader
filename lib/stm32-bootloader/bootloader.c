@@ -31,7 +31,6 @@ static uint32_t flash_ptr = APP_ADDRESS;
 
 /**
  * @brief  This function initializes bootloader and flash.
- * @param  None
  * @return Bootloader error code ::eBootloaderErrorCodes
  * @retval BL_OK is returned in every case
  */
@@ -50,7 +49,6 @@ uint8_t Bootloader_Init(void)
 
 /**
  * @brief  This function erases the user application area in flash
- * @param  None
  * @return Bootloader error code ::eBootloaderErrorCodes
  * @retval BL_OK: upon success
  * @retval BL_ERR: upon failure
@@ -155,7 +153,6 @@ uint8_t Bootloader_FlashNext(uint64_t data)
  * @brief  Finish flash programming: this function finalizes the flash
  *         programming by locking the flash.
  * @see    README for futher information
- * @param  None
  * @return Bootloader error code ::eBootloaderErrorCodes
  * @retval BL_OK is returned in every case
  */
@@ -169,7 +166,6 @@ uint8_t Bootloader_FlashEnd(void)
 
 /**
  * @brief  This function returns the protection status of flash.
- * @param  None
  * @return Flash protection status ::eFlashProtectionTypes
  */
 uint8_t Bootloader_GetProtectionStatus(void)
@@ -349,7 +345,6 @@ uint8_t Bootloader_CheckSize(uint32_t appsize)
  * @brief  This function verifies the checksum of application located in flash.
  *         If ::USE_CHECKSUM configuration parameter is disabled then the
  *         function always returns an error code.
- * @param  None
  * @return Bootloader error code ::eBootloaderErrorCodes
  * @retval BL_OK: if calculated checksum matches the application checksum
  * @retval BL_CHKS_ERROR: upon checksum mismatch or when ::USE_CHECKSUM is
@@ -393,7 +388,6 @@ uint8_t Bootloader_VerifyChecksum(void)
  *         the application firmware. In case of a valid application, this DWORD
  *         must represent the initialization location of stack pointer - which
  *         must be within the boundaries of RAM.
- * @param  None
  * @return Bootloader error code ::eBootloaderErrorCodes
  * @retval BL_OK: if first DWORD represents a valid stack pointer location
  * @retval BL_NO_APP: first DWORD value is out of RAM boundaries
@@ -412,8 +406,6 @@ uint8_t Bootloader_CheckForApplication(void)
  *  - Set the vector table location (if ::SET_VECTOR_TABLE is enabled)
  *  - Sets the stack pointer location
  *  - Perform the jump
- * @param  None
- * @retval None
  */
 void Bootloader_JumpToApplication(void)
 {
@@ -443,8 +435,6 @@ void Bootloader_JumpToApplication(void)
  *  - Stop the systick
  *  - Remap the system flash memory
  *  - Perform the jump
- * @param  None
- * @retval None
  */
 void Bootloader_JumpToSysMem(void)
 {
@@ -472,7 +462,6 @@ void Bootloader_JumpToSysMem(void)
  * @brief  This function returns the version number of the bootloader library.
  *         Semantic versioning is used for numbering.
  * @see    Semantic versioning: https://semver.org
- * @param  None
  * @return Bootloader version number combined into an uint32_t:
  *          - [31:24] Major version
  *          - [23:16] Minor version
