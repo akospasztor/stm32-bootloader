@@ -17,7 +17,7 @@
 #define __BOOTLOADER_H
 
 /** Bootloader Configuration
- * @defgroup Bootloader_Configuration
+ * @defgroup Bootloader_Configuration Bootloader Configuration
  * @{
  */
 
