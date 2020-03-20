@@ -16,11 +16,14 @@ __version__ = "0.3"
 # AKOS PASZTOR | github.com/akospasztor | 2020
 
 
-def replacements_from_file(file, style="file"):
+def replacements_from_file(file, style="file", executable="clang-format"):
     Replacement = namedtuple("Replacement", "offset length text")
     replacements = []
 
-    clang_format_args = ["clang-format"]
+    # Normalize executable path
+    executable = os.path.normpath(executable)
+
+    clang_format_args = [executable]
     clang_format_args.append("-style={}".format(style))
     clang_format_args.append("-output-replacements-xml")
     clang_format_args.append(os.path.basename(file))
@@ -65,13 +68,13 @@ def errors_from_replacements(file, replacements=[]):
     return errors
 
 
-def check_format(files=[], style="file"):
+def check_format(files=[], style="file", executable="clang-format"):
     total_error_count = 0
     file_errors = dict()
 
     print("Collected {} files to check.".format(len(files)))
     for f in files:
-        replacements = replacements_from_file(f, style)
+        replacements = replacements_from_file(f, style, executable)
         errors = errors_from_replacements(f, replacements)
         if len(errors) > 0:
             print("- Checking {} ... {} format error(s)"
@@ -88,12 +91,12 @@ def check_format(files=[], style="file"):
     return total_error_count, file_errors
 
 
-def check_clang_format_exec():
+def check_clang_format_exec(executable="clang-format"):
     try:
-        subprocess.check_output(["clang-format", "-version"])
+        subprocess.check_output([executable, "--version"], shell=True)
         return True
     except subprocess.CalledProcessError:
-        # it seems that in some version of clang-format '-version' leads to
+        # it seems that in some version of clang-format '--version' leads to
         # non-zero exist status
         return True
     except OSError:
@@ -110,11 +113,10 @@ def main():
                         help="Coding style, pass-through to clang-format's "
                         "-style=<string>, (default is '%(default)s').")
 
-    # Exit cleanly on missing clang-format
-    parser.add_argument("--success-on-missing-clang-format",
-                        action="store_true",
-                        help="If set this flag will lead to a success (zero "
-                        "exit status) if clang-format is not available.")
+    # Specify executable for clang-format
+    parser.add_argument("-e", "--executable",
+                        default="clang-format",
+                        help="Path of clang-format if it's not added to PATH")
 
     # Files or directory to check
     parser.add_argument("file", nargs="+", help="Paths to the files that will "
@@ -127,13 +129,11 @@ def main():
             args.style = "\"" + args.style + "\""
 
         # Checking that clang-format is available
-        if not check_clang_format_exec():
-            print("Can't run 'clang-format', please make sure it is installed "
-                  "and reachable in your PATH.")
-            if args.success_on_missing_clang_format:
-                exit(0)
-            else:
-                exit(-1)
+        if not check_clang_format_exec(args.executable):
+            print("Cannot run 'clang-format'. Please make sure the provided "
+                  "executable is valid or `clang-format` can be reached in "
+                  "PATH.")
+            exit(-1)
 
         # Globing the file paths
         files = set()
@@ -141,8 +141,9 @@ def main():
             for f in glob.iglob(pattern):
                 files.add(os.path.relpath(f))
         file_list = list(files)
-        error_count, file_errors = check_format(style=args.style,
-                                                files=file_list)
+        error_count, file_errors = check_format(files=file_list,
+                                                style=args.style,
+                                                executable=args.executable)
         exit(error_count)
 
     except Exception as e:
