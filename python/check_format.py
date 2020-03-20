@@ -65,7 +65,7 @@ def errors_from_replacements(file, replacements=[]):
     return errors
 
 
-def clang_format_check(files=[], style="file"):
+def check_format(files=[], style="file"):
     total_error_count = 0
     file_errors = dict()
 
@@ -141,7 +141,7 @@ def main():
             for f in glob.iglob(pattern):
                 files.add(os.path.relpath(f))
         file_list = list(files)
-        error_count, file_errors = clang_format_check(style=args.style,
+        error_count, file_errors = check_format(style=args.style,
                                                       files=file_list)
         exit(error_count)
 

@@ -5,7 +5,7 @@ import subprocess
 from common import collect_source_files
 
 
-def clang_format_run(source, style="file"):
+def run_format(source, style="file"):
     for s in source:
         clang_format_args = ["clang-format"]
         clang_format_args.append("-style={}".format(style))
@@ -20,4 +20,4 @@ def clang_format_run(source, style="file"):
 
 if __name__ == "__main__":
     file_list = collect_source_files()
-    clang_format_run(file_list)
+    run_format(file_list)
