@@ -142,7 +142,7 @@ def main():
                 files.add(os.path.relpath(f))
         file_list = list(files)
         error_count, file_errors = check_format(style=args.style,
-                                                      files=file_list)
+                                                files=file_list)
         exit(error_count)
 
     except Exception as e:
