@@ -4,3 +4,4 @@
 **/EWARM/**/Exe/
 **/EWARM/**/List/
 **/EWARM/**/Obj/
+*.pyc
