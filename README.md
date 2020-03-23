@@ -63,9 +63,9 @@ This repository contains the following examples.
 The bootloader can be easily customized and tailored to the required hardware and environment, i.e. to perform firmware updates over various interfaces or even to implement over-the-air (OTA) updates if the hardware incorporates wireless communication modules. In order to perform successful in-application-programming, the following sequence has to be kept:
 1. Check for flash write protection and disable it if necessary.
 2. Initialize flash with `Bootloader_Init()`.
-3. Erase application space with `Bootloader_Erase()` (optional, but recommended).
+3. Erase application space with `Bootloader_Erase()`.
 4. Prepare for programming by calling `Bootloader_FlashBegin()`.
-5. Perform programming by repeatedly calling the `Bootloader_FlashNext(uint64_t data)` function. The programming procedure requires 8 bytes of data (double word) to be programmed at once into the flash. This function automatically increases the address where the data is being written.
+5. Perform programming by repeatedly calling the `Bootloader_FlashNext()` function. The programming procedure requires 8 bytes of data (double word) to be programmed at once into the flash. This function automatically increases the address where the data is being written.
 6. Finalize programming by calling `Bootloader_FlashEnd()`.
 
 The application image has to be in binary format. If the checksum verification is enabled, the binary must include the checksum value at the end of the image. When creating the application image, the checksum has to be calculated over the entire image (except the checksum area) with the following parameters:
@@ -74,7 +74,9 @@ The application image has to be in binary format. If the checksum verification i
 - Initial value: 0xFFFFFFFF
 - Bit order: MSB first
 
-__Important notice__: in order to perform a successful application jump from the bootloader, the vector table of the application firmware should be relocated. On system reset, the vector table is fixed at address 0x00000000. When creating an application, the microcontroller startup code sets the vector table offset to 0x0000 in the `system_stm32xxxx.c` file by default. This has to be either disabled (the bootloader can be configured to perform the vector table relocation before the jump) or manually set the vector table offset register (VTOR) to the appropriate offset value which is the start address of the application space. For more information, please refer to [[1]](#references).
+__Important notes__:
+- In order to perform a successful application jump from the bootloader, the vector table of the application firmware should be relocated. On system reset, the vector table is fixed at address 0x00000000. When creating an application, the microcontroller startup code sets the vector table offset to 0x0000 in the `system_stm32xxxx.c` file by default. This has to be either disabled (the bootloader can be configured to perform the vector table relocation before the jump) or manually set the vector table offset register (VTOR) to the appropriate offset value which is the start address of the application space. For more information, please refer to [[1]](#references).
+- The linker settings of the application firmware need to be adjusted from their default settings so that the start address of FLASH reflects the actual start address of the application space.
 
 ## Configuration
 The bootloader can be widely configured in the `bootloader.h` file. The file includes detailed comments and descriptions related to the configurable parameters and definitions.
