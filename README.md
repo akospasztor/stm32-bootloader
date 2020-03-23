@@ -1,9 +1,12 @@
 # STM32 Bootloader
+
 Customizable Bootloader for STM32 microcontrollers. This project includes demonstrations for various hardware how to perform in-application-programming of a firmware located on external SD card with FAT32 file system.
 
 Each example uses the same bootloader library located in the `lib/stm32-bootloader` folder. The examples are located in the `projects` folder and they come with a separate, dedicated README file with description related to that specific implementation.
 
 Please refer to <https://akospasztor.github.io/stm32-bootloader> for complete documentation of the bootloader library source code.
+
+![Build Status](https://dev.azure.com/akospasztor/stm32-bootloader/_apis/build/status/akospasztor.stm32-bootloader?branchName=master)
 
 ## Table of Contents
 - [Bootloader features](#bootloader-features)
