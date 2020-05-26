@@ -23,8 +23,8 @@ stages:
         inputs:
           versionSpec: '3.7'
       - script: |
-          sudo apt-get install clang-format -f
-          clang-format --version
+          sudo apt-get install clang-format-9 -f
+          clang-format-9 --version
         displayName: Install clang tools
       - script: |
           python -m pip install --upgrade pip
@@ -32,7 +32,7 @@ stages:
         displayName: Install python dependencies
       - script: flake8
         displayName: Run flake8
-      - script: python -m pytest -s
+      - script: python -m pytest -s --executable=clang-format-9
         displayName: Run pytest
 
 - stage: Deploy
