@@ -45,9 +45,4 @@ uint8_t BSP_SD_GetCardState(void);
 void    BSP_SD_GetCardInfo(BSP_SD_CardInfo* CardInfo);
 uint8_t BSP_SD_IsDetected(void);
 
-__weak void BSP_SD_AbortCallback(void);
-__weak void BSP_SD_ErrorCallback(void);
-__weak void BSP_SD_WriteCpltCallback(void);
-__weak void BSP_SD_ReadCpltCallback(void);
-
 #endif /* __BSP_DRIVER_SD_H */

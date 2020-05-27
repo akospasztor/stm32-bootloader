@@ -25,7 +25,9 @@ static HAL_StatusTypeDef SD_DMAConfigRx(SD_HandleTypeDef* hsd);
 static HAL_StatusTypeDef SD_DMAConfigTx(SD_HandleTypeDef* hsd);
 
 /* External function prototypes ----------------------------------------------*/
-void Error_Handler(void);
+extern void Error_Handler(void);
+extern void SD_ReadCpltCallback(void);
+extern void SD_WriteCpltCallback(void);
 
 /**
  * @brief  Initializes the SD card device.
@@ -297,7 +299,8 @@ uint8_t BSP_SD_IsDetected(void)
  */
 void HAL_SD_AbortCallback(SD_HandleTypeDef* hsd)
 {
-    BSP_SD_AbortCallback();
+    UNUSED(hsd);
+    // Do nothing
 }
 
 /**
@@ -307,7 +310,8 @@ void HAL_SD_AbortCallback(SD_HandleTypeDef* hsd)
  */
 void HAL_SD_ErrorCallback(SD_HandleTypeDef* hsd)
 {
-    BSP_SD_ErrorCallback();
+    UNUSED(hsd);
+    Error_Handler();
 }
 
 /**
@@ -317,7 +321,7 @@ void HAL_SD_ErrorCallback(SD_HandleTypeDef* hsd)
  */
 void HAL_SD_RxCpltCallback(SD_HandleTypeDef* hsd)
 {
-    BSP_SD_ReadCpltCallback();
+    SD_ReadCpltCallback();
 }
 
 /**
@@ -327,43 +331,7 @@ void HAL_SD_RxCpltCallback(SD_HandleTypeDef* hsd)
  */
 void HAL_SD_TxCpltCallback(SD_HandleTypeDef* hsd)
 {
-    BSP_SD_WriteCpltCallback();
-}
-
-/**
- * @brief BSP SD Abort callback
- * @retval None
- */
-__weak void BSP_SD_AbortCallback(void)
-{
-    Error_Handler();
-}
-
-/**
- * @brief BSP SD Error callback
- * @retval None
- */
-__weak void BSP_SD_ErrorCallback(void)
-{
-    Error_Handler();
-}
-
-/**
- * @brief BSP Rx Transfer completed callback
- * @retval None
- */
-__weak void BSP_SD_ReadCpltCallback(void)
-{
-    // redefined in sd_diskio
-}
-
-/**
- * @brief BSP Tx Transfer completed callback
- * @retval None
- */
-__weak void BSP_SD_WriteCpltCallback(void)
-{
-    // redefined in sd_diskio
+    SD_WriteCpltCallback();
 }
 
 /**
