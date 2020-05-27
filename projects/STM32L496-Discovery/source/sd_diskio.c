@@ -337,21 +337,21 @@ DRESULT SD_ioctl(BYTE lun, BYTE cmd, void* buff)
 #endif /* _USE_IOCTL == 1 */
 
 /**
- * @brief Rx Transfer complete callback
- * @param hsd: SD handle
+ * @brief SD Rx Transfer complete callback
+ * @param None
  * @retval None
  */
-void BSP_SD_ReadCpltCallback(void)
+void SD_ReadCpltCallback(void)
 {
     ReadStatus = 1;
 }
 
 /**
- * @brief Tx Transfer complete callback
- * @param hsd: SD handle
+ * @brief SD Tx Transfer complete callback
+ * @param None
  * @retval None
  */
-void BSP_SD_WriteCpltCallback(void)
+void SD_WriteCpltCallback(void)
 {
     WriteStatus = 1;
 }
