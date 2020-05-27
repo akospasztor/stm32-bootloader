@@ -1,7 +1,18 @@
 # Changelog for STM32 Bootloader
 
-## [Unreleased]
-- Check checksum of application found on SD card before programming
+
+## 1.1.1
+Released: 2020-05-27 | Download: [1.1.1](https://github.com/akospasztor/stm32-bootloader/releases/tag/v1.1.1)
+### Added
+- GNU Arm Embedded Toolchain support for the STM32L496-Discovery project example
+- Automatic source code formatting with clang-format
+- Source code format check with CI
+### Changed
+- Replaced GitHub Actions with Azure Pipelines
+### Fixed
+- Doxygen warnings are fixed
+- READMEs are updated
+
 
 ## 1.1.0
 Released: 2019-10-26 | Download: [1.1.0](https://github.com/akospasztor/stm32-bootloader/releases/tag/v1.1.0)
