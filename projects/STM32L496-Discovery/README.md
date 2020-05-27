@@ -6,12 +6,13 @@ Please refer to the main [README](../../README.md) for the complete description 
 ## Table of Contents
 - [Description](#description)
 - [Operation](#operation)
+- [Compile & Build](#compile--build)
 - [References](#references)
 
 ## Description
 This demo is implemented on the 32L496GDISCOVERY board from ST, equipped with a STM32L496AG microcontroller [[2]](#references). Please refer to the user manual of the discovery board for the complete schematics and board description [[3]](#references).
 
-The microSD card is connected to the MCU over SDIO interface. The implementation uses the official HAL library of ST [[4]](#references) and is compiled with IAR EWARM. Programming and debugging are performed over the on-board ST-LINK debugger.
+The microSD card is connected to the MCU over SDIO interface. The implementation uses the official HAL library of ST [[4]](#references) and can be compiled with IAR EWARM or GNU Arm Embedded Toolchain. Programming and debugging are performed over the on-board ST-LINK debugger.
 
 There are two LEDs located on the discovery board, which are easily accessible, and they don't require the use of the IO expander. These LEDs are used for signaling various status to the user and they are labeled as LD2 and LD3.
 
@@ -54,6 +55,26 @@ After power-up, the bootloader starts. The bootloader checks for user-interactio
 ![Bootloader sequence](../../docs/img/bootloader-sequence.png)
 
 *Figure 3: Bootloader sequence*
+
+## Compile & Build
+The project can be built out-of-the-box with either IAR EWARM or GNU Arm Embedded Toolchain. The `EWARM` subfolder contains the required files to compile and build the demo with the IAR EWARM toolchain. The `GCC` subfolder contains the compiler-specific files as well as a makefile to easily compile and build the project with the GNU Arm Embedded Toolchain.
+
+### IAR EWARM
+1. Open the `Project.eww` workspace file with IAR.
+2. Build the project and download to the target.
+
+Note: The IAR EWARM project is already configured with the required parameters and options in order to compile and build the demo with a single click.
+
+### GNU Arm Embedded Toolchain
+Prerequisites:
+- GNU Arm Embedded Toolchain, recommended version: 8-2019-q3-update
+- GNU Make (for Windows, see: [Make for Windows](http://gnuwin32.sourceforge.net/packages/make.htm))
+
+Steps to compile and build:
+1. If the GNU Arm Embedded Toolchain has not been added to PATH: Edit the `CUSTOMPATH` variable in the `Makefile` so that it points to the `bin` folder of the installed GNU Arm Embedded Toolchain.
+2. Open up your favorite terminal and navigate to the `GCC` subfolder where the makefile is located.
+3. Type `make` and hit enter.
+4. The `build` subfolder should contain the binary, ELF and HEX output files, named `stm32-bootloader.bin`, `stm32-bootloader.elf` and `stm32-bootloader.hex` respectively.
 
 ## References
 [1] 32L496GDISCOVERY, https://www.st.com/en/evaluation-tools/32l496gdiscovery.html

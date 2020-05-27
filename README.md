@@ -4,6 +4,8 @@ Customizable Bootloader for STM32 microcontrollers. This project includes demons
 
 Each example uses the same bootloader library located in the `lib/stm32-bootloader` folder. The examples are located in the `projects` folder and they come with a separate, dedicated README file with description related to that specific implementation.
 
+Update: the `STM32L496-Discovery` example supports compiling and building the project with the GNU Arm Embedded Toolchain out-of-the-box, in addition to IAR EWARM. Check out the project README for further information.
+
 Please refer to <https://akospasztor.github.io/stm32-bootloader> for complete documentation of the bootloader library source code.
 
 ![Build Status](https://dev.azure.com/akospasztor/stm32-bootloader/_apis/build/status/akospasztor.stm32-bootloader?branchName=master)
@@ -79,7 +81,7 @@ The application image has to be in binary format. If the checksum verification i
 
 __Important notes__:
 - In order to perform a successful application jump from the bootloader, the vector table of the application firmware should be relocated. On system reset, the vector table is fixed at address 0x00000000. When creating an application, the microcontroller startup code sets the vector table offset to 0x0000 in the `system_stm32xxxx.c` file by default. This has to be either disabled (the bootloader can be configured to perform the vector table relocation before the jump) or manually set the vector table offset register (VTOR) to the appropriate offset value which is the start address of the application space. For more information, please refer to [[1]](#references).
-- The linker settings of the application firmware need to be adjusted from their default settings so that the start address of FLASH reflects the actual start address of the application space.
+- The linker settings of the application firmware need to be adjusted from their default settings so that the start address of flash reflects the actual start address of the application space.
 
 ## Configuration
 The bootloader can be widely configured in the `bootloader.h` file. The file includes detailed comments and descriptions related to the configurable parameters and definitions.
