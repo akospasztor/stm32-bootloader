@@ -12,7 +12,7 @@ Please refer to the main [README](../../README.md) for the complete description 
 ## Description
 This demo is implemented on the 32L496GDISCOVERY board from ST, equipped with a STM32L496AG microcontroller [[2]](#references). Please refer to the user manual of the discovery board for the complete schematics and board description [[3]](#references).
 
-The microSD card is connected to the MCU over SDIO interface. The implementation uses the official HAL library of ST [[4]](#references) and can be compiled with IAR EWARM or GNU Arm Embedded Toolchain. Programming and debugging are performed over the on-board ST-LINK debugger.
+The microSD card is connected to the MCU over SDIO interface. The implementation uses the official HAL library of ST [[4]](#references) and can be compiled with IAR EWARM or GNU Arm Embedded Toolchain (ARM GCC). Programming and debugging are performed over the on-board ST-LINK debugger.
 
 There are two LEDs located on the discovery board, which are easily accessible, and they don't require the use of the IO expander. These LEDs are used for signaling various status to the user and they are labeled as LD2 and LD3.
 
