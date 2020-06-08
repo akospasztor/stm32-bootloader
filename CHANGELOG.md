@@ -1,5 +1,9 @@
 # Changelog for STM32 Bootloader
 
+## 1.1.2
+Released: 2020-06-08 | Download: [1.1.2](https://github.com/akospasztor/stm32-bootloader/releases/tag/v1.1.2)
+### Added
+- CI pipeline job for building the STM32L496-Discovery project example
 
 ## 1.1.1
 Released: 2020-05-27 | Download: [1.1.1](https://github.com/akospasztor/stm32-bootloader/releases/tag/v1.1.1)
