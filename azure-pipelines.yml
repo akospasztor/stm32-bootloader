@@ -4,6 +4,19 @@ pool:
 stages:
 - stage: Build
   jobs:
+  - job: stm32l496_discovery
+    steps:
+    - script: |
+        mkdir build
+        cd build
+        wget https://developer.arm.com/-/media/Files/downloads/gnu-rm/8-2019q3/RC1.1/gcc-arm-none-eabi-8-2019-q3-update-linux.tar.bz2
+        tar xjf gcc-arm-none-eabi-8-2019-q3-update-linux.tar.bz2
+      displayName: Install gcc
+    - script: |
+        export GCC_PATH=$(pwd)/build/gcc-arm-none-eabi-8-2019-q3-update/bin
+        cd projects/STM32L496-Discovery/GCC/
+        make
+      displayName: Build project
   - job: doxygen
     steps:
     - script: sudo apt-get install doxygen
