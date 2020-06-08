@@ -19,7 +19,7 @@
 /* Private defines -----------------------------------------------------------*/
 #define BOOTLOADER_VERSION_MAJOR 1 /*!< Major version */
 #define BOOTLOADER_VERSION_MINOR 1 /*!< Minor version */
-#define BOOTLOADER_VERSION_PATCH 1 /*!< Patch version */
+#define BOOTLOADER_VERSION_PATCH 2 /*!< Patch version */
 #define BOOTLOADER_VERSION_RC    0 /*!< Release candidate version */
 
 /* Private typedef -----------------------------------------------------------*/
