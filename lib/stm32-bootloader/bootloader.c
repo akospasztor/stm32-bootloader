@@ -394,8 +394,8 @@ uint8_t Bootloader_VerifyChecksum(void)
  */
 uint8_t Bootloader_CheckForApplication(void)
 {
-    return (((*(uint32_t*)APP_ADDRESS) - RAM_BASE) < RAM_SIZE) ? BL_OK
-                                                               : BL_NO_APP;
+    return (((*(uint32_t*)APP_ADDRESS) - RAM_BASE) <= RAM_SIZE) ? BL_OK
+                                                                : BL_NO_APP;
 }
 
 /**
