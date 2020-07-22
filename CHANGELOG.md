@@ -1,5 +1,11 @@
 # Changelog for STM32 Bootloader
 
+## 1.1.3
+Released: 2020-07-22 | Download: [1.1.3](https://github.com/akospasztor/stm32-bootloader/releases/tag/v1.1.3)
+### Fixed
+- Issue in CheckForApplication function when the stack pointer is configured to
+start from the very top of the RAM space
+
 ## 1.1.2
 Released: 2020-06-08 | Download: [1.1.2](https://github.com/akospasztor/stm32-bootloader/releases/tag/v1.1.2)
 ### Added
