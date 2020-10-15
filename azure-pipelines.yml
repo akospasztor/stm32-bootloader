@@ -1,79 +1,83 @@
+# yamllint disable rule:line-length
+---
 pool:
   vmImage: 'ubuntu-18.04'
 
 stages:
-- stage: Build
-  jobs:
-  - job: stm32l496_discovery
-    steps:
-    - script: |
-        mkdir build
-        cd build
-        wget https://developer.arm.com/-/media/Files/downloads/gnu-rm/8-2019q3/RC1.1/gcc-arm-none-eabi-8-2019-q3-update-linux.tar.bz2
-        tar xjf gcc-arm-none-eabi-8-2019-q3-update-linux.tar.bz2
-      displayName: Install gcc
-    - script: |
-        export GCC_PATH=$(pwd)/build/gcc-arm-none-eabi-8-2019-q3-update/bin
-        cd projects/STM32L496-Discovery/GCC/
-        make
-      displayName: Build project
-  - job: doxygen
-    steps:
-    - script: sudo apt-get install doxygen
-      displayName: Install doxygen
-    - script: doxygen docs/Doxyfile
-      displayName: Run doxygen
-    - publish: $(System.DefaultWorkingDirectory)/docs/html
-      artifact: documentation
-      displayName: Upload artifact
+  - stage: Build
+    jobs:
+      - job: stm32l496_discovery
+        steps:
+          - script: |
+              mkdir build
+              cd build
+              wget https://developer.arm.com/-/media/Files/downloads/gnu-rm/8-2019q3/RC1.1/gcc-arm-none-eabi-8-2019-q3-update-linux.tar.bz2
+              tar xjf gcc-arm-none-eabi-8-2019-q3-update-linux.tar.bz2
+            displayName: Install gcc
+          - script: |
+              export GCC_PATH=$(pwd)/build/gcc-arm-none-eabi-8-2019-q3-update/bin
+              cd projects/STM32L496-Discovery/GCC/
+              make
+            displayName: Build project
+      - job: doxygen
+        steps:
+          - script: sudo apt-get install doxygen
+            displayName: Install doxygen
+          - script: doxygen docs/Doxyfile
+            displayName: Run doxygen
+          - publish: $(System.DefaultWorkingDirectory)/docs/html
+            artifact: documentation
+            displayName: Upload artifact
 
-- stage: Test
-  jobs:
-  - job: format_check
-    steps:
-      - task: UsePythonVersion@0
-        displayName: Select python version
-        inputs:
-          versionSpec: '3.7'
-      - script: |
-          sudo apt-get install clang-format-9 -f
-          clang-format-9 --version
-        displayName: Install clang tools
-      - script: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-        displayName: Install python dependencies
-      - script: flake8
-        displayName: Run flake8
-      - script: python -m pytest -s --executable=clang-format-9
-        displayName: Run pytest
+  - stage: Test
+    jobs:
+      - job: format_check
+        steps:
+          - task: UsePythonVersion@0
+            displayName: Select python version
+            inputs:
+              versionSpec: '3.7'
+          - script: |
+              sudo apt-get install clang-format-9 -f
+              clang-format-9 --version
+            displayName: Install clang tools
+          - script: |
+              python -m pip install --upgrade pip
+              pip install -r requirements.txt
+            displayName: Install python dependencies
+          - script: flake8
+            displayName: Run flake8
+          - script: yamllint .
+            displayName: Run yamllint
+          - script: python -m pytest -s --executable=clang-format-9
+            displayName: Run pytest
 
-- stage: Deploy
-  condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
-  jobs:
-  - job: github_pages
-    steps:
-      - checkout: none
-      - download: current
-        artifact: documentation
-      - script: |
-          cp -r $(Pipeline.Workspace)/documentation/* .
-          ls -al
-        displayName: Copy artifact contents
-      - script: |
-          git init
-          git config --local user.name "Akos Pasztor"
-          git config --local user.email "akospasztor@users.noreply.github.com"
-        displayName: Git setup
-      - script: |
-          if [ -z "$(git status --porcelain)" ]
-          then
-            echo "Nothing to commit."
-            exit 1
-          fi
-        displayName: Git check
-      - script: |
-          git add .
-          git commit -m 'Deploy to GitHub Pages'
-          git push --force https://akospasztor:$(gh_pat)@github.com/akospasztor/stm32-bootloader.git master:gh-pages
-        displayName: Git push
+  - stage: Deploy
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+    jobs:
+      - job: github_pages
+        steps:
+          - checkout: none
+          - download: current
+            artifact: documentation
+          - script: |
+              cp -r $(Pipeline.Workspace)/documentation/* .
+              ls -al
+            displayName: Copy artifact contents
+          - script: |
+              git init
+              git config --local user.name "Akos Pasztor"
+              git config --local user.email "akospasztor@users.noreply.github.com"
+            displayName: Git setup
+          - script: |
+              if [ -z "$(git status --porcelain)" ]
+              then
+                echo "Nothing to commit."
+                exit 1
+              fi
+            displayName: Git check
+          - script: |
+              git add .
+              git commit -m 'Deploy to GitHub Pages'
+              git push --force https://akospasztor:$(gh_pat)@github.com/akospasztor/stm32-bootloader.git master:gh-pages
+            displayName: Git push
