@@ -1,0 +1,7 @@
+---
+
+extends: default
+
+ignore: |
+  /build/
+  /lib/
