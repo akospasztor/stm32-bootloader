@@ -2,3 +2,4 @@ wheel
 flake8~=3.8.4
 pytest~=3.9.0
 yamllint~=1.25.0
+scons~=4.0.1
