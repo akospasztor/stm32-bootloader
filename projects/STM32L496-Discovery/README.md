@@ -57,7 +57,9 @@ After power-up, the bootloader starts. The bootloader checks for user-interactio
 *Figure 3: Bootloader sequence*
 
 ## Compile & Build
-The project can be built out-of-the-box with either IAR EWARM or GNU Arm Embedded Toolchain. The `EWARM` subfolder contains the required files to compile and build the demo with the IAR EWARM toolchain. The `GCC` subfolder contains the compiler-specific files as well as a makefile to easily compile and build the project with the GNU Arm Embedded Toolchain.
+The project can be built out-of-the-box with either IAR EWARM or GNU Arm Embedded Toolchain. The `EWARM` subfolder contains the required files to compile and build the demo with the IAR EWARM toolchain.
+
+The `GCC` subfolder contains the compiler-specific files, a `Makefile` and a `SConscript` file to easily compile and build the project with the GNU Arm Embedded Toolchain.
 
 ### IAR EWARM
 1. Open the `Project.eww` workspace file with IAR.
@@ -68,13 +70,27 @@ Note: The IAR EWARM project is already configured with the required parameters a
 ### GNU Arm Embedded Toolchain
 Prerequisites:
 - GNU Arm Embedded Toolchain, recommended version: 8-2019-q3-update
-- GNU Make (for Windows, see: [Make for Windows](http://gnuwin32.sourceforge.net/packages/make.htm))
+- At least one of the followings:
+    - GNU Make (for Windows, see: [Make for Windows](http://gnuwin32.sourceforge.net/packages/make.htm))
+    - Python with pip
 
-Steps to compile and build:
+#### Build with Make
+Steps to compile and build with GNU Make:
+
 1. If the GNU Arm Embedded Toolchain has not been added to PATH: Edit the `CUSTOMPATH` variable in the `Makefile` so that it points to the `bin` folder of the installed GNU Arm Embedded Toolchain.
 2. Open up your favorite terminal and navigate to the `GCC` subfolder where the makefile is located.
 3. Type `make` and hit enter.
 4. The `build` subfolder should contain the binary, ELF and HEX output files, named `stm32-bootloader.bin`, `stm32-bootloader.elf` and `stm32-bootloader.hex` respectively.
+
+#### Build with SCons
+This project currently supports two build configurations: debug (default) and release. Follow these steps to compile and build the project with SCons. Please note that the recommended usage is within a virtualenv.
+
+1. Install the requirements: `pip install -r requirements.txt`
+2. If the `bin` folder of the GNU Arm Embedded Toolchain does not exist in the PATH, it can be specified in the `SConstruct` file.
+3. To build the project with the default debug configuration, execute: `scons -j8`
+4. To build all build configurations at once, execute: `scons --all -j8`
+5. To list all supported arguments, execute: `scons --help`
+6. The `build` subfolder should contain the generated outputs, organized in subfolders with the names of the build configurations.
 
 ## References
 [1] 32L496GDISCOVERY, https://www.st.com/en/evaluation-tools/32l496gdiscovery.html

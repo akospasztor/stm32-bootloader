@@ -6,3 +6,4 @@
 **/EWARM/**/List/
 **/EWARM/**/Obj/
 **/GCC/build/
+.sconsign.dblite

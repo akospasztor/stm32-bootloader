@@ -1,0 +1,182 @@
+import os
+
+# Import build configuration
+Import('build_config')
+
+# Get project path: this is the path of the SConscript file
+project_path = Dir('#').rel_path(Dir('.'))
+
+# >>> Project Configuration ---------------------------------------------------
+
+# Specify the build directory and its subfolders
+build_dir = os.path.join('build', build_config['name'])
+obj_subdir = 'obj'
+
+# Specify the target outputs
+target_name = 'stm32-bootloader'
+target_exe = os.path.join(build_dir, target_name)
+target_hex = os.path.join(build_dir, target_name) + '.hex'
+target_bin = os.path.join(build_dir, target_name) + '.bin'
+
+# Microcontroller flags
+mcu_flags = [
+    '-mcpu=cortex-m4',
+    '-mthumb',
+    '-mfpu=fpv4-sp-d16',
+    '-mfloat-abi=hard',
+]
+
+# Common compiler flags
+common_flags = [
+    '-Wall',
+    '-pedantic',
+    '-fdata-sections',
+    '-ffunction-sections',
+]
+
+# Assembler flags
+a_flags = [
+    '-c',
+]
+
+# C/C++ compiler flags
+cc_flags = [
+    '-MMD',
+    '-MP',
+]
+
+# Linker flags
+link_flags = [
+    '-T{}'.format(os.path.join(project_path, 'stm32l496xx_flash.ld')),
+    '-specs=nano.specs',
+    '-specs=nosys.specs',
+    '-lc',
+    '-lm',
+    '-lnosys',
+    '-Wl,-Map={}.map,--cref'.format(os.path.join(project_path, target_exe)),
+    '-Wl,--gc-sections',
+]
+
+# Defines
+defines = [
+    'USE_HAL_DRIVER',
+    'STM32L496xx',
+]
+
+# Include locations
+includes = [
+    '../include',
+    '#/lib/stm32-bootloader',
+    '#/lib/fatfs',
+    '#/drivers/CMSIS/Include',
+    '#/drivers/CMSIS/Device/ST/STM32L4xx/Include',
+    '#/drivers/STM32L4xx_HAL_Driver/Inc',
+]
+
+# Source files
+sources = Glob('#/lib/stm32-bootloader/*.c')
+sources += Glob('#/lib/fatfs/*.c')
+sources += Glob('#/drivers/STM32L4xx_HAL_Driver/Src/*.c')
+sources += Glob('#/lib/fatfs/option/unicode.c')
+sources += Glob('../source/*.c')
+sources += Glob('startup_stm32l496xx.s')
+
+# <<< End of configuration ----------------------------------------------------
+
+# Create environment
+env = Environment(
+    ENV={'PATH': os.environ['PATH']}
+)
+
+# Specify the cross compiler toolchain
+cross_compiler = 'arm-none-eabi-'
+for (tool, name) in [
+    ('AS', 'gcc -x assembler-with-cpp'),
+    ('CC', 'gcc'),
+    ('CXX', 'g++'),
+    ('LINK', 'g++'),
+    ('OBJCOPY', 'objcopy'),
+    ('SIZE', 'size'),
+]:
+    env[tool] = cross_compiler + name
+
+# Overwrite the default assembler command variables
+env['ASCOMSTR'] = 'Assembling static object $TARGET'
+
+# Overwrite the default compiler command variables
+env['CCCOMSTR'] = 'Compiling static object $TARGET'
+
+# Overwrite the default linker command variables
+env['LINKCOM'] = '$LINK $LINKFLAGS -o $TARGET $SOURCES'
+env['LINKCOMSTR'] = 'Linking $TARGET'
+
+# Overwrite the default objcopy command string
+env['OBJCOPYCOMSTR'] = 'Generating $TARGET'
+
+# Overwrite the default size command string
+env['SIZECOMSTR'] = 'Generating size information'
+
+# Clear all COMSTR variables if verbose mode is requested
+if GetOption('verbose'):
+    for key, value in env.items():
+        if key.endswith('COMSTR'):
+            env[key] = ''
+
+# Set the executable file suffix
+env['PROGSUFFIX'] = ".elf"
+
+# Set the object file suffix
+env['OBJSUFFIX'] = ".o"
+
+# Set the assembler flags
+env['ASFLAGS'] = a_flags + mcu_flags + common_flags + build_config['optimization_flags']
+
+# Set the C/C++ compiler flags
+env['CCFLAGS'] = cc_flags + mcu_flags + common_flags + build_config['optimization_flags']
+
+# Set the linker flags
+env['LINKFLAGS'] = mcu_flags + link_flags
+
+# Set the defines
+env['CPPDEFINES'] = defines
+
+# Set the include locations
+env['CPPPATH'] = includes
+
+# Build object files
+obj_list = []
+for src in sources:
+    filename = (os.path.splitext(os.path.basename(str(src)))[0])
+    obj = os.path.join(build_dir, obj_subdir, (filename + '.o'))
+    extra_flags = [
+        '-Wa,-a,-ad,-alms={}.lst'.format(
+            os.path.join(project_path, build_dir, obj_subdir, filename)),
+    ]
+    env.Object(target=obj, source=src, CCFLAGS=(env['CCFLAGS'] + extra_flags))
+    obj_list.append(obj)
+
+# Build executable
+program = env.Program(target_exe, obj_list)
+
+# Create hex output
+hexfile = env.Command(target_hex, program, Action(
+    '$OBJCOPY -O ihex $SOURCE $TARGET', env['OBJCOPYCOMSTR']))
+
+# Create binary output
+binary = env.Command(target_bin, program, Action(
+    '$OBJCOPY -O binary -S $SOURCE $TARGET', env['OBJCOPYCOMSTR']))
+
+# Generate size information
+size = env.Command(None, program, Action('$SIZE $SOURCE', env['SIZECOMSTR']))
+
+# Define build targets
+build_targets = [program, hexfile, binary, size]
+
+# Specify additional files and directories that should be removed during clean
+env.Clean(build_targets, 'build')
+
+# Define default target
+env.Default(build_targets)
+
+# Define target aliases
+env.Alias('build', build_targets)

@@ -6,7 +6,7 @@ pool:
 stages:
   - stage: Build
     jobs:
-      - job: stm32l496_discovery
+      - job: stm32l496_discovery_gcc_make
         steps:
           - script: |
               mkdir build
@@ -18,7 +18,28 @@ stages:
               export GCC_PATH=$(pwd)/build/gcc-arm-none-eabi-8-2019-q3-update/bin
               cd projects/STM32L496-Discovery/GCC/
               make
-            displayName: Build project
+            displayName: Build project with Make
+      - job: stm32l496_discovery_gcc_scons
+        steps:
+          - task: UsePythonVersion@0
+            displayName: Select python version 3.7
+            inputs:
+              versionSpec: '3.7'
+          - script: |
+              python -m pip install --upgrade pip
+              pip install -r requirements.txt
+            displayName: Install python dependencies
+          - script: |
+              mkdir build
+              cd build
+              wget https://developer.arm.com/-/media/Files/downloads/gnu-rm/8-2019q3/RC1.1/gcc-arm-none-eabi-8-2019-q3-update-linux.tar.bz2
+              tar xjf gcc-arm-none-eabi-8-2019-q3-update-linux.tar.bz2
+            displayName: Install gcc
+          - script: |
+              export PATH=$PATH:$(pwd)/build/gcc-arm-none-eabi-8-2019-q3-update/bin
+              echo $PATH
+              scons build --all -j8
+            displayName: Build project with SCons
       - job: doxygen
         steps:
           - script: sudo apt-get install doxygen
@@ -34,7 +55,7 @@ stages:
       - job: format_check
         steps:
           - task: UsePythonVersion@0
-            displayName: Select python version
+            displayName: Select python version 3.7
             inputs:
               versionSpec: '3.7'
           - script: |

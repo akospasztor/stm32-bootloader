@@ -4,7 +4,7 @@ Customizable Bootloader for STM32 microcontrollers. This project includes demons
 
 Each example uses the same bootloader library located in the `lib/stm32-bootloader` folder. The examples are located in the `projects` folder and they come with a separate, dedicated README file with description related to that specific implementation.
 
-Update: the `STM32L496-Discovery` example supports compiling and building the project with the GNU Arm Embedded Toolchain (ARM GCC) out-of-the-box, in addition to IAR EWARM. Check out the project README for further information.
+**Update:** the `STM32L496-Discovery` example supports compiling and building the project with the GNU Arm Embedded Toolchain (ARM GCC) out-of-the-box, in addition to IAR EWARM. Check out the project README for further information.
 
 Please refer to <https://akospasztor.github.io/stm32-bootloader> for complete documentation of the bootloader library source code.
 
