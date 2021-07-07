@@ -4,16 +4,18 @@ BasedOnStyle: LLVM
 AccessModifierOffset: -2
 AlignAfterOpenBracket: Align
 AlignConsecutiveAssignments: true
-AlignConsecutiveDeclarations: true
+AlignConsecutiveBitFields: true
+AlignConsecutiveDeclarations: false
 AlignConsecutiveMacros: true
 AlignEscapedNewlines: Left
-AlignOperands: true
+AlignOperands: Align
 AlignTrailingComments: true
 AllowAllArgumentsOnNextLine: false
 AllowAllConstructorInitializersOnNextLine: false
 AllowAllParametersOfDeclarationOnNextLine: false
-AllowShortBlocksOnASingleLine: false
+AllowShortBlocksOnASingleLine: Never
 AllowShortCaseLabelsOnASingleLine: false
+AllowShortEnumsOnASingleLine: false
 AllowShortFunctionsOnASingleLine: None
 AllowShortIfStatementsOnASingleLine: Never
 AllowShortLambdasOnASingleLine: None
@@ -26,15 +28,18 @@ BinPackParameters: false
 BraceWrapping:
   AfterCaseLabel:         true
   AfterClass:             true
-  AfterControlStatement:  true
+  AfterControlStatement:  Always
   AfterEnum:              true
   AfterFunction:          true
   AfterNamespace:         true
+  AfterObjCDeclaration:   true
   AfterStruct:            true
   AfterUnion:             true
   AfterExternBlock:       false
   BeforeCatch:            true
   BeforeElse:             true
+  BeforeLambdaBody:       false
+  BeforeWhile:            false
   IndentBraces:           false
   SplitEmptyFunction:     true
   SplitEmptyRecord:       true
@@ -55,6 +60,7 @@ ConstructorInitializerAllOnOneLineOrOnePerLine: false
 ConstructorInitializerIndentWidth: 4
 ContinuationIndentWidth: 4
 Cpp11BracedListStyle: true
+DeriveLineEnding: false
 DerivePointerAlignment: false
 DisableFormat: false
 ExperimentalAutoDetectBinPacking: false
@@ -67,15 +73,23 @@ IncludeBlocks: Preserve
 IncludeCategories:
   - Regex:           '^"(llvm|llvm-c|clang|clang-c)/'
     Priority:        2
+    SortPriority:    0
   - Regex:           '^(<|"(gtest|gmock|isl|json)/)'
     Priority:        3
+    SortPriority:    0
   - Regex:           '.*'
     Priority:        1
+    SortPriority:    0
 IncludeIsMainRegex: '(Test)?$'
+IncludeIsMainSourceRegex: ''
+IndentCaseBlocks: false
 IndentCaseLabels: true
+IndentExternBlock: AfterExternBlock
+IndentGotoLabels: true
 IndentPPDirectives: None
 IndentWidth: 4
 IndentWrappedFunctionNames: false
+InsertTrailingCommas: None
 JavaScriptQuotes: Leave
 JavaScriptWrapImports: true
 KeepEmptyLinesAtTheStartOfBlocks: false
@@ -85,6 +99,7 @@ MaxEmptyLinesToKeep: 1
 NamespaceIndentation: None
 ObjCBinPackProtocolList: Auto
 ObjCBlockIndentWidth: 4
+ObjCBreakBeforeNestedBlockParam: true
 ObjCSpaceAfterProperty: false
 ObjCSpaceBeforeProtocolList: true
 PenaltyBreakAssignment: 2
@@ -94,11 +109,11 @@ PenaltyBreakFirstLessLess: 120
 PenaltyBreakString: 1000
 PenaltyBreakTemplateDeclaration: 10
 PenaltyExcessCharacter: 1000000
-PenaltyReturnTypeOnItsOwnLine: 60
+PenaltyReturnTypeOnItsOwnLine: 200
 PointerAlignment: Left
 ReflowComments: true
-SortIncludes: false
-SortUsingDeclarations: false
+SortIncludes: true
+SortUsingDeclarations: true
 SpaceAfterCStyleCast: false
 SpaceAfterLogicalNot: false
 SpaceAfterTemplateKeyword: true
@@ -108,9 +123,12 @@ SpaceBeforeCtorInitializerColon: true
 SpaceBeforeInheritanceColon: true
 SpaceBeforeParens: Never
 SpaceBeforeRangeBasedForLoopColon: false
+SpaceBeforeSquareBrackets: false
+SpaceInEmptyBlock: false
 SpaceInEmptyParentheses: false
-SpacesBeforeTrailingComments: 4
+SpacesBeforeTrailingComments: 2
 SpacesInAngles: false
+SpacesInConditionalStatement: false
 SpacesInContainerLiterals: false
 SpacesInCStyleCastParentheses: false
 SpacesInParentheses: false
@@ -120,5 +138,10 @@ StatementMacros:
   - Q_UNUSED
   - QT_REQUIRE_VERSION
 TabWidth: 4
+UseCRLF: false
 UseTab: Never
+WhitespaceSensitiveMacros:
+  - STRINGIZE
+  - PP_STRINGIZE
+  - BOOST_PP_STRINGIZE
 ...
