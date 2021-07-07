@@ -55,10 +55,10 @@ uint8_t Bootloader_Init(void)
  */
 uint8_t Bootloader_Erase(void)
 {
-    uint32_t               NbrOfPages = 0;
-    uint32_t               PageError  = 0;
+    uint32_t NbrOfPages = 0;
+    uint32_t PageError  = 0;
     FLASH_EraseInitTypeDef pEraseInit;
-    HAL_StatusTypeDef      status = HAL_OK;
+    HAL_StatusTypeDef status = HAL_OK;
 
     HAL_FLASH_Unlock();
 
@@ -170,8 +170,8 @@ uint8_t Bootloader_FlashEnd(void)
  */
 uint8_t Bootloader_GetProtectionStatus(void)
 {
-    FLASH_OBProgramInitTypeDef OBStruct   = {0};
-    uint8_t                    protection = BL_PROTECTION_NONE;
+    FLASH_OBProgramInitTypeDef OBStruct = {0};
+    uint8_t protection                  = BL_PROTECTION_NONE;
 
     HAL_FLASH_Unlock();
 
@@ -263,7 +263,7 @@ uint8_t Bootloader_GetProtectionStatus(void)
 uint8_t Bootloader_ConfigProtection(uint32_t protection)
 {
     FLASH_OBProgramInitTypeDef OBStruct = {0};
-    HAL_StatusTypeDef          status   = HAL_ERROR;
+    HAL_StatusTypeDef status            = HAL_ERROR;
 
     status = HAL_FLASH_Unlock();
     status |= HAL_FLASH_OB_Unlock();
@@ -409,8 +409,8 @@ uint8_t Bootloader_CheckForApplication(void)
  */
 void Bootloader_JumpToApplication(void)
 {
-    uint32_t  JumpAddress = *(__IO uint32_t*)(APP_ADDRESS + 4);
-    pFunction Jump        = (pFunction)JumpAddress;
+    uint32_t JumpAddress = *(__IO uint32_t*)(APP_ADDRESS + 4);
+    pFunction Jump       = (pFunction)JumpAddress;
 
     HAL_RCC_DeInit();
     HAL_DeInit();
@@ -438,8 +438,8 @@ void Bootloader_JumpToApplication(void)
  */
 void Bootloader_JumpToSysMem(void)
 {
-    uint32_t  JumpAddress = *(__IO uint32_t*)(SYSMEM_ADDRESS + 4);
-    pFunction Jump        = (pFunction)JumpAddress;
+    uint32_t JumpAddress = *(__IO uint32_t*)(SYSMEM_ADDRESS + 4);
+    pFunction Jump       = (pFunction)JumpAddress;
 
     HAL_RCC_DeInit();
     HAL_DeInit();

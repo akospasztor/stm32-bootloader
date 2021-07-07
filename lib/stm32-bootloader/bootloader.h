@@ -113,8 +113,8 @@ uint8_t Bootloader_ConfigProtection(uint32_t protection);
 uint8_t Bootloader_CheckSize(uint32_t appsize);
 uint8_t Bootloader_VerifyChecksum(void);
 uint8_t Bootloader_CheckForApplication(void);
-void    Bootloader_JumpToApplication(void);
-void    Bootloader_JumpToSysMem(void);
+void Bootloader_JumpToApplication(void);
+void Bootloader_JumpToSysMem(void);
 
 uint32_t Bootloader_GetVersion(void);
 

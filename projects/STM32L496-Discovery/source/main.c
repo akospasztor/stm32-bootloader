@@ -13,33 +13,33 @@
  *******************************************************************************
  */
 
-#include "stm32l4xx.h"
 #include "main.h"
 #include "bootloader.h"
 #include "fatfs.h"
+#include "stm32l4xx.h"
 #include <string.h>
 
 /* Private variables ---------------------------------------------------------*/
-static uint8_t            BTNcounter = 0;
+static uint8_t BTNcounter = 0;
 static UART_HandleTypeDef huart2;
 
 /* External variables --------------------------------------------------------*/
-extern char  SDPath[4]; /* SD logical drive path */
-extern FATFS SDFatFs;   /* File system object for SD logical drive */
-extern FIL   SDFile;    /* File object for SD */
+extern char SDPath[4]; /* SD logical drive path */
+extern FATFS SDFatFs;  /* File system object for SD logical drive */
+extern FIL SDFile;     /* File object for SD */
 
 /* Function prototypes -------------------------------------------------------*/
 uint8_t Enter_Bootloader(void);
 uint8_t SD_Init(void);
-void    SD_DeInit(void);
-void    SD_Eject(void);
-void    UART2_Init(void);
-void    UART2_DeInit(void);
-void    GPIO_Init(void);
-void    GPIO_DeInit(void);
-void    SystemClock_Config(void);
-void    Error_Handler(void);
-void    print(const char* str);
+void SD_DeInit(void);
+void SD_Eject(void);
+void UART2_Init(void);
+void UART2_DeInit(void);
+void GPIO_Init(void);
+void GPIO_DeInit(void);
+void SystemClock_Config(void);
+void Error_Handler(void);
+void print(const char* str);
 
 /* Main ----------------------------------------------------------------------*/
 int main(void)
@@ -178,14 +178,14 @@ int main(void)
  */
 uint8_t Enter_Bootloader(void)
 {
-    FRESULT  fr;
-    UINT     num;
-    uint8_t  i;
-    uint8_t  status;
+    FRESULT fr;
+    UINT num;
+    uint8_t i;
+    uint8_t status;
     uint64_t data;
     uint32_t cntr;
     uint32_t addr;
-    char     msg[40] = {0x00};
+    char msg[40] = {0x00};
 
     /* Check for flash write protection */
     if(Bootloader_GetProtectionStatus() & BL_PROTECTION_WRP)
@@ -553,8 +553,8 @@ void GPIO_DeInit(void)
  */
 void SystemClock_Config(void)
 {
-    RCC_OscInitTypeDef       RCC_OscInitStruct;
-    RCC_ClkInitTypeDef       RCC_ClkInitStruct;
+    RCC_OscInitTypeDef RCC_OscInitStruct;
+    RCC_ClkInitTypeDef RCC_ClkInitStruct;
     RCC_PeriphCLKInitTypeDef PeriphClkInit;
 
     /* Initializes the CPU, AHB and APB bus clocks */
