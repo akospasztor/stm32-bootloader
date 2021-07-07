@@ -13,8 +13,8 @@
  *******************************************************************************
  */
 
-#include "ff_gen_drv.h"
 #include "sd_diskio.h"
+#include "ff_gen_drv.h"
 
 /* Defines -------------------------------------------------------------------*/
 #define SD_TIMEOUT SD_DATATIMEOUT /* Defined in bsp_driver_sd.h */
@@ -42,15 +42,15 @@
 // #define ENABLE_SD_DMA_CACHE_MAINTENANCE 1
 
 /* Private variables ---------------------------------------------------------*/
-static volatile DSTATUS Stat        = STA_NOINIT; /* Disk status */
-static volatile UINT    ReadStatus  = 0;
-static volatile UINT    WriteStatus = 0;
+static volatile DSTATUS Stat     = STA_NOINIT; /* Disk status */
+static volatile UINT ReadStatus  = 0;
+static volatile UINT WriteStatus = 0;
 
 /* Private function prototypes -----------------------------------------------*/
 static DSTATUS SD_CheckStatus(BYTE lun);
-DSTATUS        SD_initialize(BYTE);
-DSTATUS        SD_status(BYTE);
-DRESULT        SD_read(BYTE, BYTE*, DWORD, UINT);
+DSTATUS SD_initialize(BYTE);
+DSTATUS SD_status(BYTE);
+DRESULT SD_read(BYTE, BYTE*, DWORD, UINT);
 
 #if _USE_WRITE == 1
 DRESULT SD_write(BYTE, const BYTE*, DWORD, UINT);
@@ -127,7 +127,7 @@ DSTATUS SD_status(BYTE lun)
  */
 DRESULT SD_read(BYTE lun, BYTE* buff, DWORD sector, UINT count)
 {
-    DRESULT  res;
+    DRESULT res;
     uint32_t timeout;
 
 #if defined(ENABLE_SD_DMA_DRIVER)
@@ -213,7 +213,7 @@ DRESULT SD_read(BYTE lun, BYTE* buff, DWORD sector, UINT count)
 #if _USE_WRITE == 1
 DRESULT SD_write(BYTE lun, const BYTE* buff, DWORD sector, UINT count)
 {
-    DRESULT  res;
+    DRESULT res;
     uint32_t timeout;
 
 #if defined(ENABLE_SD_DMA_DRIVER)
@@ -292,7 +292,7 @@ DRESULT SD_write(BYTE lun, const BYTE* buff, DWORD sector, UINT count)
 #if _USE_IOCTL == 1
 DRESULT SD_ioctl(BYTE lun, BYTE cmd, void* buff)
 {
-    DRESULT         res = RES_ERROR;
+    DRESULT res = RES_ERROR;
     BSP_SD_CardInfo CardInfo;
 
     if(Stat & STA_NOINIT)

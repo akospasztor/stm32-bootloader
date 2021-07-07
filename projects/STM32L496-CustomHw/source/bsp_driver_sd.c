@@ -19,8 +19,8 @@
 SD_HandleTypeDef hsd1;
 
 /* Private function prototypes -----------------------------------------------*/
-static void              BSP_SD_MspInit(void);
-static void              BSP_SD_MspDeInit(void);
+static void BSP_SD_MspInit(void);
+static void BSP_SD_MspDeInit(void);
 static HAL_StatusTypeDef SD_DMAConfigRx(SD_HandleTypeDef* hsd);
 static HAL_StatusTypeDef SD_DMAConfigTx(SD_HandleTypeDef* hsd);
 
@@ -126,9 +126,9 @@ uint8_t BSP_SD_DeInit(void)
  * @retval SD status
  */
 uint8_t BSP_SD_ReadBlocks(uint32_t* pData,
-                          uint32_t  ReadAddr,
-                          uint32_t  NumOfBlocks,
-                          uint32_t  Timeout)
+                          uint32_t ReadAddr,
+                          uint32_t NumOfBlocks,
+                          uint32_t Timeout)
 {
     uint8_t sd_state = MSD_OK;
 
@@ -151,9 +151,9 @@ uint8_t BSP_SD_ReadBlocks(uint32_t* pData,
  * @retval SD status
  */
 uint8_t BSP_SD_WriteBlocks(uint32_t* pData,
-                           uint32_t  WriteAddr,
-                           uint32_t  NumOfBlocks,
-                           uint32_t  Timeout)
+                           uint32_t WriteAddr,
+                           uint32_t NumOfBlocks,
+                           uint32_t Timeout)
 {
     uint8_t sd_state = MSD_OK;
 
@@ -173,8 +173,9 @@ uint8_t BSP_SD_WriteBlocks(uint32_t* pData,
  * @param  NumOfBlocks: Number of SD blocks to read
  * @retval SD status
  */
-uint8_t
-BSP_SD_ReadBlocks_DMA(uint32_t* pData, uint32_t ReadAddr, uint32_t NumOfBlocks)
+uint8_t BSP_SD_ReadBlocks_DMA(uint32_t* pData,
+                              uint32_t ReadAddr,
+                              uint32_t NumOfBlocks)
 {
     HAL_StatusTypeDef sd_state = HAL_OK;
 
@@ -202,8 +203,8 @@ BSP_SD_ReadBlocks_DMA(uint32_t* pData, uint32_t ReadAddr, uint32_t NumOfBlocks)
  * @retval SD status
  */
 uint8_t BSP_SD_WriteBlocks_DMA(uint32_t* pData,
-                               uint32_t  WriteAddr,
-                               uint32_t  NumOfBlocks)
+                               uint32_t WriteAddr,
+                               uint32_t NumOfBlocks)
 {
     HAL_StatusTypeDef sd_state = HAL_OK;
 
@@ -455,7 +456,7 @@ void BSP_SD_MspDeInit(void)
 static HAL_StatusTypeDef SD_DMAConfigRx(SD_HandleTypeDef* hsd)
 {
     static DMA_HandleTypeDef hdma_rx;
-    HAL_StatusTypeDef        status = HAL_ERROR;
+    HAL_StatusTypeDef status = HAL_ERROR;
 
     /* Configure DMA Rx parameters */
     hdma_rx.Instance                 = DMA2_Channel5;
@@ -494,7 +495,7 @@ static HAL_StatusTypeDef SD_DMAConfigRx(SD_HandleTypeDef* hsd)
 static HAL_StatusTypeDef SD_DMAConfigTx(SD_HandleTypeDef* hsd)
 {
     static DMA_HandleTypeDef hdma_tx;
-    HAL_StatusTypeDef        status;
+    HAL_StatusTypeDef status;
 
     /* Configure DMA Tx parameters */
     hdma_tx.Instance                 = DMA2_Channel5;

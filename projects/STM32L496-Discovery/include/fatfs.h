@@ -7,7 +7,6 @@ extern "C" {
 
 /* Includes ------------------------------------------------------------------*/
 #include "ff.h"
-#include "ff_gen_drv.h"
 #include "sd_diskio.h"
 
 /* Exported functions --------------------------------------------------------*/
