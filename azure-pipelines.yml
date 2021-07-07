@@ -1,7 +1,7 @@
 # yamllint disable rule:line-length
 ---
 pool:
-  vmImage: 'ubuntu-18.04'
+  vmImage: 'ubuntu-20.04'
 
 stages:
   - stage: Build
