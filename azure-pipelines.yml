@@ -36,12 +36,19 @@ stages:
         steps:
           - script: pip install -r requirements.txt
             displayName: Install python dependencies
+          - script: pytest -s --executable=clang-format-11
+            displayName: Run pytest
+      - job: style_check
+        container: akospasztor/docker-gcc-arm:8-2019-q3-linux-1.0.1
+        steps:
+          - script: pip install -r requirements.txt
+            displayName: Install python dependencies
+          - script: editorconfig-checker
+            displayName: Run editorconfig-checker
           - script: flake8
             displayName: Run flake8
           - script: yamllint .
             displayName: Run yamllint
-          - script: pytest -s --executable=clang-format-11
-            displayName: Run pytest
 
   - stage: Deploy
     condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
