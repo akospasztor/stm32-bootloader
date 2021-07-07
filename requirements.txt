@@ -1,5 +1,6 @@
 wheel
-flake8~=3.8.4
-pytest~=3.9.0
-yamllint~=1.25.0
+editorconfig-checker~=2.3.5
+flake8~=3.9.2
+yamllint~=1.26.1
+pytest~=6.2.4
 scons~=4.0.1
