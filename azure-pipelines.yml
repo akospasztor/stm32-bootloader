@@ -7,70 +7,40 @@ stages:
   - stage: Build
     jobs:
       - job: stm32l496_discovery_gcc_make
+        container: akospasztor/docker-gcc-arm:8-2019-q3-linux-1.0.1
         steps:
-          - script: |
-              mkdir build
-              cd build
-              wget https://developer.arm.com/-/media/Files/downloads/gnu-rm/8-2019q3/RC1.1/gcc-arm-none-eabi-8-2019-q3-update-linux.tar.bz2
-              tar xjf gcc-arm-none-eabi-8-2019-q3-update-linux.tar.bz2
-            displayName: Install gcc
-          - script: |
-              export GCC_PATH=$(pwd)/build/gcc-arm-none-eabi-8-2019-q3-update/bin
-              cd projects/STM32L496-Discovery/GCC/
-              make
+          - script: cd projects/STM32L496-Discovery/GCC/ && make
             displayName: Build project with Make
       - job: stm32l496_discovery_gcc_scons
+        container: akospasztor/docker-gcc-arm:8-2019-q3-linux-1.0.1
         steps:
-          - task: UsePythonVersion@0
-            displayName: Select python version 3.7
-            inputs:
-              versionSpec: '3.7'
-          - script: |
-              python -m pip install --upgrade pip
-              pip install -r requirements.txt
+          - script: pip install -r requirements.txt
             displayName: Install python dependencies
-          - script: |
-              mkdir build
-              cd build
-              wget https://developer.arm.com/-/media/Files/downloads/gnu-rm/8-2019q3/RC1.1/gcc-arm-none-eabi-8-2019-q3-update-linux.tar.bz2
-              tar xjf gcc-arm-none-eabi-8-2019-q3-update-linux.tar.bz2
-            displayName: Install gcc
-          - script: |
-              export PATH=$PATH:$(pwd)/build/gcc-arm-none-eabi-8-2019-q3-update/bin
-              echo $PATH
-              scons build --all -j8
+          - script: scons build --all -j8
             displayName: Build project with SCons
       - job: doxygen
+        container: akospasztor/docker-gcc-arm:8-2019-q3-linux-1.0.1
         steps:
-          - script: sudo apt-get install doxygen
-            displayName: Install doxygen
           - script: doxygen docs/Doxyfile
             displayName: Run doxygen
+          - script: cp -r --parents docs/img docs/html
+            displayName: Copy additional images to html folder
           - publish: $(System.DefaultWorkingDirectory)/docs/html
-            artifact: documentation
+            artifact: doxygen-html
             displayName: Upload artifact
 
   - stage: Test
     jobs:
       - job: format_check
+        container: akospasztor/docker-gcc-arm:8-2019-q3-linux-1.0.1
         steps:
-          - task: UsePythonVersion@0
-            displayName: Select python version 3.7
-            inputs:
-              versionSpec: '3.7'
-          - script: |
-              sudo apt-get install clang-format-11 -f
-              clang-format-11 --version
-            displayName: Install clang tools
-          - script: |
-              python -m pip install --upgrade pip
-              pip install -r requirements.txt
+          - script: pip install -r requirements.txt
             displayName: Install python dependencies
           - script: flake8
             displayName: Run flake8
           - script: yamllint .
             displayName: Run yamllint
-          - script: python -m pytest -s --executable=clang-format-11
+          - script: pytest -s --executable=clang-format-11
             displayName: Run pytest
 
   - stage: Deploy
@@ -80,9 +50,9 @@ stages:
         steps:
           - checkout: none
           - download: current
-            artifact: documentation
+            artifact: doxygen-html
           - script: |
-              cp -r $(Pipeline.Workspace)/documentation/* .
+              cp -r $(Pipeline.Workspace)/doxygen-html/* .
               ls -al
             displayName: Copy artifact contents
           - script: |
