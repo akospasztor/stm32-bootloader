@@ -71,7 +71,7 @@
 #define APP_SIZE (uint32_t)(((END_ADDRESS - APP_ADDRESS) + 3) / 4)
 
 /** Number of pages per bank in flash */
-#define FLASH_PAGE_NBPERBANK (256)
+#define FLASH_PAGE_NBPERBANK (FLASH_SIZE / FLASH_PAGE_SIZE)
 
 /* MCU RAM information (to check whether flash contains valid application) */
 #define RAM_BASE SRAM1_BASE     /*!< Start address of RAM */
