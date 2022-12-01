@@ -74,8 +74,16 @@
 #define FLASH_PAGE_NBPERBANK (256)
 
 /* MCU RAM information (to check whether flash contains valid application) */
-#define RAM_BASE SRAM1_BASE     /*!< Start address of RAM */
+#define RAM_BASE SRAM1_BASE /*!< Start address of RAM */
+
+#ifdef SRAM3_SIZE
+#define RAM_SIZE \
+    (SRAM1_SIZE_MAX + SRAM2_SIZE + SRAM3_SIZE) /*!< RAM size in bytes */
+#elif defined(SRAM2_SIZE)
+#define RAM_SIZE (SRAM1_SIZE_MAX + SRAM2_SIZE) /*!< RAM size in bytes */
+#else
 #define RAM_SIZE SRAM1_SIZE_MAX /*!< RAM size in bytes */
+#endif
 
 /* Enumerations --------------------------------------------------------------*/
 /** Bootloader error codes */
