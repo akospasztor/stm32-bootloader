@@ -1,0 +1,47 @@
+{
+    "version": 3,
+    "configurePresets": [
+        {
+            "name": "default-stm32l496-discovery",
+            "hidden": true,
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/build/${presetName}",
+		    "toolchainFile": "${sourceDir}/cmake/toolchains/gcc-arm-none-eabi.cmake",
+            "cacheVariables": {
+                "BSP": "STM32L496-DISCOVERY"
+            }
+        },
+        {
+            "name": "Debug",
+            "displayName": "Debug",
+            "inherits": "default-stm32l496-discovery",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "Release",
+            "displayName": "Release",
+            "inherits": "default-stm32l496-discovery",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        },
+        {
+            "name": "MinSizeRel",
+            "displayName": "Release (optimized for minimum size)",
+            "inherits": "default-stm32l496-discovery",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "MinSizeRel"
+            }
+        },
+        {
+            "name": "RelWithDebInfo",
+            "displayName": "Release (with debug info)",
+            "inherits": "default-stm32l496-discovery",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+            }
+        }
+    ]
+}
