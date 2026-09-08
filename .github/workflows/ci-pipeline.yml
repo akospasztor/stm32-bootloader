@@ -1,0 +1,164 @@
+---
+name: CI Pipeline
+
+on:  # yamllint disable-line rule:truthy
+  push:
+  workflow_dispatch:
+
+jobs:
+  check_format:
+    runs-on: ubuntu-latest
+    container: docker.io/akospasztor/docker-gcc-arm:10-2020-q4-linux-2.3.0
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+      - name: Check source code formatting
+        run: >
+          cmake --preset Debug
+          && cmake --build build/Debug --target check-format
+  check_style:
+    runs-on: ubuntu-latest
+    container: docker.io/akospasztor/docker-gcc-arm:10-2020-q4-linux-2.3.0
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+      - name: Install requirements
+        run: pip install -r requirements.txt
+      - name: Run editorconfig-checker
+        run: ec --exclude .git
+      - name: Run flake8
+        run: flake8
+      - name: Run yamllint
+        run: yamllint --strict .
+  build_doxygen:
+    runs-on: ubuntu-latest
+    container: docker.io/akospasztor/docker-gcc-arm:10-2020-q4-linux-2.3.0
+    needs:
+      - check_format
+      - check_style
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+      - name: Build doxygen documentation
+        run: >
+          cmake --preset Debug
+          && cmake --build build/Debug --target doxygen
+      - name: Upload doxygen html artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: doxygen-html
+          path: build/doxygen/html
+  build_firmware:
+    runs-on: ubuntu-latest
+    container: docker.io/akospasztor/docker-gcc-arm:10-2020-q4-linux-2.3.0
+    needs:
+      - check_format
+      - check_style
+    strategy:
+      matrix:
+        cmake_preset: ["Debug", "Release", "MinSizeRel", "RelWithDebInfo"]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+      - name: Configure cmake preset
+        run: cmake --preset ${{ matrix.cmake_preset }}
+      - name: Build cmake preset
+        run: cmake --build build/${{ matrix.cmake_preset }}
+      - name: Upload firmware images artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: bootloader-${{ matrix.cmake_preset }}
+          path: |
+            build/${{ matrix.cmake_preset }}/*.bin
+            build/${{ matrix.cmake_preset }}/*.elf
+            build/${{ matrix.cmake_preset }}/*.hex
+            build/${{ matrix.cmake_preset }}/*.map
+  build_legacy_make:
+    runs-on: ubuntu-latest
+    container: docker.io/akospasztor/docker-gcc-arm:10-2020-q4-linux-2.3.0
+    needs:
+      - check_format
+      - check_style
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+      - name: Build with Make (legacy build)
+        run: make -j$(nproc)
+  build_legacy_scons:
+    runs-on: ubuntu-latest
+    container: docker.io/akospasztor/docker-gcc-arm:10-2020-q4-linux-2.3.0
+    needs:
+      - check_format
+      - check_style
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+      - name: Install requirements
+        run: pip install -r requirements.txt
+      - name: Build with SCons (legacy build)
+        run: scons --all -j$(nproc)
+  run_clang_tidy:
+    runs-on: ubuntu-latest
+    container: docker.io/akospasztor/docker-gcc-arm:10-2020-q4-linux-2.3.0
+    needs:
+      - check_format
+      - check_style
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+      - name: Run clang-tidy
+        run: >
+          cmake --preset Debug
+          && cmake --build build/Debug --target tidy
+  run_cppcheck:
+    runs-on: ubuntu-latest
+    container: docker.io/akospasztor/docker-gcc-arm:10-2020-q4-linux-2.3.0
+    needs:
+      - check_format
+      - check_style
+    strategy:
+      matrix:
+        cmake_preset: ["Debug", "Release", "MinSizeRel", "RelWithDebInfo"]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+      - name: Configure cmake preset
+        run: cmake --preset ${{ matrix.cmake_preset }}
+      - name: Run cppcheck
+        run: cmake --build build/${{ matrix.cmake_preset }} --target cppcheck
+  collect_artifacts:
+    runs-on: ubuntu-latest
+    needs:
+      - build_doxygen
+      - build_firmware
+      - run_clang_tidy
+      - run_cppcheck
+    steps:
+      - name: Download doxygen html artifacts
+        uses: actions/download-artifact@v8
+        with:
+          name: doxygen-html
+          path: doxygen/html
+      - name: Display structure of downloaded files
+        run: ls -al doxygen/html
+      - name: Upload github-pages artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: doxygen/html
+  deploy_pages:
+    runs-on: ubuntu-latest
+    needs: collect_artifacts
+    if: ${{ github.ref == 'refs/heads/master' }}
+    concurrency:
+      group: "pages"
+      cancel-in-progress: false
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      pages: write
+      id-token: write
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
