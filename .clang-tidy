@@ -1,0 +1,90 @@
+---
+Checks: >
+  cert-*,
+  google-*,
+  readability-*,
+  -readability-avoid-const-params-in-decls,
+  -readability-magic-numbers,
+  -clang-diagnostic-covered-switch-default,
+  -clang-diagnostic-declaration-after-statement,
+  -clang-diagnostic-missing-noreturn,
+  -clang-diagnostic-padded,
+  -clang-diagnostic-unsafe-buffer-usage
+FormatStyle:        file
+HeaderFilterRegex:  '.*(h|hpp)'
+WarningsAsErrors:   '*'
+CheckOptions:
+- key:            google-build-namespaces.HeaderFileExtensions
+  value:          h,hh,hpp,hxx
+- key:            google-global-names-in-headers.HeaderFileExtensions
+  value:          h,hh,hpp,hxx
+- key:            google-readability-braces-around-statements.ShortStatementLines
+  value:          '0'
+- key:            google-readability-namespace-comments.ShortNamespaceLines
+  value:          '10'
+- key:            google-readability-namespace-comments.SpacesBeforeComments
+  value:          '2'
+- key:            google-runtime-int.SignedTypePrefix
+  value:          int
+- key:            google-runtime-int.TypeSuffix
+  value:          ''
+- key:            google-runtime-int.UnsignedTypePrefix
+  value:          uint
+- key:            readability-braces-around-statements.ShortStatementLines
+  value:          '0'
+- key:            readability-identifier-naming.IgnoreFailedSplit
+  value:          '0'
+- key:            readability-identifier-naming.AbstractClassCase
+  value:          CamelCase
+- key:            readability-identifier-naming.ClassCase
+  value:          CamelCase
+- key:            readability-identifier-naming.ClassMemberCase
+  value:          camelBack
+- key:            readability-identifier-naming.ClassMethodCase
+  value:          CamelCase
+- key:            readability-identifier-naming.ConstantCase
+  value:          UPPER_CASE
+- key:            readability-identifier-naming.EnumCase
+  value:          CamelCase
+- key:            readability-identifier-naming.EnumConstantCase
+  value:          UPPER_CASE
+- key:            readability-identifier-naming.FunctionCase
+  value:          CamelCase
+- key:            readability-identifier-naming.LocalConstantCase
+  value:          camelBack
+- key:            readability-identifier-naming.LocalVariableCase
+  value:          camelBack
+- key:            readability-identifier-naming.MemberCase
+  value:          camelBack
+- key:            readability-identifier-naming.MemberPrefix
+  value:          ''
+- key:            readability-identifier-naming.MethodCase
+  value:          CamelCase
+- key:            readability-identifier-naming.NamespaceCase
+  value:          lower_case
+- key:            readability-identifier-naming.ParameterCase
+  value:          camelBack
+- key:            readability-identifier-naming.ConstantParameterCase
+  value:          camelBack
+- key:            readability-identifier-naming.ParameterPackCase
+  value:          camelBack
+- key:            readability-identifier-naming.StaticConstantCase
+  value:          UPPER_CASE
+- key:            readability-identifier-naming.StaticVariableCase
+  value:          camelBack
+- key:            readability-identifier-naming.StructCase
+  value:          CamelCase
+- key:            readability-identifier-naming.TemplateParameterCase
+  value:          CamelCase
+- key:            readability-identifier-naming.TemplateTemplateParameterCase
+  value:          CamelCase
+- key:            readability-identifier-naming.TypedefCase
+  value:          CamelCase
+- key:            readability-identifier-naming.UnionCase
+  value:          CamelCase
+- key:            readability-identifier-naming.VariableCase
+  value:          camelBack
+- key:            readability-simplify-boolean-expr.ChainedConditionalAssignment
+  value:          '0'
+- key:            readability-simplify-boolean-expr.ChainedConditionalReturn
+  value:          '0'
