@@ -1,9 +1,10 @@
-.vscode/
+.DS_Store
+.sconsign.dblite
+build
+*.jdebug.user
 *.pyc
 **/EWARM/*.dep
 **/EWARM/settings/
 **/EWARM/**/Exe/
 **/EWARM/**/List/
 **/EWARM/**/Obj/
-**/GCC/build/
-.sconsign.dblite
