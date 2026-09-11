@@ -1,5 +1,39 @@
 # Changelog for STM32 Bootloader
 
+## 2.0.0
+
+Released: 2026-09-12 | Download: [2.0.0](https://github.com/akospasztor/stm32-bootloader/releases/tag/v2.0.0)
+
+Added:
+
+- Modern, modular and scalable project structure with well-defined abstraction layers based on the [stm32-project-template](https://github.com/akospasztor/stm32-project-template)
+- BSP layer for the STM32L496-Discovery board
+- CMake-based main build system with custom targets for building, formatting, and performing checks
+- Linting with clang-tidy
+- Static code analysis including MISRA-checks with cppcheck
+- Devcontainer support
+- Debug support with Segger Ozone
+- Debug support with VSCode (via the Cortex-Debug extension)
+- Detailed logging via UART
+
+Changed:
+
+- No more hardcoded addresses in the source code: flash layout & addresses are taken directly from the linker script
+- Increased the bootloader flash area to 64 kB to ensure that builds with all debug information can fit
+- CRC value for verification is now taken from a separate file on the SD card
+- Multi-stage CI/CD pipeline with GitHub Actions (replacing Azure Pipelines)
+- Refactored the entire source code to be fully MISRA-conform
+- Doxygen documentation now extends to the entire source code (not only the bootloader part)
+- Format checking is now handled by the `clang_format.py` script
+- Updated the used CMSIS version
+- Updated the used STM32 HAL Library version
+- Updated the requirements
+
+Removed:
+
+- Custom hardware project variants
+- Support for IAR
+
 ## 1.1.3
 
 Released: 2020-07-22 | Download: [1.1.3](https://github.com/akospasztor/stm32-bootloader/releases/tag/v1.1.3)
