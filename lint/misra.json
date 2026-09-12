@@ -1,0 +1,6 @@
+{
+    "script": "misra.py",
+    "args": [
+        "--rule-texts=lint/misra-c-2023-headlines.txt"
+    ]
+}

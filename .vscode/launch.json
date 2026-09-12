@@ -1,0 +1,50 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug (J-Link, Windows)",
+            "type": "cortex-debug",
+            "request": "launch",
+            "armToolchainPath": "C:/gcc/10-2020-q4/bin",
+            "cwd": "${workspaceFolder}",
+            "device": "STM32L496VG",
+            "executable": "${workspaceFolder}/build/Debug/stm32-bootloader.elf",
+            "interface": "swd",
+            "runToEntryPoint": "main",
+            "serverpath": "C:/Program Files/SEGGER/JLink/JLinkGDBServerCL.exe",
+            "servertype": "jlink",
+            "svdFile": "${workspaceFolder}/bsp/stm32l496-discovery/svd/STM32L496.svd",
+        },
+        {
+            "name": "Debug (J-Link, macOS)",
+            "type": "cortex-debug",
+            "request": "launch",
+            "armToolchainPath": "/opt/gcc/10-2020-q4/bin",
+            "cwd": "${workspaceFolder}",
+            "device": "STM32L496VG",
+            "executable": "${workspaceFolder}/build/Debug/stm32-bootloader.elf",
+            "interface": "swd",
+            "runToEntryPoint": "main",
+            "serverpath": "/Applications/SEGGER/JLink/JLinkGDBServerCLExe",
+            "servertype": "jlink",
+            "svdFile": "${workspaceFolder}/bsp/stm32l496-discovery/svd/STM32L496.svd",
+        },
+        {
+            "name": "Debug (J-Link, Linux)",
+            "type": "cortex-debug",
+            "request": "launch",
+            "armToolchainPath": "/opt/gcc/10-2020-q4/bin",
+            "cwd": "${workspaceFolder}",
+            "device": "STM32L496VG",
+            "executable": "${workspaceFolder}/build/Debug/stm32-bootloader.elf",
+            "interface": "swd",
+            "runToEntryPoint": "main",
+            "serverpath": "/opt/SEGGER/JLink/JLinkGDBServerCLExe",
+            "servertype": "jlink",
+            "svdFile": "${workspaceFolder}/bsp/stm32l496-discovery/svd/STM32L496.svd",
+        }
+    ]
+}

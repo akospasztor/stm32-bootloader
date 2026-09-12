@@ -1,0 +1,22 @@
+{
+	"name": "docker-gcc-arm:10-2020-q4",
+	"image": "docker.io/akospasztor/docker-gcc-arm:10-2020-q4-linux-2.3.0",
+	"workspaceFolder": "${localWorkspaceFolder}",
+	"workspaceMount": "source=${localWorkspaceFolder},target=${localWorkspaceFolder},type=bind",
+	"runArgs": [
+		"--privileged"
+	],
+	"postCreateCommand": "pip install -r requirements.txt",
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"cschlosser.doxdocgen",
+				"ms-python.python",
+				"ms-vscode.cmake-tools",
+				"ms-vscode.cpptools",
+				"ms-vscode.hexeditor",
+				"njpwerner.autodocstring"
+			]
+		}
+	}
+}

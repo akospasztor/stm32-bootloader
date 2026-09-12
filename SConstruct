@@ -1,7 +1,7 @@
-import os
-
 # Add the required toolchains to the path
-os.environ["PATH"] += os.pathsep + r'C:/Program Files (x86)/GNU Tools ARM Embedded/8 2019-q3-update/bin'
+# import os
+# os.environ["PATH"] += os.pathsep + r'C:/gcc/10-2020-q4/bin'
+
 
 # Command line options
 AddOption('--all',
@@ -45,5 +45,4 @@ selected_config = GetOption('build_config') or 'debug'
 # Build configuration
 for build_config in configurations:
     if selected_config == build_config['name'] or selected_config == 'all':
-        SConscript('projects/STM32L496-Discovery/GCC/SConscript',
-                   exports=['build_config'])
+        SConscript('SConscript', exports=['build_config'])

@@ -1,0 +1,122 @@
+////////////////////////////////////////////////////////////////////////////////
+// STM32 Bootloader
+////////////////////////////////////////////////////////////////////////////////
+// @author    Akos Pasztor
+// @brief     This file contains the Cppcheck suppressions together with their
+//            detailed descriptions.
+////////////////////////////////////////////////////////////////////////////////
+// @copyright (c) 2026 Akos Pasztor.                    https://akospasztor.com
+//            This software is licensed under terms that can be found in the
+//            LICENSE file in the root directory of this software component.
+////////////////////////////////////////////////////////////////////////////////
+
+// Cppcheck cannot find the standard include header files automatically.
+// This check is suppressed globally.
+missingIncludeSystem
+
+// Checks in third party libraries are ignored.
+*:*lib/*
+
+// Message:     A project should not contain unused macro definitions
+//              [misra-c2012-2.5]
+// Reason:      This header file contains defines required by the
+//              microcontroller vendor library (HAL) and the FatFs library.
+//              These defines enable or disable the microcontroller peripherals;
+//              and/or contain values that are referenced from vendor and/or 3rd
+//              party libraries.
+// Risk:        If a macro is declared but not used, then it is unclear to a
+//              reviewer if the macro is redundant or it has been left unused by
+//              mistake.
+// Prevention:  Code reviews.
+misra-c2012-2.5:*bootloader/include/ffconf.h
+misra-c2012-2.5:*bsp/*/include/stm32*_hal_conf.h
+misra-c2012-2.5:*bsp/*/source/system_stm32*.c
+
+// Message:     A compatible declaration shall be visible when an object
+//              or function with external linkage is defined [misra-c2012-8.4]
+// Reason:      These functions are interrupt handlers and they are declared in
+//              the startup file.
+// Risk:        None.
+// Prevention:  None.
+misra-c2012-8.4:*bsp/*/source/sdmmc.c
+misra-c2012-8.4:*bsp/*/source/systick.c
+misra-c2012-8.4:*bsp/*/source/stm32*_it.c
+
+// Message:     An identifier with external linkage shall have exactly one
+//              external definition [misra-c2012-8.6]
+// Reason:      The microcontroller vendor library (HAL) implements weak
+//              callback functions that are called from the interrupt service
+//              handler functions of the HAL library. These callback functions
+//              can be redefined by the application; resulting in this message.
+// Risk:        None.
+// Prevention:  None.
+misra-c2012-8.6:*bsp/*/source/sdmmc.c
+
+// Message:     Functions and objects should not be defined with external
+//              linkage if they are referenced in only one translation unit
+//              [misra-c2012-8.7]
+// Reason:      Depending on the build configuration, there are functions in the
+//              sdmmc and flash drivers that are implemented but not used:
+//              - If the SDMMC transfers do not use DMA, the DMA-related
+//                transfer functions are implemented, but not used (and
+//                vice-versa when the SDMMC transfers use DMA).
+//              - If the flash write protection is disabled, the respective
+//                function of the flash driver remains unused.
+//              Additionally, the startup file calls initialization functions
+//              that are declared in the microcontroller vendor library (HAL),
+//              however Cppcheck does not recognize that they are referenced in
+//              the startup script.
+// Risk:        None.
+// Prevention:  None.
+misra-c2012-8.7:*bsp/*/source/flash.c
+misra-c2012-8.7:*bsp/*/source/sdmmc.c
+misra-c2012-8.7:*bsp/*/source/system_stm32*.c
+
+// Message:     A conversion should not be performed between a pointer to object
+//              and an integer type [misra-c2012-11.4]
+// Reason:      The low-level macros provided within the microcontroller vendor
+//              library (HAL) contain conversions that are addressing memory
+//              mapped registers and hardware specific features. Currently
+//              cppcheck does not support suppressing those in the vendor
+//              library. This file is part of the microcontroller abstraction
+//              layer (MCAL) and it relies heavily on those macros. Therefore,
+//              these messages are suppressed in this file.
+// Risk:        Conversion of a pointer to object into an integer may produce a
+//              value that cannot be represented in the chosen integer type
+//              resulting in undefined behavior.
+// Prevention:  Code reviews.
+misra-c2012-11.4:*bsp/*/source/rcc.c
+misra-c2012-11.4:*bsp/*/source/system_stm32*.c
+
+// Message:     #define and #undef shall not be used on a reserved identifier or
+//              reserved macro name [misra-c2012-21.1]
+// Reason:      The ffconf.h header header file contains defines required by the
+//              FatFs library. These defines are styled with an underscore
+//              prefix.
+// Risk:        None.
+// Prevention:  None.
+misra-c2012-21.1:*bootloader/include/ffconf.h
+
+// Message:     The Standard Library input/output functions shall not be
+//              used [misra-c2012-21.6]
+// Reason:      Definitions and functions are required from the stdio.h file.
+//              The used standard library files are part of the compiler
+//              toolchain, thus minimizing the unspecified, undefined and
+//              implementation-defined behaviors.
+// Risk:        Streams and file I/O have unspecified, undefined and
+//              implementation-defined behaviors associated with them.
+// Prevention:  Code reviews and testing.
+misra-c2012-21.6:*bsp/*/source/log.c
+
+// Message:     The function 'X' is never used [unusedFunction]
+// Reason:      The affected functions can be categorized into two categories:
+//              - They are interrupt handlers and they are declared in the
+//                startup file that Cppucheck does not see.
+//              - Depending on the build configuration, there are driver
+//                functions that are implemented but may not be used.
+// Risk:        None.
+// Prevention:  None.
+unusedFunction:*bsp/*/source/flash.c
+unusedFunction:*bsp/*/source/sdmmc.c
+unusedFunction:*bsp/*/source/systick.c
+unusedFunction:*bsp/*/source/stm32*_it.c
