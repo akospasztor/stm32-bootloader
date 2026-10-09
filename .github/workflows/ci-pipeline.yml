@@ -6,6 +6,13 @@ on:  # yamllint disable-line rule:truthy
   workflow_dispatch:
 
 jobs:
+  test_host:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+      - name: Run firmware update regression tests
+        run: python3 test/host/run_tests.py
   check_format:
     runs-on: ubuntu-latest
     container: docker.io/akospasztor/docker-gcc-arm:10-2020-q4-linux-2.3.0
