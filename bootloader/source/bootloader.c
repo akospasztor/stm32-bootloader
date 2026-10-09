@@ -356,7 +356,7 @@ bool UpdateApplication(void)
 
         (void)f_close(&file);
 
-        if (status == FR_OK)
+        if ((status == FR_OK) && (bytesRead == 0U))
         {
             LogPrint("Programming successful. Flashed: %u bytes\n",
                      bytesFlashed);
@@ -443,6 +443,7 @@ static bool VerifyApplication(void)
     else
     {
         LogPrint("Error: Application file cannot be opened.\n");
+        result = false;
     }
 
     return result;
