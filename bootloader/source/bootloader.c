@@ -443,6 +443,7 @@ static bool VerifyApplication(void)
     else
     {
         LogPrint("Error: Application file cannot be opened.\n");
+        result = false;
     }
 
     return result;
