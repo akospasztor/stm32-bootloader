@@ -297,7 +297,7 @@ static bool CheckApplicationCrc(void)
 bool UpdateApplication(void)
 {
     FIL file;
-    bool result = false;
+    bool result = true;
 
     LogPrint("Starting programming...\n");
     LedGreen2On();
@@ -305,7 +305,6 @@ bool UpdateApplication(void)
     if (FR_OK == f_open(&file, APP_FILE_NAME, FA_READ))
     {
         UINT bytesRead;
-        FRESULT status;
         uint32_t bytesFlashed = 0;
 
         FlashClearErrorFlags();
@@ -328,11 +327,11 @@ bool UpdateApplication(void)
         // cppcheck-suppress-begin [misra-c2012-15.4]
         do
         {
-            status = f_read(&file, readBuffer, FLASH_PAGE_SIZE, &bytesRead);
-            if (status != FR_OK)
+            if (FR_OK != f_read(&file, readBuffer, FLASH_PAGE_SIZE, &bytesRead))
             {
                 LogPrint("Error: Application file read error at: %u byte\n",
                          (uint32_t)(file.fptr));
+                result = false;
                 break;
             }
 
@@ -343,6 +342,7 @@ bool UpdateApplication(void)
                 {
                     LogPrint("Error: Programming error at: %u byte\n",
                              bytesFlashed);
+                    result = false;
                     break;
                 }
 
@@ -356,16 +356,16 @@ bool UpdateApplication(void)
 
         (void)f_close(&file);
 
-        if (status == FR_OK)
+        if (result)
         {
             LogPrint("Programming successful. Flashed: %u bytes\n",
                      bytesFlashed);
-            result = true;
         }
     }
     else
     {
         LogPrint("Error: Application file cannot be opened.\n");
+        result = false;
     }
 
     LedGreen1Off();
