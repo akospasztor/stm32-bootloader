@@ -28,9 +28,9 @@ extern "C" {
  */
 
 /* Defines -------------------------------------------------------------------*/
-#define BOOTLOADER_VERSION_MAJOR 1U /*!< Major version */
-#define BOOTLOADER_VERSION_MINOR 1U /*!< Minor version */
-#define BOOTLOADER_VERSION_PATCH 3U /*!< Patch version */
+#define BOOTLOADER_VERSION_MAJOR 2U /*!< Major version */
+#define BOOTLOADER_VERSION_MINOR 0U /*!< Minor version */
+#define BOOTLOADER_VERSION_PATCH 1U /*!< Patch version */
 
 /**
  * @}
